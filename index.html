@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clickyy AI — private voice assistant for Windows</title>
+<meta name="description" content="Clickyy AI listens, speaks and runs your Windows PC. Offline voice, wake words, Claude, Gemini, GPT, Grok, Llama and local models — with safety built in." />
+<meta property="og:title" content="Clickyy AI" />
+<meta property="og:description" content="Your AI that listens, speaks and runs your PC. Offline-first, any model, safe by design." />
+<meta property="og:image" content="assets/main.png" />
+<link rel="icon" href="assets/icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #08090b; --bg2: #101114; --surface: rgba(25,27,32,.62); --line: rgba(255,255,255,.08);
+    --ink: #f5f5f4; --muted: #969aa3; --gold: #d4a373; --gold2: #f3d7b4; --cyan: #8ed8e8;
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Inter, "Segoe UI", system-ui, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  #gl { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; transition: opacity .2s linear; }
+  .lede, .fine { text-shadow: 0 2px 18px rgba(8,9,11,.9); }
+  .noise { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .06; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(8,9,11,.85) 85%); }
+  main, header, footer { position: relative; z-index: 2; }
+
+  nav { position: fixed; top: 0; inset-inline: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 18px clamp(16px, 4vw, 48px); backdrop-filter: blur(14px); background: linear-gradient(to bottom, rgba(8,9,11,.75), rgba(8,9,11,0)); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 14px "Space Grotesk", sans-serif; letter-spacing: .38em; color: var(--gold); text-decoration: none; }
+  .brand img { width: 26px; height: 26px; border-radius: 7px; }
+  .navlinks { display: flex; gap: 22px; align-items: center; font-size: 14px; color: var(--muted); }
+  .navlinks a { text-decoration: none; transition: color .2s; }
+  .navlinks a:hover { color: var(--ink); }
+  @media (max-width: 720px) { .navlinks a.hide-sm { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; font-weight: 600; text-decoration: none; transition: transform .25s, box-shadow .25s, background .25s; will-change: transform; }
+  .btn-primary { color: #17120c; background: linear-gradient(135deg, #f3d7b4, #d4a373 55%, #b9875a); box-shadow: 0 10px 40px -10px rgba(212,163,115,.75), inset 0 1px 0 rgba(255,255,255,.5); }
+  .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 18px 60px -12px rgba(212,163,115,.9), inset 0 1px 0 rgba(255,255,255,.6); }
+  .btn-ghost { color: var(--ink); border: 1px solid var(--line); background: rgba(255,255,255,.03); backdrop-filter: blur(8px); }
+  .btn-ghost:hover { border-color: rgba(212,163,115,.5); transform: translateY(-2px); }
+  .btn-sm { padding: 9px 16px; font-size: 14px; }
+
+  .hero { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 120px 20px 60px; }
+  .eyebrow { font: 600 12px Inter, sans-serif; letter-spacing: .42em; color: var(--gold); text-transform: uppercase; }
+  h1 { font: 700 clamp(56px, 11vw, 150px)/.92 "Space Grotesk", sans-serif; letter-spacing: .06em; margin: 18px 0 14px; background: linear-gradient(100deg, #fff 0%, #f3d7b4 40%, #d4a373 50%, #fff 62%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 8s ease-in-out infinite; filter: drop-shadow(0 10px 40px rgba(212,163,115,.25)); }
+  @keyframes shine { 0%,100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+  .lede { max-width: 640px; margin: 0 auto; font-size: clamp(17px, 2.2vw, 21px); color: #c9cbd0; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 34px; }
+  .fine { margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .scroll-hint { margin-top: 56px; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; letter-spacing: .2em; }
+  .scroll-hint span { width: 1px; height: 46px; background: linear-gradient(var(--gold), transparent); animation: drip 2.2s ease-in-out infinite; transform-origin: top; }
+  @keyframes drip { 0% { transform: scaleY(0); opacity: 0; } 40% { opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+  section { padding: 110px clamp(16px, 5vw, 64px); max-width: 1180px; margin: 0 auto; }
+  h2 { font: 700 clamp(34px, 5vw, 58px)/1.05 "Space Grotesk", sans-serif; margin: 12px 0 18px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); max-width: 640px; font-size: 18px; }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  .marquee { overflow: hidden; border-block: 1px solid var(--line); background: rgba(16,17,20,.55); backdrop-filter: blur(10px); padding: 22px 0; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .marquee-track { display: flex; gap: 56px; width: max-content; animation: marquee 38s linear infinite; font: 600 22px "Space Grotesk", sans-serif; color: #d9dbe0; white-space: nowrap; }
+  .marquee-track span { display: inline-flex; align-items: center; gap: 12px; }
+  .marquee-track i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px var(--gold); }
+  .marquee-track span:nth-child(3n) i { background: var(--cyan); box-shadow: 0 0 18px var(--cyan); }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 48px; }
+  .card { position: relative; padding: 28px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); backdrop-filter: blur(16px); overflow: hidden; transform-style: preserve-3d; transition: border-color .3s, transform .3s; }
+  .card::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 0%), rgba(212,163,115,.55), transparent 45%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .card:hover::before { opacity: 1; }
+  .card .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(135deg, rgba(212,163,115,.22), rgba(142,216,232,.08)); border: 1px solid rgba(212,163,115,.3); margin-bottom: 18px; }
+  .card h3 { margin: 0 0 8px; font: 600 20px "Space Grotesk", sans-serif; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .demo { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px) { .demo { grid-template-columns: 1fr; } }
+  .terminal { border-radius: 22px; background: linear-gradient(180deg, rgba(25,27,32,.9), rgba(16,17,20,.92)); border: 1px solid var(--line); box-shadow: 0 40px 120px -40px rgba(212,163,115,.35); padding: 22px; min-height: 360px; font-size: 15px; }
+  .terminal .bar { display: flex; gap: 7px; margin-bottom: 18px; }
+  .terminal .bar i { width: 11px; height: 11px; border-radius: 50%; background: #2c3038; }
+  .msg { margin: 10px 0; padding: 11px 15px; border-radius: 14px; max-width: 88%; opacity: 0; transform: translateY(8px); transition: all .45s; }
+  .msg.show { opacity: 1; transform: none; }
+  .msg.you { margin-left: auto; background: #22252b; color: var(--ink); }
+  .msg.ai { background: rgba(212,163,115,.1); border: 1px solid rgba(212,163,115,.25); color: #f0e6da; }
+  .msg .tag { display: block; font-size: 11px; letter-spacing: .14em; color: var(--gold); margin-bottom: 3px; text-transform: uppercase; }
+  .caret::after { content: "▍"; color: var(--gold); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .shots { display: flex; gap: clamp(12px, 2.4vw, 26px); justify-content: center; margin-top: 54px; perspective: 1400px; flex-wrap: nowrap; padding: 10px 0 30px; }
+  @media (max-width: 640px) { .shots { overflow-x: auto; justify-content: flex-start; scroll-snap-type: x mandatory; padding-inline: 8vw; } .shots .shot { transform: none !important; width: 72vw; flex: none; scroll-snap-align: center; } }
+  .shot { width: clamp(170px, 26vw, 300px); min-width: 0; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 50px 100px -40px rgba(0,0,0,.9), 0 0 0 1px rgba(212,163,115,.08); transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+  .shot:nth-child(1) { transform: rotateY(18deg) rotateX(4deg) translateZ(-40px); }
+  .shot:nth-child(3) { transform: rotateY(-18deg) rotateX(4deg) translateZ(-40px); }
+  .shot:nth-child(2) { transform: translateY(-20px) scale(1.04); }
+  .shots:hover .shot { transform: none; }
+
+  .pipeline { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; margin-top: 46px; }
+  .node { padding: 14px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-weight: 500; backdrop-filter: blur(10px); }
+  .node small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+  .arrow { color: var(--gold); font-size: 20px; }
+
+  .steps { list-style: none; counter-reset: s; margin: 34px 0 0; padding: 0; display: grid; gap: 10px; }
+  .steps li { counter-increment: s; position: relative; display: flex; align-items: baseline; gap: 12px; padding: 12px 16px 12px 52px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); backdrop-filter: blur(10px); }
+  .steps li::before { content: counter(s); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 600 12px Inter, sans-serif; color: #17120c; background: linear-gradient(135deg, #f3d7b4, #d4a373); }
+  .steps li:not(:last-child)::after { content: ""; position: absolute; left: 26px; bottom: -11px; width: 2px; height: 12px; background: linear-gradient(var(--gold), transparent); }
+  .steps small { color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; margin-top: 46px; }
+  .stat { text-align: center; padding: 26px 10px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+  .stat b { display: block; font: 700 44px "Space Grotesk", sans-serif; background: linear-gradient(180deg, #fff, #d4a373); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .stat span { color: var(--muted); font-size: 14px; }
+
+  .download { text-align: center; border-radius: 32px; padding: 72px 24px; margin-top: 20px; background: radial-gradient(800px 300px at 50% 0%, rgba(212,163,115,.18), transparent 70%), rgba(16,17,20,.7); border: 1px solid rgba(212,163,115,.25); backdrop-filter: blur(14px); }
+  .req { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
+  .pill { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  details { max-width: 680px; margin: 26px auto 0; text-align: left; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 16px; }
+  summary { cursor: pointer; color: var(--ink); }
+
+  footer { text-align: center; padding: 50px 20px 70px; color: var(--muted); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .reveal { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="noise"></div>
+<div class="vignette"></div>
+
+<nav>
+  <a class="brand" href="#top"><img src="assets/icon.png" alt="" />CLICKYY</a>
+  <div class="navlinks">
+    <a class="hide-sm" href="#features">Features</a>
+    <a class="hide-sm" href="#models">Models</a>
+    <a class="hide-sm" href="#safety">Safety</a>
+    <a href="https://github.com/chinmoyy12/clickyy-ai">GitHub</a>
+    <a class="btn btn-primary btn-sm" href="https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe">Download</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div>
+    <div class="eyebrow reveal">Voice · Offline · Private</div>
+    <h1 class="reveal">CLICKYY</h1>
+    <p class="lede reveal">Your AI that listens, speaks and runs your Windows PC. Say <em style="color:var(--gold2)">“Hey Clickyy”</em> — then open apps, control music, set reminders, or ask anything with the model you love.</p>
+    <div class="cta reveal">
+      <a class="btn btn-primary" href="https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></svg>
+        Download for Windows
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/chinmoyy12/clickyy-ai">View on GitHub</a>
+    </div>
+    <p class="fine reveal">Free · Windows 11 x64 · ~175 MB · offline voice included</p>
+    <div class="scroll-hint" aria-hidden="true">SCROLL<span></span></div>
+  </div>
+</header>
+
+<div class="marquee" id="models" aria-label="Supported models">
+  <div class="marquee-track">
+    <span><i></i>Claude</span><span><i></i>Gemini</span><span><i></i>GPT</span><span><i></i>Grok</span><span><i></i>Llama</span><span><i></i>Mistral</span><span><i></i>DeepSeek</span><span><i></i>Qwen</span><span><i></i>OpenRouter · 300+ models</span><span><i></i>Ollama</span><span><i></i>LM Studio</span><span><i></i>Groq</span>
+    <span><i></i>Claude</span><span><i></i>Gemini</span><span><i></i>GPT</span><span><i></i>Grok</span><span><i></i>Llama</span><span><i></i>Mistral</span><span><i></i>DeepSeek</span><span><i></i>Qwen</span><span><i></i>OpenRouter · 300+ models</span><span><i></i>Ollama</span><span><i></i>LM Studio</span><span><i></i>Groq</span>
+  </div>
+</div>
+
+<main>
+  <section id="features">
+    <div class="eyebrow reveal">Endless possibilities</div>
+    <h2 class="reveal">One voice. Every model.<br/>Your whole desktop.</h2>
+    <p class="sub reveal">Pick the brain — Claude, Gemini, GPT, Grok, open models on Groq or hundreds more through OpenRouter — or stay 100% local with Ollama and LM Studio. Clickyy routes, falls back, and keeps going.</p>
+    <div class="grid">
+      <div class="card reveal"><div class="ic">🎙️</div><h3>Wake words, offline</h3><p>“Hey Clickyy”, “Clickyy” or “Jarvis”, detected on-device by Vosk. Audio never leaves your PC.</p></div>
+      <div class="card reveal"><div class="ic">🧠</div><h3>Any AI, with fallback</h3><p>Primary + fallback cloud providers, then a local model. Live model lists, keys encrypted with Windows.</p></div>
+      <div class="card reveal"><div class="ic">🖥️</div><h3>Runs your PC</h3><p>Apps, windows, volume, media, battery, Wi-Fi, folders, web search — 48 typed tools, verified results.</p></div>
+      <div class="card reveal"><div class="ic">✨</div><h3>Personality</h3><p>Nine voice profiles from Professional to Playful, adaptive delivery, natural spoken replies.</p></div>
+      <div class="card reveal"><div class="ic">⚡</div><h3>Routines</h3><p>Say “coding mode” to open your editor, project, set volume and start a focus timer — built visually.</p></div>
+      <div class="card reveal"><div class="ic">⏰</div><h3>Timers & memory</h3><p>Reminders, focus sessions and things you ask it to remember — stored locally, editable, deletable.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="demo">
+      <div>
+        <div class="eyebrow reveal">How it feels</div>
+        <h2 class="reveal">Talk like a person.<br/>Get things done.</h2>
+        <p class="sub reveal">Compound commands, follow-ups and context: “it”, “there”, “that window”. Simple commands answer in milliseconds without any model at all.</p>
+        <ol class="steps reveal">
+          <li><b>Wake word</b><small>on-device</small></li>
+          <li><b>Speech-to-text</b><small>Vosk, offline</small></li>
+          <li><b>Router</b><small>70 instant commands</small></li>
+          <li><b>Any LLM</b><small>safe tool calling</small></li>
+          <li><b>Voice reply</b><small>offline TTS</small></li>
+        </ol>
+      </div>
+      <div class="terminal reveal" id="chat" aria-label="Example conversation">
+        <div class="bar"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="text-align:center">
+    <div class="eyebrow reveal">Designed to disappear</div>
+    <h2 class="reveal">A calm, premium interface.</h2>
+    <p class="sub reveal" style="margin-inline:auto">Near-black surfaces, champagne-gold accents and an orb that reacts to your real voice.</p>
+    <div class="shots reveal">
+      <img class="shot" src="assets/settings-voice.png" alt="Voice settings" loading="lazy" />
+      <img class="shot" src="assets/main.png" alt="Clickyy main window" loading="lazy" />
+      <img class="shot" src="assets/confirm.png" alt="Confirmation dialog" loading="lazy" />
+    </div>
+  </section>
+
+  <section id="safety">
+    <div class="eyebrow reveal">Safe by design</div>
+    <h2 class="reveal">Powerful, never reckless.</h2>
+    <p class="sub reveal">No shell commands from AI, ever. Destructive actions need an on-screen click that names the exact action. Strict Offline mode blocks every remote request at the network layer.</p>
+    <div class="stats">
+      <div class="stat reveal"><b data-count="312">0</b><span>automated tests</span></div>
+      <div class="stat reveal"><b data-count="70">0</b><span>built-in commands</span></div>
+      <div class="stat reveal"><b data-count="48">0</b><span>validated tools</span></div>
+      <div class="stat reveal"><b data-count="9">0</b><span>AI providers</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="download reveal">
+      <div class="eyebrow">Ready when you are</div>
+      <h2>Download Clickyy AI</h2>
+      <p class="sub" style="margin-inline:auto">One installer. Offline voice included. Add a model later — or never.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe">Download for Windows</a>
+        <a class="btn btn-ghost" href="https://github.com/chinmoyy12/clickyy-ai/releases">All releases</a>
+      </div>
+      <div class="req"><span class="pill">Windows 11 · x64</span><span class="pill">No admin needed</span><span class="pill">Works offline</span><span class="pill">Open source</span></div>
+      <details>
+        <summary>Windows says “Windows protected your PC”?</summary>
+        <p>This early build isn't code-signed yet, so SmartScreen warns about new apps. Click <b>More info → Run anyway</b>. On PCs with Smart App Control enabled, unsigned apps can't run until the build is signed.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>Made with care · <a href="https://github.com/chinmoyy12/clickyy-ai">github.com/chinmoyy12/clickyy-ai</a></footer>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(0, 0, 6.2);
+
+const noise = `
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
+vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}`;
+
+const uniforms = { uTime: { value: 0 }, uPulse: { value: 0 }, uMouse: { value: new THREE.Vector2() } };
+const orb = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(1.0, 128),
+  new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `${noise}
+      uniform float uTime; uniform float uPulse; varying vec3 vN; varying vec3 vView; varying float vD;
+      void main(){
+        float d = snoise(normal*1.6 + vec3(uTime*.22)) * (.09 + uPulse*.14) + snoise(normal*4.2 - uTime*.35)*.02;
+        vD = d;
+        vec3 p = position + normal*d;
+        vec4 mv = modelViewMatrix*vec4(p,1.);
+        vN = normalize(normalMatrix*normal); vView = normalize(-mv.xyz);
+        gl_Position = projectionMatrix*mv;
+      }`,
+    fragmentShader: `
+      uniform float uTime; varying vec3 vN; varying vec3 vView; varying float vD;
+      void main(){
+        float fres = pow(1. - max(dot(vN, vView), 0.), 2.6);
+        vec3 deep = vec3(.055,.045,.04), warm = vec3(.83,.64,.45), cream = vec3(.95,.84,.71), cyan = vec3(.56,.85,.91);
+        vec3 col = mix(deep, warm*.55, smoothstep(-.12,.22,vD));
+        col += cream * pow(max(dot(vN, normalize(vec3(-.5,.6,.8))),0.), 18.) * .55;
+        col += mix(warm, cyan, .5 + .5*sin(uTime*.4 + vN.y*2.)) * fres * .95;
+        gl_FragColor = vec4(col, 1.);
+      }`,
+  }),
+);
+scene.add(orb);
+
+// glow shell
+const glow = new THREE.Mesh(new THREE.SphereGeometry(1.5, 64, 64), new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending,
+  vertexShader: `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv=modelViewMatrix*vec4(position,1.); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`,
+  // Back faces of a slightly larger sphere: brightest just outside the orb's silhouette, fading outward.
+  fragmentShader: `varying vec3 vN; varying vec3 vV; void main(){ float d = abs(dot(vN, vV)); float i = pow(clamp(d, 0., 1.), 4.) * .55; gl_FragColor = vec4(vec3(.83,.62,.42) * i, i); }`,
+}));
+scene.add(glow);
+
+// orbit rings
+const ringMat = (c, o) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: o, blending: THREE.AdditiveBlending, depthWrite: false });
+const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.005, 8, 240), ringMat(0xd4a373, 0.55));
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.0035, 8, 240), ringMat(0x8ed8e8, 0.35));
+ring1.rotation.set(1.25, 0.2, 0); ring2.rotation.set(1.05, -0.5, 0.3);
+scene.add(ring1, ring2);
+
+// particles
+const N = 1600, pos = new Float32Array(N * 3), seed = new Float32Array(N);
+for (let i = 0; i < N; i++) {
+  const r = 2.4 + Math.random() * 5.5, t = Math.random() * Math.PI * 2, p = Math.acos(2 * Math.random() - 1);
+  pos.set([r * Math.sin(p) * Math.cos(t), r * Math.cos(p) * 0.7, r * Math.sin(p) * Math.sin(t)], i * 3);
+  seed[i] = Math.random();
+}
+const pg = new THREE.BufferGeometry();
+pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+pg.setAttribute('seed', new THREE.BufferAttribute(seed, 1));
+const points = new THREE.Points(pg, new THREE.ShaderMaterial({
+  uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `uniform float uTime; attribute float seed; varying float vS; void main(){ vS=seed; vec3 p=position; p.y += sin(uTime*.3+seed*20.)*.15; vec4 mv=modelViewMatrix*vec4(p,1.); gl_PointSize = (1.2+seed*2.6) * (6./-mv.z); gl_Position=projectionMatrix*mv; }`,
+  fragmentShader: `uniform float uTime; varying float vS; void main(){ float d=length(gl_PointCoord-.5); if(d>.5) discard; float tw=.45+.55*sin(uTime*1.3+vS*40.); vec3 c=mix(vec3(.83,.64,.45), vec3(.56,.85,.91), step(.72,vS)); gl_FragColor=vec4(c, (1.-d*2.)*tw*.8); }`,
+}));
+scene.add(points);
+
+const group = [orb, glow];
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+addEventListener('pointermove', (e) => { mouse.tx = e.clientX / innerWidth - 0.5; mouse.ty = e.clientY / innerHeight - 0.5; });
+let pulseTarget = 0;
+addEventListener('pointerdown', () => { pulseTarget = 1; setTimeout(() => (pulseTarget = 0), 700); });
+
+const clock = new THREE.Clock();
+function frame() {
+  const t = clock.getElapsedTime();
+  uniforms.uTime.value = t;
+  // "speaking" rhythm so the orb feels alive
+  const speak = Math.max(0, Math.sin(t * 1.7)) * Math.max(0, Math.sin(t * 5.3)) * 0.6;
+  uniforms.uPulse.value += (Math.max(pulseTarget, speak) - uniforms.uPulse.value) * 0.08;
+  mouse.x += (mouse.tx - mouse.x) * 0.05; mouse.y += (mouse.ty - mouse.y) * 0.05;
+  // Past the hero, the orb glides to the right edge and the whole scene dims so content stays readable.
+  const scroll = Math.min(scrollY / innerHeight, 1.4);
+  const k = Math.min(scroll, 1);
+  const y = k * 0.9, x = k * (innerWidth > 900 ? 3.1 : 1.8);
+  for (const m of group) { m.position.set(x, y, 0); m.rotation.y = t * 0.12 + mouse.x * 0.6; m.rotation.x = mouse.y * 0.4; }
+  ring1.position.set(x, y, 0); ring2.position.set(x, y, 0);
+  canvas.style.opacity = String(1 - k * 0.68);
+  ring1.rotation.z = t * 0.25; ring2.rotation.z = -t * 0.18;
+  points.rotation.y = t * 0.02 + mouse.x * 0.2 + scroll * 0.6; points.position.y = y * 0.4;
+  const s = 1 - k * 0.25;
+  orb.scale.setScalar(s); glow.scale.setScalar(s); ring1.scale.setScalar(s); ring2.scale.setScalar(s);
+  camera.position.x = mouse.x * 0.6; camera.position.y = -mouse.y * 0.4; camera.lookAt(0, 0, 0);
+  renderer.render(scene, camera);
+  if (!reduce) requestAnimationFrame(frame);
+}
+frame();
+
+// Reveal on scroll. A plain position check (not IntersectionObserver) so content can never stay hidden.
+const pending = new Set(document.querySelectorAll('.reveal'));
+[...pending].forEach((el, i) => { el.style.transitionDelay = `${(i % 6) * 70}ms`; });
+const onView = [];
+function checkViewport() {
+  const h = innerHeight;
+  for (const el of pending) { const r = el.getBoundingClientRect(); if (r.top < h * 0.94 && r.bottom > 0) { el.classList.add('in'); pending.delete(el); } }
+  for (const item of onView) if (!item.done) { const r = item.el.getBoundingClientRect(); if (r.top < h * 0.8 && r.bottom > 0) { item.done = true; item.fn(); } }
+}
+addEventListener('scroll', checkViewport, { passive: true });
+addEventListener('resize', checkViewport);
+requestAnimationFrame(checkViewport);
+setInterval(checkViewport, 400);
+
+// card spotlight + tilt
+document.querySelectorAll('.card').forEach((c) => {
+  c.addEventListener('pointermove', (e) => {
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    c.style.setProperty('--mx', `${x * 100}%`); c.style.setProperty('--my', `${y * 100}%`);
+    if (!reduce) c.style.transform = `perspective(800px) rotateX(${(0.5 - y) * 6}deg) rotateY(${(x - 0.5) * 8}deg) translateY(-3px)`;
+  });
+  c.addEventListener('pointerleave', () => { c.style.transform = ''; });
+});
+
+// counters
+document.querySelectorAll('[data-count]').forEach((el) => onView.push({ el, done: false, fn: () => {
+  const end = +el.dataset.count, t0 = performance.now();
+  const step = () => { const p = Math.min(1, (performance.now() - t0) / 1400); el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))); if (p < 1) setTimeout(step, 16); };
+  step();
+} }));
+
+// scripted demo conversation (illustrative)
+const script = [
+  ['you', 'Hey Clickyy, open Spotify and put it on the left'],
+  ['ai', 'Spotify is open. Moved to the left half: Spotify.', 'deterministic · 0.4 s'],
+  ['you', 'Lower the volume to thirty percent'],
+  ['ai', 'Done. Volume is at 30 percent.', 'deterministic · 41 ms'],
+  ['you', 'Explain black holes like I’m five'],
+  ['ai', 'Imagine a drain in space so strong that even light slides in and can’t climb back out…', 'Gemini · streaming'],
+  ['you', 'Start a 25 minute focus session'],
+  ['ai', 'Focus session started for 25 minutes. I’ll tell you when it’s break time.', 'offline'],
+];
+const chat = document.getElementById('chat');
+let started = false;
+const run = async () => {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  for (;;) {
+    chat.querySelectorAll('.msg').forEach((m) => m.remove());
+    for (const [who, text, tag] of script) {
+      const m = document.createElement('div');
+      m.className = `msg ${who}`;
+      if (tag) { const s = document.createElement('span'); s.className = 'tag'; s.textContent = tag; m.append(s); }
+      const body = document.createElement('span');
+      m.append(body); chat.append(m);
+      await sleep(80); m.classList.add('show');
+      if (who === 'you') { body.classList.add('caret'); for (const ch of text) { body.textContent += ch; await sleep(reduce ? 0 : 26); } body.classList.remove('caret'); await sleep(450); }
+      else { pulseTarget = 1; body.textContent = text; await sleep(900); pulseTarget = 0; await sleep(900); }
+      if (chat.querySelectorAll('.msg').length > 6) chat.querySelector('.msg').remove();
+    }
+    await sleep(2500);
+  }
+};
+onView.push({ el: chat, done: false, fn: () => { if (!started) { started = true; run(); } } });
+</script>
+</body>
+</html>
