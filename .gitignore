@@ -1,0 +1,21 @@
+node_modules/
+dist/
+release/
+*.log
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+services/assistant/models/
+apps/desktop/resources/speech-service/
+
+.claude/
+
+# Local data, never commit
+*.db
+*.db.bak*
+secrets*.json

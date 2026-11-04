@@ -1,0 +1,74 @@
+{
+  "name": "clickyy-ai",
+  "productName": "Clickyy AI",
+  "version": "0.1.0",
+  "description": "Clickyy AI - privacy-conscious voice assistant for Windows 11",
+  "author": "Clickyy AI",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist/main/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build:main": "node scripts/build-main.mjs",
+    "build:renderer": "vite build",
+    "build": "npm run build:main && npm run build:renderer",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "node scripts/lint.mjs",
+    "test": "vitest run",
+    "e2e": "node scripts/e2e.mjs",
+    "docs:commands": "node scripts/gen-commands.mjs",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "dist": "npm run build && electron-builder --win --x64",
+    "dist:dir": "npm run build && electron-builder --win --x64 --dir"
+  },
+  "build": {
+    "appId": "ai.clickyy.desktop",
+    "productName": "Clickyy AI",
+    "copyright": "Clickyy AI",
+    "directories": { "output": "release", "buildResources": "resources" },
+    "files": ["dist/**/*", "!dist/**/*.map", "package.json"],
+    "extraResources": [
+      { "from": "resources/windows/bridge.ps1", "to": "windows/bridge.ps1" },
+      { "from": "resources/icon.png", "to": "icon.png" },
+      { "from": "resources/speech-service", "to": "speech-service" }
+    ],
+    "asar": true,
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "icon": "resources/icon.png", "artifactName": "Clickyy-AI-Setup-${version}.${ext}" },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Clickyy AI",
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
+    "sql.js": "1.15.2",
+    "zod": "4.6.7",
+    "@tailwindcss/vite": "4.3.4",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/sql.js": "^1.4.9",
+    "@vitejs/plugin-react": "6.2.1",
+    "electron": "45.2.1",
+    "electron-builder": "26.18.0",
+    "esbuild": "^0.28.0",
+    "framer-motion": "14.9.0",
+    "lucide-react": "1.67.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tailwindcss": "4.3.4",
+    "typescript": "~5.9.3",
+    "vite": "8.3.5",
+    "vitest": "5.1.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "electron-winstaller@5.4.0": true
+  }
+}
