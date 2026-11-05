@@ -1,4 +1,5 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Menu, nativeImage, net, Notification, protocol, safeStorage, session, shell, Tray, type WebContents } from 'electron';
+import { app, BrowserWindow, desktopCapturer, dialog, globalShortcut, ipcMain, Menu, nativeImage, net, Notification, protocol, safeStorage, screen, session, shell, Tray, type WebContents } from 'electron';
+import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { extname, join, normalize, relative, sep } from 'node:path';
@@ -187,6 +188,14 @@ const platform: Platform = {
   notify: (title, body) => { if (Notification.isSupported()) new Notification({ title, body, silent: false }).show(); },
   fileExists: (p) => existsSync(p),
   isOnline: () => net.isOnline(),
+  async captureScreen() {
+    const display = screen.getPrimaryDisplay();
+    const scale = Math.min(1, 1600 / display.size.width);
+    const sources = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: Math.round(display.size.width * scale), height: Math.round(display.size.height * scale) } });
+    const src = sources.find((s) => s.display_id === String(display.id)) ?? sources[0];
+    if (!src) throw new Error('No screen is available to capture.');
+    return src.thumbnail.toPNG().toString('base64');
+  },
 };
 
 async function main() {
@@ -235,7 +244,39 @@ async function main() {
     emit, settings, updateSettings,
     speechStatus: () => speech.status,
     uiCommand: (cmd, payload) => send('ui:command', { cmd, payload }),
+    net: guard.fetchFor('tools'),
   });
+
+  // Proactive alerts: Clickyy speaks up when the battery runs low or the CPU stays pegged.
+  const alerted = { battery: false, cpuStrikes: 0, cpuAlertAt: 0 };
+  let cpuPrev = os.cpus().map((c) => ({ idle: c.times.idle, total: Object.values(c.times).reduce((a, b) => a + b, 0) }));
+  const alert = (text: string) => {
+    platform.notify('Clickyy', text);
+    emit({ type: 'reply', reply: { turnId: `alert-${Date.now()}`, text, speech: text, style: 'calm', source: 'system', expectFollowUp: false } });
+  };
+  setInterval(async () => {
+    const s = settings().proactive;
+    if (s.batteryAlert) {
+      const p = await bridge.call<{ percent: number; charging: boolean; status: string }>('power.status').catch(() => null);
+      if (p && p.status !== 'NoSystemBattery' && p.percent <= 100) {
+        if (!p.charging && p.percent <= s.batteryThreshold && !alerted.battery) {
+          alerted.battery = true;
+          alert(`Heads up, battery is at ${p.percent} percent. You may want to plug in.`);
+        } else if (p.charging || p.percent > s.batteryThreshold + 5) alerted.battery = false;
+      }
+    }
+    const now = os.cpus().map((c) => ({ idle: c.times.idle, total: Object.values(c.times).reduce((a, b) => a + b, 0) }));
+    let idle = 0, total = 0;
+    now.forEach((x, i) => { idle += x.idle - (cpuPrev[i]?.idle ?? 0); total += x.total - (cpuPrev[i]?.total ?? 0); });
+    cpuPrev = now;
+    const cpu = total ? Math.round(100 * (1 - idle / total)) : 0;
+    if (s.cpuAlert && cpu >= s.cpuThreshold) {
+      if (++alerted.cpuStrikes >= 3 && Date.now() - alerted.cpuAlertAt > 30 * 60_000) {
+        alerted.cpuAlertAt = Date.now();
+        alert(`Your CPU has been above ${s.cpuThreshold} percent for a few minutes. Say "what's using my memory" to see the top processes.`);
+      }
+    } else alerted.cpuStrikes = 0;
+  }, 60_000).unref();
 
   speech = new SpeechService(locateSpeechService(app.getAppPath(), process.resourcesPath), (ev: SpeechEvent) => send('speech:event', ev));
 
@@ -340,9 +381,16 @@ async function main() {
       const { mode } = p as IpcPayload<'speech:start'>;
       const s = settings();
       const phrases = WAKE_PHRASES.filter((id) => s.wake.phrases[id as WakePhraseId]);
-      await speech.startSession(mode, phrases, s.wake.sensitivity, s.wake.cooldownMs);
+      await speech.startSession(mode, phrases, s.wake.sensitivity, s.wake.cooldownMs, s.speech.accurateStt);
       return true;
     },
+    'tts:neural': async (p) => {
+      const s = settings();
+      const { text } = p as { text: string };
+      const wav = await speech.synthesize(text, s.speech.neuralVoice, s.speech.rate);
+      return wav.toString('base64');
+    },
+    'tts:voices': () => speech.voices(),
     'speech:stop': () => speech.stopSession(),
     'speech:cancel': () => speech.cancelSession(),
     'tts:cloud': async (p) => {

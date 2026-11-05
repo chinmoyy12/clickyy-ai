@@ -26,11 +26,28 @@
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
 
+### ✨ New in 0.2 — the "Jarvis" update
+
+| | |
+|---|---|
+| 🗣️ **Neural voice, offline** | Kokoro-82M runs on your CPU with 28 English voices: warm American (Heart, Bella, Nova) and British (Emma, Isabella, Lily). It speaks sentence by sentence as the next one is prepared, and the orb pulses with the real voice. |
+| 🎧 **Near-perfect understanding** | Whisper re-reads each command after you finish speaking (about 0.6 s), on top of Vosk's instant live captions. Misheard app names ("spotfy", "crome") are fuzzy-matched. |
+| ✋ **Interrupt by talking** | Optional barge-in: start speaking while Clickyy talks and it stops to listen (echo-cancelled). |
+| 🌅 **Morning briefing** | "Brief me": time, weather, battery and today's reminders in one reply. |
+| 🩺 **System report** | "How's my computer doing?": CPU, memory, battery, disk and network, with a warning when something's off. |
+| 🌦️ **Weather** | "Do I need an umbrella?" via Open-Meteo. Free, no account. |
+| 🧮 **Calculator & conversions** | "What's 15 percent of 240?", "convert 5 miles to km". Offline, with a real parser (no `eval`). |
+| 👁️ **Screen vision** | "What's on my screen?": one screenshot, only after you confirm, sent to a vision model (Gemini, Claude, GPT). Never stored. |
+| 📋 **Clipboard AI** | "Summarize / translate / proofread what I copied". |
+| 🔔 **Proactive alerts** | Speaks up when the battery runs low or the CPU stays pegged. |
+| 🎩 **Butler persona** | Composed, impeccably polite, dry wit. One of ten personalities. |
+| 🧠 **Better local AI** | Small local models get only the relevant tools, fall back from GPU to CPU automatically when a GPU driver faults, and stay warm, so llama3.2 answers in about 1.2 s. |
+
 ### ⬇️ Install
 
-1. **[Download Clickyy-AI-Setup.exe](https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe)** (~175 MB, Windows 11 x64, no admin needed).
-2. Run it. This early build isn't code-signed yet, so if SmartScreen appears, click **More info → Run anyway**.
-3. Press **Ctrl+Shift+Space** anytime to show Clickyy. Offline voice recognition is included. To add a model, go to Settings → AI & routing.
+1. **[Download Clickyy-AI-Setup.exe](https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe)** (~440 MB, Windows 11 x64, no admin needed). Offline speech recognition and the neural voice are included.
+2. Run it. This build isn't code-signed yet, so if SmartScreen appears, click **More info → Run anyway**.
+3. Press **Ctrl+Shift+Space** anytime to show Clickyy. For conversation, install [Ollama](https://ollama.com) and run `ollama pull llama3.2`, or add a cloud key in Settings → Credentials.
 
 <p align="center">
   <img src="docs/screenshots/main.png" width="31%" alt="Main window" />
@@ -42,7 +59,9 @@ Set a primary provider, a fallback provider and a local fallback. If one fails, 
 
 | Area | Verified how |
 |---|---|
-| Desktop app launches, packaged and installed | `npm run e2e` against the dev build, `release/win-unpacked`, and the NSIS-installed app: **35/35 checks each** |
+| Desktop app launches, packaged and installed | `npm run e2e` against the dev build and the NSIS-installed v0.2.0 app: **46/46 checks each** |
+| **Live local AI** | `node scripts/live-test.mjs local` against the installed app with a real **llama3.2** on Ollama: streamed answer (about 1.2 s), contextual follow-up, a real tool call that changed the volume, and a model-proposed restart stopped at the confirmation. **6/6** |
+| Neural voice + Whisper | Kokoro synthesizes through the app's IPC (about 1–1.7 s per sentence on this CPU); Whisper refines recorded speech to "set the volume to thirty percent"; a round-trip test has Kokoro speak and Whisper understand it |
 | Offline speech recognition (Vosk) | Real Vosk engine transcribes recorded speech through the full app path (renderer IPC → main → Python service): final transcript "open notepad" |
 | Wake phrases "Hey Clickyy", "Clickyy", "Jarvis" | Detected by the real engine on recorded speech in pytest; "Jarvis" also detected end to end in the running app |
 | Offline speech output | Windows voices Zira, David and Mark are available to the app, and an utterance played to completion |
@@ -51,9 +70,9 @@ Set a primary provider, a fallback provider and a local fallback. If one fails, 
 | Safety | Shell requests refused; power actions blocked until permitted; destructive actions require on-screen confirmation and decline cleanly; unknown apps never launched |
 | Strict Offline | Remote hosts are blocked at the network layer (unit-tested); with no local model the app says so honestly |
 | Bundled offline voice | The installed app runs the frozen speech engine (no Python needed): recognition and the "Jarvis" wake phrase pass end to end |
-| Automated tests | **312 TypeScript tests** (Vitest) + **16 Python tests** (pytest), typecheck, security lint — all passing |
+| Automated tests | **380 TypeScript tests** (Vitest) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
 
-Not verified here: a live local LLM (Ollama and LM Studio aren't installed on the build PC), live cloud calls to any provider (no keys were available; all adapters are tested against mocked HTTP and SDK transports), and a spoken command from a person into the live microphone. See [docs/TEST_PLAN.md](docs/TEST_PLAN.md) for the manual checklist.
+Not yet verified: a live cloud call (pending an API key; every cloud adapter is tested against mocked HTTP and SDK transports, and `node scripts/live-test.mjs cloud --provider gemini` runs the same 6 live checks once a key is saved), and a spoken command from a person into the live microphone. See [docs/TEST_PLAN.md](docs/TEST_PLAN.md) for the manual checklist.
 
 ## Quick start (development)
 
@@ -146,12 +165,12 @@ cd apps/desktop && npm run dist
 
 These are honest gaps, not hidden ones.
 
-1. **No local LLM or cloud call was exercised live.** All provider adapters (Ollama, LM Studio-style local servers, Anthropic, and the OpenAI-compatible presets for Gemini, OpenAI, Groq, OpenRouter, Mistral, DeepSeek and xAI) are tested against mocked HTTP and SDK transports, including streaming, incremental tool calls, 401s, timeouts, fallback chains and Strict Offline blocking. Default model names are starting points; providers rename models, so use **Load models** to pick a current one.
-2. **Vosk small-model accuracy is modest.** It handles short commands well and long dictation poorly. "Clickyy" is matched through sound-alikes because it isn't in the model's dictionary (see WAKE_WORDS). There is no accent-robustness benchmark yet.
-3. **The default voice is a Windows SAPI/OneCore voice (Zira).** It is clear and offline, but not human-quality. Only rate, pitch and volume are adjustable; Windows voices have no emotion tags, and profiles adjust wording plus speed and pitch only. The cloud voice option (OpenAI-compatible `/audio/speech`) is implemented but was not tested live. Piper neural TTS is not integrated yet.
-4. **There is no real voice amplitude for Windows voices.** Chromium doesn't expose it, so the orb shows a steady speaking pulse. Cloud audio drives the orb from a real analyser.
-5. **Barge-in works only through the wake phrase or the Stop button.** Interrupting by just talking over the assistant isn't implemented, to avoid echo-triggered false stops.
-6. **Not implemented:** calendar and email integrations (Phase C), local document RAG and screen understanding (Phase D), clipboard-based "read selected text aloud", workspace layout save/restore, process termination, cost tracking, macOS and Linux.
+1. **Cloud providers haven't been called live yet.** The Anthropic adapter and the OpenAI-compatible presets (Gemini, OpenAI, Groq, OpenRouter, Mistral, DeepSeek, xAI) are tested against mocked transports. The local path *is* verified live with llama3.2. Default model names are starting points; use **Load models** to pick a current one.
+2. **Small local models are less capable than cloud ones.** llama3.2 (3B) handles questions and single actions well. Multi-step agent tasks work better with a cloud model or a larger local one.
+3. **Wake words still use Vosk's small model.** "Jarvis" is the most reliable phrase; "Clickyy" is matched through sound-alikes. Commands themselves are transcribed by Whisper. There is no accent-robustness benchmark yet.
+4. **The neural voice is CPU-bound.** About 1–1.7 s to the first sentence on an i5-11400H; slower PCs can switch to the Windows voice. Profiles adjust wording plus speed (and pitch on Windows voices); Kokoro has no emotion tags.
+5. **Barge-in by talking needs reasonable echo cancellation.** Headphones are best. On loud speakers Clickyy may hear itself, so it's off by default.
+6. **Not implemented:** calendar and email (needs OAuth integrations), document search over your files (RAG), workspace layout save/restore, process termination, cost tracking, macOS and Linux.
 7. **Spotify playlists:** Clickyy opens Spotify search for the playlist; it can't press play on a specific playlist without the Spotify Web API (not integrated).
 8. **The bundled speech engine is English only** (Vosk small en-US). Other languages need a different Vosk model via `CLICKYY_VOSK_MODEL`.
-9. **The installer is unsigned.** Windows SmartScreen will warn, and on PCs with Smart App Control enabled it won't run until it is code-signed (see PACKAGING).
+9. **Code signing is pending SignPath approval.** The release workflow signs every executable and the installer automatically once the SignPath secrets are added ([docs/SIGNING.md](docs/SIGNING.md)). Until then, Windows SmartScreen warns on first run, and PCs with Smart App Control enabled block the app.

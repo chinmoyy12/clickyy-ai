@@ -12,6 +12,8 @@ export interface Platform {
   notify(title: string, body: string): void;
   fileExists(path: string): boolean;
   isOnline(): boolean;
+  /** One PNG screenshot of the primary display, base64. */
+  captureScreen(): Promise<string>;
 }
 
 export interface ToolContext {
@@ -23,6 +25,8 @@ export interface ToolContext {
   /** Session memory shared between turns (last app, last window, previous volume…). */
   session: SessionState;
   scheduler: { schedule(id: string, dueAt: number): void; cancel(id: string): void };
+  /** Network access for tools, routed through the NetGuard (blocked in Strict Offline). */
+  net: typeof fetch;
 }
 
 export interface SessionState {

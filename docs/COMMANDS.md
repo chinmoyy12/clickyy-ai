@@ -1,6 +1,6 @@
 # Command catalog
 
-Generated from source by `npm run docs:commands`. **70 deterministic commands**, **180 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **48 registered tools**.
+Generated from source by `npm run docs:commands`. **78 deterministic commands**, **213 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **52 registered tools**.
 
 Deterministic commands work fully offline with no language model. Anything not matched here goes to the configured language model, which can only call the tools listed at the bottom.
 
@@ -49,6 +49,19 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Reduce or restore animations. | “reduce animations”<br>“turn animations back on” | built-in | — | — | — |
 | Toggle high-contrast mode. | “switch to high contrast mode”<br>“turn off high contrast” | built-in | — | — | — |
 | Change text size. | “increase the text size”<br>“make the text smaller” | built-in | — | — | — |
+
+## Skills
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Spoken briefing: time, weather, battery and reminders. | “give me my morning briefing”<br>“brief me”<br>“what does my day look like”<br>“daily briefing” | built-in | — | — | — |
+| Full system health report in one sentence. | “run a system check”<br>“how's my computer doing”<br>“system report”<br>“run diagnostics” | built-in | — | — | — |
+| Look at the screen and answer a question about it (vision model, always asks first). | “what's on my screen”<br>“look at my screen and explain this error”<br>“describe my screen”<br>“what am i looking at” | `screen.capture` | L2 sensitive | screen | always |
+| Summarize, explain, translate or proofread what you copied (asks before reading the clipboard). | “summarize what i copied”<br>“explain my clipboard”<br>“proofread what i just copied”<br>“translate my clipboard to spanish” | `clipboard.read` | L2 sensitive | clipboard | always |
+| Read what you copied out loud. | “read what i copied”<br>“read my clipboard aloud”<br>“read the selected text aloud” | `clipboard.read` | L2 sensitive | clipboard | always |
+| Current weather and today's forecast. | “what's the weather”<br>“weather in london”<br>“do i need an umbrella today”<br>“how's the weather in tokyo”<br>“what's the temperature outside” | `weather.current` | L1 low | web | no |
+| Convert units offline. | “convert 5 miles to kilometers”<br>“how many cups in a liter”<br>“100 fahrenheit in celsius”<br>“2 gigabytes in megabytes” | `units.convert` | L1 low | — | no |
+| Calculator (offline). | “what's 15 percent of 240”<br>“calculate 12 times 7”<br>“what is the square root of 144”<br>“what is 2 to the power of 10”<br>“what's 1250 divided by 5” | `math.calculate` | L1 low | — | no |
 
 ## Memory
 
@@ -188,3 +201,7 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `clipboard.read` | Read the current clipboard text. Requires confirmation. | L2 sensitive | clipboard | 30s | yes |
 | `keyboard.shortcut` | Press an allowlisted shortcut in the foreground app: copy, paste, cut, undo, redo, select_all, save, find, new_tab, close_tab, new_window, next_tab, previous_tab, switch_window, enter, escape, tab, refresh. | L2 sensitive | automation | 30s | yes |
 | `keyboard.type` | Type user-approved text into the focused field of the foreground window. Always confirmed; refuses credential-like text. | L2 sensitive | automation | 60s | yes |
+| `math.calculate` | Evaluate an arithmetic expression offline (+ - * / ^ %, parentheses, sqrt, sin/cos/tan in degrees, log, ln, pi, e). | L1 low | — | 1s | yes |
+| `units.convert` | Convert between units of length, mass, volume, speed, data size, time, area and temperature, offline. | L1 low | — | 1s | yes |
+| `weather.current` | Current weather and today's forecast for a place (or the location set in Settings), via Open-Meteo. | L1 low | web | 12s | no |
+| `screen.capture` | Capture one screenshot of the primary display so a vision-capable model can answer a question about it. Always asks first; the image is not stored. | L2 sensitive | screen | 60s | yes |

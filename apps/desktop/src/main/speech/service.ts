@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { WakePhraseId } from '@shared/settings';
-import type { SpeechEvent, SpeechServiceStatus } from '@shared/types';
+import type { NeuralVoice, SpeechEvent, SpeechServiceStatus } from '@shared/types';
 
 export interface SpeechPaths { python: string; args: string[]; serviceDir: string; model: string }
 
@@ -122,10 +122,12 @@ export class SpeechService {
   private async health() {
     try {
       const r = await fetch(`http://127.0.0.1:${this.port}/health`, { headers: { authorization: `Bearer ${this.token}` }, signal: AbortSignal.timeout(5000) });
-      const body = (await r.json()) as { status: string; engines: { vosk: { ready: boolean; error?: string } }; wakeSupport: Partial<Record<WakePhraseId, boolean>> };
+      const body = (await r.json()) as { status: string; engines: { vosk: { ready: boolean; error?: string }; whisper?: { available: boolean }; kokoro?: { available: boolean } }; wakeSupport: Partial<Record<WakePhraseId, boolean>> };
       if (body.status === 'ready') {
         this.restarts = 0;
-        this.setStatus({ state: 'ready', engine: 'vosk', wakeSupport: body.wakeSupport });
+        const accurate = !!body.engines.whisper?.available;
+        const neural = !!body.engines.kokoro?.available;
+        this.setStatus({ state: 'ready', engine: accurate ? 'vosk + whisper' : 'vosk', wakeSupport: body.wakeSupport, accurate, neural });
       } else {
         this.setStatus({ state: 'degraded', engine: 'vosk', message: body.engines.vosk.error ?? 'Speech model missing' });
       }
@@ -160,14 +162,38 @@ export class SpeechService {
     });
   }
 
-  async startSession(mode: 'wake' | 'command', phrases: WakePhraseId[], sensitivity: number, cooldownMs = 2000) {
+  private async ensureReady() {
     if (this.status.state !== 'ready') {
       await this.start();
-      if ((this.status as SpeechServiceStatus).state !== 'ready') throw new Error(this.status.message ?? 'Speech recognition is not available');
+      if ((this.status as SpeechServiceStatus).state !== 'ready') throw new Error(this.status.message ?? 'Speech service is not available');
     }
+  }
+
+  async startSession(mode: 'wake' | 'command', phrases: WakePhraseId[], sensitivity: number, cooldownMs = 2000, accurate = true) {
+    await this.ensureReady();
     const ws = await this.connect();
     this.sessionActive = true;
-    ws.send(JSON.stringify({ type: 'start', mode, phrases, sensitivity, cooldown_ms: cooldownMs }));
+    ws.send(JSON.stringify({ type: 'start', mode, phrases, sensitivity, cooldown_ms: cooldownMs, accurate }));
+  }
+
+  /** Neural (Kokoro) speech for one sentence or short passage; returns a WAV file. */
+  async synthesize(text: string, voice: string, speed: number): Promise<Buffer> {
+    await this.ensureReady();
+    if (!this.status.neural) throw new Error('The neural voice model is not installed.');
+    const r = await fetch(`http://127.0.0.1:${this.port}/tts`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${this.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ text: text.slice(0, 1200), voice, speed }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!r.ok) throw new Error(`Neural voice failed (HTTP ${r.status})`);
+    return Buffer.from(await r.arrayBuffer());
+  }
+
+  async voices(): Promise<NeuralVoice[]> {
+    if (this.status.state !== 'ready' || !this.status.neural) return [];
+    const r = await fetch(`http://127.0.0.1:${this.port}/tts/voices`, { headers: { authorization: `Bearer ${this.token}` }, signal: AbortSignal.timeout(15000) });
+    return r.ok ? ((await r.json()) as { voices: NeuralVoice[] }).voices : [];
   }
 
   sendAudio(frame: ArrayBuffer) {

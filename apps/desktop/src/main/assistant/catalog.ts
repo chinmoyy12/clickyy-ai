@@ -6,7 +6,8 @@ import { parseClockTime, parseDuration } from './normalize';
 export type Builtin =
   | 'greeting' | 'presence' | 'capabilities' | 'repeat' | 'slower' | 'faster' | 'stop_speaking' | 'cancel'
   | 'new_session' | 'end_conversation' | 'mode' | 'verbosity' | 'status_model' | 'status_offline' | 'status_mic'
-  | 'identity' | 'thanks' | 'shortcuts' | 'ui' | 'mic_pause' | 'refuse_shell' | 'how_are_you' | 'continue';
+  | 'identity' | 'thanks' | 'shortcuts' | 'ui' | 'mic_pause' | 'refuse_shell' | 'how_are_you' | 'continue'
+  | 'briefing' | 'system_report' | 'screen' | 'clipboard_ai' | 'clipboard_read';
 
 export interface RouteCtx { session: SessionState; apps: AppEntry[] }
 
@@ -144,6 +145,32 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'ui.text_size', category: 'Accessibility', description: 'Change text size.', examples: ['increase the text size', 'make the text smaller'],
     patterns: [/(increase|bigger|larger|enlarge|decrease|smaller|reduce) (the )?(text|font)( size)?|(make )?(the )?(text|font) (bigger|larger|smaller)/],
     resolve: (_m, text) => builtin('ui', { setting: 'textScale', delta: /(increase|bigger|larger|enlarge)/.test(text) ? 0.1 : -0.1 }) }),
+
+  // ---------- advanced skills ----------
+  cmd({ id: 'skill.briefing', category: 'Skills', description: 'Spoken briefing: time, weather, battery and reminders.', examples: ['give me my morning briefing', 'brief me', 'what does my day look like', 'daily briefing'],
+    patterns: [/(morning|daily|evening) (briefing|brief|update|rundown)|^brief me$|^briefing$|what does my day look like|give me (a |my )?(rundown|briefing|status update)( for today)?$|catch me up$/], resolve: () => builtin('briefing') }),
+  cmd({ id: 'skill.system_report', category: 'Skills', description: 'Full system health report in one sentence.', examples: ['run a system check', "how's my computer doing", 'system report', 'run diagnostics'],
+    patterns: [/(run (a )?)?(system|full|quick|health) (check|report|scan|status|diagnostic)s?|run (a )?diagnostics?|hows my (computer|pc|laptop|system) (doing|holding up)|status report/], resolve: () => builtin('system_report') }),
+  cmd({ id: 'skill.screen', category: 'Skills', tool: 'screen.capture', description: 'Look at the screen and answer a question about it (vision model, always asks first).', examples: ["what's on my screen", 'look at my screen and explain this error', 'describe my screen', 'what am i looking at'],
+    patterns: [/(whats|what is) on (my|the) screen|(look at|check|read|describe|scan) (my|the|this) screen|what am i looking at|(explain|summari[sz]e) (whats|what is) on (my|the) screen|help me with (this|whats on my) screen/],
+    resolve: (_m, text) => builtin('screen', { question: text }) }),
+  cmd({ id: 'skill.clipboard_ai', category: 'Skills', tool: 'clipboard.read', description: 'Summarize, explain, translate or proofread what you copied (asks before reading the clipboard).', examples: ['summarize what i copied', 'explain my clipboard', 'proofread what i just copied', 'translate my clipboard to spanish'],
+    patterns: [/^(summari[sz]e|explain|translate|proofread|check|fix|rewrite|simplify)( the text)? (what i (just )?copied|my clipboard|the clipboard|this text)(.*)$/],
+    resolve: (m) => builtin('clipboard_ai', { instruction: `${m[1]}${m[5] ?? ''}`.trim() }) }),
+  cmd({ id: 'skill.clipboard_read', category: 'Skills', tool: 'clipboard.read', description: 'Read what you copied out loud.', examples: ['read what i copied', 'read my clipboard aloud', 'read the selected text aloud'],
+    patterns: [/read (out )?(what i (just )?copied|my clipboard|the clipboard|the selected text|the selection)( aloud| out loud)?/], resolve: () => builtin('clipboard_read') }),
+  cmd({ id: 'skill.weather', category: 'Skills', tool: 'weather.current', description: 'Current weather and today\'s forecast.', examples: ["what's the weather", 'weather in london', 'do i need an umbrella today', "how's the weather in tokyo", "what's the temperature outside"],
+    patterns: [/\b(weather|forecast)\b(?:.*?\b(?:in|for|at) ([a-z][a-z .'-]{1,40}))?/, /do i need an? (umbrella|jacket|coat)/, /(is it|will it) (going to )?(rain|snow)( today)?/, /temperature outside/],
+    resolve: (m) => {
+      const place = m[2]?.replace(/\b(today|tomorrow|right now|now|please)\b/g, '').trim();
+      return tool('weather.current', place ? { location: place } : {});
+    } }),
+  cmd({ id: 'skill.convert', category: 'Skills', tool: 'units.convert', description: 'Convert units offline.', examples: ['convert 5 miles to kilometers', 'how many cups in a liter', '100 fahrenheit in celsius', '2 gigabytes in megabytes'],
+    patterns: [/^(?:convert )?(\d+(?:\.\d+)?) ?([a-z][a-z/ ]{0,24}?) (?:to|in|into) ([a-z][a-z/ ]{0,24})$/, /^how many ([a-z][a-z ]{0,24}) (?:are )?in (?:a|an|one|1) ([a-z][a-z ]{0,24})$/],
+    resolve: (m, text) => (/^how many/.test(text) ? tool('units.convert', { value: 1, from: m[2], to: m[1] }) : tool('units.convert', { value: parseFloat(m[1]), from: m[2], to: m[3] })) }),
+  cmd({ id: 'skill.math', category: 'Skills', tool: 'math.calculate', description: 'Calculator (offline).', examples: ["what's 15 percent of 240", 'calculate 12 times 7', 'what is the square root of 144', 'what is 2 to the power of 10', "what's 1250 divided by 5"],
+    patterns: [/^(?:whats|what is|calculate|compute|how much is)\s+(.*(?:\d\s*(?:\+|-|\*|\/|\^|x|times|plus|minus|divided by|multiplied by|over|percent of|to the power of|squared|cubed|mod)|square root of|cube root of).*)$/, /^(\d[\d.\s]*(?:\+|-|\*|\/|\^|x|times|plus|minus|divided by|multiplied by)\s*[\d.(][\d.\s()+\-*/^]*)$/],
+    resolve: (m) => tool('math.calculate', { expression: m[1].replace(/\?$/, '') }) }),
 
   // ---------- memory ----------
   cmd({ id: 'memory.list', category: 'Memory', tool: 'memory.list', description: 'List what Clickyy has been asked to remember.', examples: ['what do you remember about me', 'what do you know about me'],

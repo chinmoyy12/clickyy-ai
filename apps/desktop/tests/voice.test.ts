@@ -117,6 +117,31 @@ describe('voice controller', () => {
     expect(h.log).toContain('cancel');
   });
 
+  it('barge-in: sustained voice while speaking interrupts and starts listening', async () => {
+    const h = harness({ listening: { bargeIn: true } });
+    void h.vc.afterReply({ turnId: 't', text: 'long answer', speech: 'long answer', style: 'neutral', source: 'deterministic', expectFollowUp: false });
+    await tick();
+    expect(h.vc.current).toBe('speaking');
+    expect(h.mic()).toBe(true); // mic opened for barge-in
+    h.vc.voiceLevel(0.1); // background noise: ignored
+    h.vc.voiceLevel(0.5);
+    h.vc.voiceLevel(0.5);
+    expect(h.vc.current).toBe('speaking'); // two frames is not enough
+    h.vc.voiceLevel(0.6);
+    await h.vc['busy'];
+    expect(h.log).toContain('stopSpeaking');
+    expect(h.vc.current).toBe('command');
+  });
+
+  it('barge-in is off by default and never fires when muted', async () => {
+    const h = harness();
+    void h.vc.afterReply({ turnId: 't', text: 'x', speech: 'x', style: 'neutral', source: 'deterministic', expectFollowUp: false });
+    await tick();
+    for (let i = 0; i < 5; i++) h.vc.voiceLevel(0.9);
+    expect(h.vc.current).toBe('speaking');
+    expect(h.mic()).toBe(false);
+  });
+
   it('command timeout flushes and returns to rest', async () => {
     const h = harness({ listening: { commandTimeoutMs: 2000 } });
     await h.vc.pressTalk();

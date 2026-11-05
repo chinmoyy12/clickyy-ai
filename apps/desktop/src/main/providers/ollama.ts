@@ -1,14 +1,49 @@
 import { ProviderError, withTimeout, type ChatRequest, type LlmProvider, type LlmTurn, type ProviderCheck } from './types';
 
+const GPU_FAULT = /cuda|cublas|ggml_cuda|illegal (instruction|memory)|out of memory|vram|gpu/i;
+
+/** Set after a GPU/CUDA fault so later requests go straight to CPU (per model, for this app run). */
+const cpuOnly = new Set<string>();
+
 /** Local model via the Ollama HTTP API (loopback only, so it works in Strict Offline mode). */
 export class OllamaProvider implements LlmProvider {
   readonly id = 'ollama';
   readonly kind = 'local' as const;
   readonly label: string;
 
-  constructor(private baseUrl: string, readonly model: string, private timeoutMs: number, private fetchImpl: typeof fetch) {
+  constructor(private baseUrl: string, readonly model: string, private timeoutMs: number, private fetchImpl: typeof fetch, private device: 'auto' | 'cpu' | 'gpu' = 'auto') {
     this.label = model ? `Ollama · ${model}` : 'Ollama';
   }
+
+  private options(): Record<string, unknown> {
+    const cpu = this.device === 'cpu' || (this.device === 'auto' && cpuOnly.has(this.model));
+    return { num_ctx: 8192, ...(cpu ? { num_gpu: 0 } : {}) };
+  }
+
+  /** Load the model into memory ahead of the first question (no tokens generated). */
+  async warm(): Promise<void> {
+    if (!this.model) return;
+    await this.fetchImpl(new URL('/api/generate', this.baseUrl), {
+      method: 'POST',
+      body: JSON.stringify({ model: this.model, prompt: '', keep_alive: '30m', options: this.options() }),
+      signal: AbortSignal.timeout(120000),
+    }).catch(() => undefined);
+  }
+
+  async chat(req: ChatRequest): Promise<LlmTurn> {
+    try {
+      return await this.chatOnce(req);
+    } catch (e) {
+      // GPU driver / CUDA faults are common with older NVIDIA drivers: retry once on CPU and remember.
+      if (e instanceof ProviderError && e.code === 'bad_response' && GPU_FAULT.test(e.message) && this.device === 'auto' && !cpuOnly.has(this.model)) {
+        cpuOnly.add(this.model);
+        return this.chatOnce(req);
+      }
+      throw e;
+    }
+  }
+
+  static resetDeviceMemory() { cpuOnly.clear(); }
 
   async check(signal: AbortSignal = new AbortController().signal): Promise<ProviderCheck> {
     try {
@@ -24,10 +59,10 @@ export class OllamaProvider implements LlmProvider {
     }
   }
 
-  async chat(req: ChatRequest): Promise<LlmTurn> {
+  private async chatOnce(req: ChatRequest): Promise<LlmTurn> {
     const messages: unknown[] = [{ role: 'system', content: req.system }];
     for (const it of req.items) {
-      if (it.role === 'user') messages.push({ role: 'user', content: it.text });
+      if (it.role === 'user') messages.push({ role: 'user', content: it.text, ...(it.images?.length ? { images: it.images } : {}) });
       else if (it.role === 'assistant') messages.push({ role: 'assistant', content: it.text, ...(it.toolCalls?.length ? { tool_calls: it.toolCalls.map((c) => ({ function: { name: c.name, arguments: c.input } })) } : {}) });
       else for (const r of it.results) messages.push({ role: 'tool', content: r.content, tool_name: r.name });
     }
@@ -40,7 +75,9 @@ export class OllamaProvider implements LlmProvider {
           model: this.model,
           messages,
           stream: true,
-          tools: req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })),
+          keep_alive: '30m',
+          options: this.options(),
+          ...(req.tools.length ? { tools: req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })) } : {}),
         }),
         signal: withTimeout(req.signal, this.timeoutMs),
       });
@@ -67,7 +104,7 @@ export class OllamaProvider implements LlmProvider {
           buf = buf.slice(nl + 1);
           if (!line) continue;
           const chunk = JSON.parse(line) as { message?: { content?: string; tool_calls?: Array<{ function: { name: string; arguments: unknown } }> }; done?: boolean; done_reason?: string; error?: string };
-          if (chunk.error) throw new ProviderError(chunk.error, 'bad_response');
+          if (chunk.error) throw new ProviderError(`Local model error: ${chunk.error}`, 'bad_response');
           if (chunk.message?.content) {
             text += chunk.message.content;
             req.onText?.(chunk.message.content);

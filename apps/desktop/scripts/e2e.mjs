@@ -176,6 +176,47 @@ try {
     record('wake phrase "Jarvis" detected end-to-end', wakeEvs.some((e) => e.type === 'wake' && e.phrase === 'jarvis'), JSON.stringify(wakeEvs.filter((e) => e.type === 'wake')));
   }
 
+  // Advanced voice: neural TTS through the app's IPC, and Whisper-refined finals.
+  sp = await invoke('speech:status');
+  record('accurate recognition engine (Whisper) available', sp.accurate === true, sp.engine);
+  record('neural voice engine (Kokoro) available', sp.neural === true);
+  if (sp.neural) {
+    const voices = await invoke('tts:voices');
+    record('neural voices listed', voices.some((v) => v.id === 'af_heart') && voices.some((v) => v.accent === 'British English'), `${voices.length} voices`);
+    const s0 = performance.now();
+    const wav = await invoke('tts:neural', { text: 'Good evening. Your workspace is ready.' });
+    record('neural voice synthesizes through IPC', typeof wav === 'string' && wav.length > 20000, `${Math.round(performance.now() - s0)} ms for one sentence`);
+  }
+  if (sp.accurate) {
+    const pcm2 = readFileSync(resolve(root, '../../services/assistant/tests/fixtures/volume_thirty.wav')).subarray(44).toString('base64');
+    await evaluate('window.__speech = []');
+    await invoke('speech:start', { mode: 'command' });
+    await evaluate(`(async () => {
+      const bytes = Uint8Array.from(atob(${JSON.stringify(pcm2)}), (c) => c.charCodeAt(0));
+      for (let i = 0; i < bytes.length; i += 3200) { window.clickyy.sendAudio(bytes.slice(i, i + 3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
+      for (let i = 0; i < 10; i++) { window.clickyy.sendAudio(new Uint8Array(3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
+    })()`);
+    await invoke('speech:stop');
+    await sleep(1500);
+    const fin = (await evaluate('window.__speech')).filter((e) => e.type === 'final');
+    record('Whisper refines the final transcript in the app', fin.some((e) => e.engine === 'whisper' && /volume to (30|thirty)/i.test(e.text)), JSON.stringify(fin.map((e) => e.text)));
+  }
+
+  // Jarvis-style skills (deterministic, offline).
+  x = await timed("what's 15 percent of 240");
+  record('offline calculator', x.r.text === "That's 36.", `${x.ms} ms`);
+  x = await timed('convert 5 miles to kilometers');
+  record('offline unit conversion', /5 miles is 8\.04672 kilometers/.test(x.r.text), x.r.text);
+  x = await timed('run a system check');
+  record('system report', /CPU at \d+ percent, memory at \d+ percent/.test(x.r.text), x.r.text.slice(0, 100));
+  x = await timed('brief me');
+  record('morning briefing', /^Good (morning|afternoon|evening)\. It's/.test(x.r.text), x.r.text.slice(0, 100));
+  x = await timed("what's on my screen");
+  record('screen vision is blocked until permitted', /screen permission is turned off/.test(x.r.text));
+  await invoke('settings:update', { personality: { profile: 'butler' } });
+  x = await timed('thank you');
+  record('butler persona phrasing', /A pleasure\.|Of course\.|Think nothing of it\./.test(x.r.text), x.r.text);
+
   // Windows voices available to speechSynthesis (offline TTS).
   const voices = await evaluate(`new Promise((r) => { const v = speechSynthesis.getVoices(); if (v.length) return r(v.map((x) => x.name + (x.localService ? ' [local]' : ''))); speechSynthesis.onvoiceschanged = () => r(speechSynthesis.getVoices().map((x) => x.name + (x.localService ? ' [local]' : ''))); setTimeout(() => r([]), 3000); })`);
   record('offline Windows voices available to TTS', voices.some((v) => /\[local\]/.test(v)), voices.join(', '));

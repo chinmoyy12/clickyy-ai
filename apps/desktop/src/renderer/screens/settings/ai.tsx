@@ -91,6 +91,11 @@ export function AiSection({ s, update }: { s: Settings; update: Update }) {
         <Row label="Status">{providers?.local.ready ? <Badge tone="ok">ready</Badge> : <span className="max-w-[240px] text-right text-[0.8em] text-muted">{providers?.local.message ?? 'unknown'}</span>}</Row>
         <Row label="Server URL"><div className="flex gap-1"><TextInput label="Local server URL" value={localUrl} onChange={setLocalUrl} className="w-48" /><Button onClick={() => void update({ ai: { local: { baseUrl: localUrl } } })} disabled={localUrl === s.ai.local.baseUrl}>Save</Button></div></Row>
         <Row label="Model"><ModelPicker provider="local" label="Local model" value={s.ai.local.model} onChange={(v) => void update({ ai: { local: { model: v } } })} /></Row>
+        {s.ai.local.runtime === 'ollama' && (
+          <Row label="Compute device" hint="Auto uses your GPU and switches to CPU if the GPU driver faults (common with older NVIDIA drivers).">
+            <Select label="Compute device" value={s.ai.local.device} onChange={(v) => void update({ ai: { local: { device: v } } })} options={[{ value: 'auto', label: 'Auto (GPU, CPU fallback)' }, { value: 'gpu', label: 'GPU only' }, { value: 'cpu', label: 'CPU only' }]} />
+          </Row>
+        )}
         <div><Button onClick={() => void test('local')} disabled={testing !== null}>{testing === 'local' ? 'Testing…' : 'Test local model'}</Button></div>
       </Section>
 

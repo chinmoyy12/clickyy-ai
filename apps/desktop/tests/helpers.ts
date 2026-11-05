@@ -23,7 +23,15 @@ export class FakePlatform implements Platform {
   notify(t: string, b: string) { this.notes.push(`${t}: ${b}`); }
   fileExists(p: string) { return this.existing.has(p) || this.existing.has('*'); }
   isOnline() { return this.online; }
+  screenshots = 0;
+  async captureScreen() { this.screenshots++; return 'iVBORw0KGgo='; }
 }
+
+/** Deterministic stand-in for Open-Meteo used by weather tests. */
+export const fakeNet = (async (url: string) => {
+  if (String(url).includes('geocoding-api')) return Response.json(String(url).includes('Atlantis') ? { results: [] } : { results: [{ name: 'London', country: 'United Kingdom', latitude: 51.5, longitude: -0.12 }] });
+  return Response.json({ current: { temperature_2m: 14.2, apparent_temperature: 11.8, weather_code: 61, wind_speed_10m: 18, relative_humidity_2m: 80 }, daily: { temperature_2m_max: [16.4], temperature_2m_min: [9.1], precipitation_probability_max: [70] } });
+}) as unknown as typeof fetch;
 
 export async function setup(patch: DeepPartial<Settings> = {}) {
   const db = await Db.open(null);
@@ -49,6 +57,7 @@ export async function setup(patch: DeepPartial<Settings> = {}) {
   const ctx = (signal: AbortSignal = new AbortController().signal): ToolContext => ({
     settings: repos.settings.get(), bridge, repos, platform, signal, session,
     scheduler: { schedule: (id, at) => scheduled.set(id, at), cancel: (id) => scheduled.delete(id) },
+    net: fakeNet,
   });
   return {
     db, repos, bridge, platform, broker, registry, executor, session, ctx, confirmations, records, scheduled,

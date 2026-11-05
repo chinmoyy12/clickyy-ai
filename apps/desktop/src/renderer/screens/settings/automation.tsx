@@ -17,6 +17,7 @@ const PERMISSIONS: Array<{ key: PermissionKey; label: string; text: string; leve
   { key: 'clipboard', label: 'Clipboard', text: 'Copy text to the clipboard. Reading it always asks first.', level: 2 },
   { key: 'automation', label: 'Keyboard automation', text: 'Press allowlisted shortcuts and type text you approve into the focused window.', level: 2 },
   { key: 'power', label: 'Shut down / restart / sign out', text: 'Always requires an explicit on-screen confirmation every time.', level: 3 },
+  { key: 'screen', label: 'Look at my screen', text: 'When you ask "what\'s on my screen", Clickyy takes one screenshot (after you confirm) and sends it to your AI model. Never in the background, never saved.', level: 2 },
 ];
 
 export function PermissionsSection({ s, update }: { s: Settings; update: Update }) {
@@ -45,11 +46,19 @@ export function PermissionsSection({ s, update }: { s: Settings; update: Update 
       <Section title="Workspace folder" description="Where Clickyy may create new files. Existing files are never overwritten.">
         <Row label={s.tools.workspaceFolder || 'Not set'}><Button onClick={() => void pick('workspace')}>Choose…</Button></Row>
       </Section>
-      <Section title="Web search">
+      <Section title="Weather & web" description="Weather comes from Open-Meteo (free, no account). Unavailable in Strict Offline mode.">
+        <Row label="Home city"><WeatherCity value={s.tools.weatherLocation} onSave={(v) => void update({ tools: { weatherLocation: v } })} /></Row>
+        <Row label="Units"><Select label="Units" value={s.tools.units} onChange={(v) => void update({ tools: { units: v } })} options={[{ value: 'metric', label: 'Metric (°C, km/h)' }, { value: 'imperial', label: 'Imperial (°F, mph)' }]} /></Row>
         <Row label="Search engine"><Select label="Search engine" value={s.tools.searchEngine} onChange={(v) => void update({ tools: { searchEngine: v } })} options={[{ value: 'duckduckgo', label: 'DuckDuckGo' }, { value: 'bing', label: 'Bing' }, { value: 'google', label: 'Google' }]} /></Row>
       </Section>
     </>
   );
+}
+
+function WeatherCity({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const [v, setV] = useState(value);
+  useEffect(() => setV(value), [value]);
+  return <div className="flex gap-1"><TextInput label="Home city" value={v} onChange={setV} placeholder="e.g. London" className="w-40" /><Button onClick={() => onSave(v.trim())} disabled={v === value}>Save</Button></div>;
 }
 
 export function AppsSection() {

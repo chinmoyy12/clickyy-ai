@@ -70,7 +70,33 @@ export function findApp(apps: AppEntry[], query: string): { match?: AppEntry; ca
   if (exact.length === 1) return { match: exact[0], candidates: exact };
   if (exact.length > 1) return { candidates: exact };
   const partial = enabled.filter((a) => norm(a.name).includes(q) || a.aliases.some((al) => norm(al).includes(q) || (q.length >= 4 && q.includes(norm(al)))));
-  return partial.length === 1 ? { match: partial[0], candidates: partial } : { candidates: partial };
+  if (partial.length) return partial.length === 1 ? { match: partial[0], candidates: partial } : { candidates: partial };
+  // Fuzzy fallback for mishearings ("spotfy", "crome", "note pat"): closest name within a small edit distance.
+  if (q.length >= 4) {
+    const limit = q.length >= 7 ? 2 : 1;
+    const scored = enabled
+      .map((a) => ({ a, d: Math.min(...[a.name, ...a.aliases].map((n) => editDistance(norm(n), q))) }))
+      .filter((x) => x.d <= limit)
+      .sort((x, y) => x.d - y.d);
+    if (scored.length && (scored.length === 1 || scored[0].d < scored[1].d)) return { match: scored[0].a, candidates: [scored[0].a] };
+    return { candidates: scored.map((x) => x.a) };
+  }
+  return { candidates: [] };
+}
+
+export function editDistance(a: string, b: string): number {
+  if (Math.abs(a.length - b.length) > 3) return 99;
+  const dp = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = dp[j];
+      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return dp[b.length];
 }
 
 const CATEGORY_PROCESSES: Record<string, string[]> = {

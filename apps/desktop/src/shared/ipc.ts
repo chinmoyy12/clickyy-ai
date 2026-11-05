@@ -67,6 +67,8 @@ export const IpcInvoke = {
   'speech:stop': empty,
   'speech:cancel': empty,
   'tts:cloud': z.object({ text: z.string().min(1).max(4000) }),
+  'tts:neural': z.object({ text: z.string().min(1).max(1200) }),
+  'tts:voices': empty,
   'catalog:list': empty,
   'audit:list': empty,
   'diagnostics:get': empty,

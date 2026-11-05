@@ -89,9 +89,17 @@ class Session:
         else:
             raise ValueError(f"unknown mode {mode!r}")
         self._last_partial = ""
+        # Audio of the utterance in progress (command mode), so a second, more accurate
+        # recognizer (Whisper) can re-read it when Vosk reaches an endpoint.
+        self._utterance = bytearray()
+        self.last_utterance = b""
+
+    MAX_UTTERANCE = 16000 * 2 * 30  # 30 s of PCM16
 
     def feed(self, pcm: bytes) -> list[Event]:
         events: list[Event] = []
+        if self.mode == "command" and len(self._utterance) < self.MAX_UTTERANCE:
+            self._utterance.extend(pcm)
         if self.rec.AcceptWaveform(pcm):
             result = json.loads(self.rec.Result())
             events.extend(self._final(result))
@@ -112,6 +120,8 @@ class Session:
             hit = self.matcher.evaluate(result) if self.matcher else None
             return [Event("wake", {"phrase": hit[0], "confidence": hit[1]})] if hit else []
         self._last_partial = ""
+        self.last_utterance = bytes(self._utterance)
+        self._utterance.clear()
         words = result.get("result") or []
         conf = sum(w.get("conf", 0.0) for w in words) / len(words) if words else 0.0
         if not text:

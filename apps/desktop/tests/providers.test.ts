@@ -36,6 +36,33 @@ describe('Ollama adapter', () => {
     expect(turn.stop).toBe('tool_use');
     expect(body!.tools).toHaveLength(1);
   });
+  it('retries on CPU after a GPU/CUDA fault and keeps using CPU', async () => {
+    OllamaProvider.resetDeviceMemory();
+    const bodies: Array<{ options?: { num_gpu?: number } }> = [];
+    const p = new OllamaProvider('http://127.0.0.1:11434', 'llama3.2', 5000, (async (_u: string, init: RequestInit) => {
+      const b = JSON.parse(String(init.body));
+      bodies.push(b);
+      if (b.options?.num_gpu !== 0) return new Response(JSON.stringify({ error: 'an error was encountered while running the model: CUDA error: an illegal instruction was encountered' }), { status: 500 });
+      return ndjson([{ message: { content: 'Fine on CPU.' } }, { done: true }]);
+    }) as unknown as typeof fetch);
+    const req = { system: 's', items: [{ role: 'user' as const, text: 'hi' }], tools: [], signal: sig() };
+    expect((await p.chat(req)).text).toBe('Fine on CPU.');
+    expect((await p.chat(req)).text).toBe('Fine on CPU.');
+    expect(bodies.map((b) => b.options?.num_gpu)).toEqual([undefined, 0, 0]);
+    OllamaProvider.resetDeviceMemory();
+  });
+  it('does not retry ordinary errors, and honors CPU-only mode', async () => {
+    OllamaProvider.resetDeviceMemory();
+    let calls = 0;
+    const p = new OllamaProvider('http://127.0.0.1:11434', 'llama3.2', 5000, (async () => { calls++; return new Response('{"error":"model not found"}', { status: 404 }); }) as unknown as typeof fetch);
+    await expect(p.chat({ system: 's', items: [{ role: 'user', text: 'hi' }], tools: [], signal: sig() })).rejects.toThrow(/404/);
+    expect(calls).toBe(1);
+    let sent: { options?: { num_gpu?: number; num_ctx?: number }; keep_alive?: string } = {};
+    const cpu = new OllamaProvider('http://127.0.0.1:11434', 'llama3.2', 5000, (async (_u: string, init: RequestInit) => { sent = JSON.parse(String(init.body)); return ndjson([{ done: true }]); }) as unknown as typeof fetch, 'cpu');
+    await cpu.chat({ system: 's', items: [{ role: 'user', text: 'hi' }], tools: [], signal: sig() });
+    expect(sent).toMatchObject({ keep_alive: '30m', options: { num_gpu: 0, num_ctx: 8192 } });
+    expect('tools' in sent).toBe(false);
+  });
   it('is usable in strict offline mode (loopback)', async () => {
     const guard = new NetGuard(() => 'strict_offline', () => {}, (async () => Response.json({ models: [{ name: 'llama3.2:latest' }] })) as unknown as typeof fetch);
     const p = new OllamaProvider('http://127.0.0.1:11434', 'llama3.2', 1000, guard.fetchFor('local'));

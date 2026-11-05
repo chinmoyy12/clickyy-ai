@@ -47,7 +47,11 @@ export class AnthropicProvider implements LlmProvider {
   private toMessages(req: ChatRequest): BetaMessageParam[] {
     const out: BetaMessageParam[] = [];
     for (const it of req.items) {
-      if (it.role === 'user') out.push({ role: 'user', content: it.text });
+      if (it.role === 'user') {
+        out.push(it.images?.length
+          ? { role: 'user', content: [...it.images.map((data) => ({ type: 'image' as const, source: { type: 'base64' as const, media_type: 'image/png' as const, data } })), { type: 'text' as const, text: it.text }] }
+          : { role: 'user', content: it.text });
+      }
       else if (it.role === 'assistant') {
         if (it.rawProvider === 'anthropic' && Array.isArray(it.raw)) out.push({ role: 'assistant', content: it.raw as BetaContentBlockParam[] });
         else {

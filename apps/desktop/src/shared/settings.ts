@@ -9,14 +9,14 @@ export const WAKE_PHRASE_LABELS: Record<WakePhraseId, string> = {
 };
 
 export const VOICE_PROFILES = [
-  'sweet', 'natural', 'elegant', 'playful', 'professional', 'soothing', 'energetic', 'charming', 'custom',
+  'sweet', 'natural', 'elegant', 'playful', 'professional', 'soothing', 'energetic', 'charming', 'butler', 'custom',
 ] as const;
 export type VoiceProfileId = (typeof VOICE_PROFILES)[number];
 
 export const ROUTING_POLICIES = ['strict_offline', 'smart_hybrid', 'online_preferred'] as const;
 export type RoutingPolicy = (typeof ROUTING_POLICIES)[number];
 
-export const PERMISSION_KEYS = ['system', 'media', 'apps', 'windows', 'web', 'files', 'automation', 'clipboard', 'power'] as const;
+export const PERMISSION_KEYS = ['system', 'media', 'apps', 'windows', 'web', 'files', 'automation', 'clipboard', 'power', 'screen'] as const;
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
 
 import { CLOUD_PROVIDERS, LOCAL_RUNTIMES } from './providers';
@@ -41,11 +41,16 @@ export const SettingsSchema = z.object({
     followUpMs: z.number().int().min(0).max(30000).default(6000),
     commandTimeoutMs: z.number().int().min(2000).max(30000).default(9000),
     interruption: z.enum(['stop', 'ignore']).default('stop'),
+    /** Interrupt Clickyy just by starting to talk while it speaks (keeps the mic open during replies). */
+    bargeIn: z.boolean().default(false),
   }).prefault({}),
   speech: z.object({
     sttEngine: z.enum(['vosk']).default('vosk'),
+    /** Re-read each finished utterance with Whisper for a much more accurate transcript. */
+    accurateStt: z.boolean().default(true),
     language: z.enum(['en-US']).default('en-US'),
-    ttsEngine: z.enum(['system', 'cloud', 'off']).default('system'),
+    ttsEngine: z.enum(['neural', 'system', 'cloud', 'off']).default('neural'),
+    neuralVoice: z.string().regex(/^[a-z]{2}_[a-z]+$/).max(40).default('af_heart'),
     voiceName: z.string().max(200).default(''),
     cloudVoice: z.string().max(64).default('nova'),
     cloudTtsProvider: z.enum(['openai', 'openai_compatible']).default('openai'),
@@ -69,7 +74,9 @@ export const SettingsSchema = z.object({
       runtime: z.enum(LOCAL_RUNTIMES).default('ollama'),
       baseUrl: z.string().url().default('http://127.0.0.1:11434'),
       model: z.string().max(120).default(''),
-      timeoutMs: z.number().int().min(2000).max(300000).default(60000),
+      timeoutMs: z.number().int().min(2000).max(300000).default(120000),
+      /** Ollama compute device. 'auto' uses the GPU and falls back to CPU after a GPU fault. */
+      device: z.enum(['auto', 'cpu', 'gpu']).default('auto'),
     }).prefault({}),
     cloud: z.object({
       provider: z.enum(CLOUD_PROVIDERS).default('anthropic'),
@@ -96,10 +103,21 @@ export const SettingsSchema = z.object({
       automation: z.boolean().default(false),
       clipboard: z.boolean().default(false),
       power: z.boolean().default(false),
+      screen: z.boolean().default(false),
     }).prefault({}),
+    weatherLocation: z.string().trim().max(80).default(''),
+    units: z.enum(['metric', 'imperial']).default('metric'),
     approvedFolders: z.array(z.string().max(400)).max(32).default([]),
     workspaceFolder: z.string().max(400).default(''),
     searchEngine: z.enum(['duckduckgo', 'bing', 'google']).default('duckduckgo'),
+  }).prefault({}),
+  proactive: z.object({
+    /** Speak up on its own when something needs attention. */
+    batteryAlert: z.boolean().default(true),
+    batteryThreshold: z.number().int().min(5).max(50).default(20),
+    cpuAlert: z.boolean().default(false),
+    cpuThreshold: z.number().int().min(50).max(100).default(90),
+    reminderSpeech: z.boolean().default(true),
   }).prefault({}),
   privacy: z.object({
     saveHistory: z.boolean().default(true),

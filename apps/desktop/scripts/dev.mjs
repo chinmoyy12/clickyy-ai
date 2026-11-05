@@ -1,4 +1,4 @@
-﻿// Development runner: Vite dev server for the renderer, esbuild watch for main/preload, then Electron.
+// Development runner: Vite dev server for the renderer, esbuild watch for main/preload, then Electron.
 import { spawn } from 'node:child_process';
 import { createServer } from 'vite';
 import { dirname, resolve } from 'node:path';

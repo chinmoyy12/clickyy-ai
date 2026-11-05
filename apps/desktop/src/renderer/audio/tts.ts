@@ -32,6 +32,34 @@ export function splitSentences(text: string): string[] {
   return (text.match(/[^.!?…]+[.!?…]+["')\]]*|[^.!?…]+$/g) ?? [text]).map((s) => s.trim()).filter(Boolean);
 }
 
+/**
+ * Speech-sized chunks: the first chunk is kept short so the voice starts quickly;
+ * long sentences are split at commas; tiny fragments are merged.
+ */
+export function chunkForSpeech(text: string): string[] {
+  const out: string[] = [];
+  for (const s of splitSentences(text)) {
+    if (s.length > 160) {
+      let cur = '';
+      for (const part of s.split(/(?<=[,;:])\s+/)) {
+        if ((cur + ' ' + part).length > 140 && cur) { out.push(cur.trim()); cur = part; } else cur = `${cur} ${part}`;
+      }
+      if (cur.trim()) out.push(cur.trim());
+    } else out.push(s);
+  }
+  const merged: string[] = [];
+  for (const c of out) {
+    const last = merged[merged.length - 1];
+    if (last && last.length < 25 && merged.length > 1) merged[merged.length - 1] = `${last} ${c}`;
+    else merged.push(c);
+  }
+  if (merged[0] && merged[0].length > 120) {
+    const m = merged[0].match(/^(.{20,110}?[,;:])\s+(.*)$/);
+    if (m) merged.splice(0, 1, m[1], m[2]);
+  }
+  return merged.filter((c) => /[a-z0-9]/i.test(c));
+}
+
 export interface SpeakOptions { voiceName: string; rate: number; pitch: number; volume: number; style: ExpressionStyle }
 
 type Listener = (speaking: boolean) => void;
@@ -89,6 +117,60 @@ export class Speaker {
     if (gen === this.generation) this.setSpeaking(false);
   }
 
+  private neuralCtx: AudioContext | null = null;
+  private neuralSource: AudioBufferSourceNode | null = null;
+
+  /**
+   * Neural voice: synthesize sentence N+1 while sentence N plays, so speech is
+   * continuous. Drives the orb from the real output amplitude.
+   */
+  async speakNeural(text: string, synth: (sentence: string) => Promise<string>, volume: number): Promise<void> {
+    this.stop();
+    const gen = ++this.generation;
+    const chunks = chunkForSpeech(text);
+    if (!chunks.length) return;
+    const ctx = this.neuralCtx ?? (this.neuralCtx = new AudioContext());
+    if (ctx.state === 'suspended') await ctx.resume();
+    const gain = ctx.createGain();
+    gain.gain.value = volume;
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    gain.connect(analyser).connect(ctx.destination);
+    const data = new Uint8Array(analyser.fftSize);
+    const tick = () => {
+      if (gen !== this.generation) return;
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (const v of data) sum += ((v - 128) / 128) ** 2;
+      this.onLevel(Math.min(1, Math.sqrt(sum / data.length) * 5));
+      this.raf = requestAnimationFrame(tick);
+    };
+    this.setSpeaking(true);
+    tick();
+    let next: Promise<string> = synth(chunks[0]);
+    try {
+      for (let i = 0; i < chunks.length && gen === this.generation; i++) {
+        const b64 = await next;
+        if (gen !== this.generation) break;
+        if (i + 1 < chunks.length) next = synth(chunks[i + 1]);
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        const buffer = await ctx.decodeAudioData(bytes.buffer);
+        if (gen !== this.generation) break;
+        await new Promise<void>((resolve) => {
+          const src = ctx.createBufferSource();
+          src.buffer = buffer;
+          src.connect(gain);
+          src.onended = () => resolve();
+          this.neuralSource = src;
+          src.start();
+        });
+      }
+    } finally {
+      if (gen === this.generation) this.stop();
+      gain.disconnect();
+    }
+  }
+
   async playCloud(base64Mp3: string, volume: number): Promise<void> {
     this.stop();
     const gen = ++this.generation;
@@ -125,6 +207,8 @@ export class Speaker {
   stop() {
     this.generation++;
     this.queue = [];
+    try { this.neuralSource?.stop(); } catch { /* already stopped */ }
+    this.neuralSource = null;
     speechSynthesis.cancel();
     cancelAnimationFrame(this.raf);
     this.audio?.pause();

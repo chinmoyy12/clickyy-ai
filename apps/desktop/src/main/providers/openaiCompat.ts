@@ -68,7 +68,11 @@ export class OpenAICompatProvider implements LlmProvider {
   private messages(req: ChatRequest): unknown[] {
     const messages: unknown[] = [{ role: 'system', content: req.system }];
     for (const it of req.items) {
-      if (it.role === 'user') messages.push({ role: 'user', content: it.text });
+      if (it.role === 'user') {
+        messages.push(it.images?.length
+          ? { role: 'user', content: [{ type: 'text', text: it.text }, ...it.images.map((b64) => ({ type: 'image_url', image_url: { url: `data:image/png;base64,${b64}` } }))] }
+          : { role: 'user', content: it.text });
+      }
       else if (it.role === 'assistant') messages.push({ role: 'assistant', content: it.text || null, ...(it.toolCalls?.length ? { tool_calls: it.toolCalls.map((c) => ({ id: c.id, type: 'function', function: { name: c.name, arguments: JSON.stringify(c.input) } })) } : {}) });
       else for (const r of it.results) messages.push({ role: 'tool', tool_call_id: r.id, content: r.content });
     }

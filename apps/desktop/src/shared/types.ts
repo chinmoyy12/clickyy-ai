@@ -78,7 +78,13 @@ export interface SpeechServiceStatus {
   message?: string;
   engine?: string;
   wakeSupport?: Partial<Record<WakePhraseId, boolean>>;
+  /** Whisper second pass available for accurate final transcripts. */
+  accurate?: boolean;
+  /** Kokoro neural voice available. */
+  neural?: boolean;
 }
+
+export interface NeuralVoice { id: string; name: string; accent: string; gender: 'female' | 'male' }
 
 export interface ProviderStatus {
   policy: RoutingPolicy;

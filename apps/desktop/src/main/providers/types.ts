@@ -2,7 +2,8 @@ export interface ToolSpec { name: string; description: string; parameters: Recor
 export interface ToolCall { id: string; name: string; input: unknown }
 
 export type ConversationItem =
-  | { role: 'user'; text: string }
+  /** `images`: base64 PNGs for vision-capable models (only sent when the user explicitly asked about the screen). */
+  | { role: 'user'; text: string; images?: string[] }
   /** `raw` keeps provider-native content (e.g. Anthropic thinking blocks) so it can be passed back unchanged. */
   | { role: 'assistant'; text: string; toolCalls?: ToolCall[]; raw?: unknown; rawProvider?: string }
   | { role: 'tool'; results: Array<{ id: string; name: string; content: string; isError: boolean }> };

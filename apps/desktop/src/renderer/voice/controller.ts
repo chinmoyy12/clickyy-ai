@@ -32,6 +32,11 @@ export class VoiceController {
   private followUp = false;
   private conversation = false;
   private busy: Promise<void> = Promise.resolve();
+  private loudFrames = 0;
+
+  /** Barge-in threshold on the normalized mic level (0..1) and frames (100 ms each) of sustained voice. */
+  static readonly BARGE_LEVEL = 0.32;
+  static readonly BARGE_FRAMES = 3;
 
   constructor(private d: VoiceDeps) {}
 
@@ -192,10 +197,33 @@ export class VoiceController {
     }
   }
 
+  /**
+   * Mic level while Clickyy is speaking. Sustained voice (echo-cancelled) interrupts the
+   * reply and starts listening — natural "barge-in" without saying the wake phrase.
+   */
+  voiceLevel(level: number) {
+    if (this.state !== 'speaking' || this.muted || !this.d.settings().listening.bargeIn) {
+      this.loudFrames = 0;
+      return;
+    }
+    this.loudFrames = level >= VoiceController.BARGE_LEVEL ? this.loudFrames + 1 : 0;
+    if (this.loudFrames >= VoiceController.BARGE_FRAMES) {
+      this.loudFrames = 0;
+      this.d.stopSpeaking();
+      void this.run(async () => {
+        if (this.state !== 'speaking') return;
+        await this.d.cancelSession();
+        await this.listenForCommand(this.d.settings().listening.commandTimeoutMs);
+      });
+    }
+  }
+
   /** Text-typed replies also go through here so speech + follow-up behave the same. */
   async afterReply(reply: AssistantReply) {
     if (reply.speech && this.d.settings().speech.ttsEngine !== 'off') {
       this.state = 'speaking';
+      this.loudFrames = 0;
+      if (this.d.settings().listening.bargeIn && !this.muted) await this.d.micStart().catch(() => {});
       if (this.wantsWake() && this.d.settings().listening.interruption === 'stop') {
         // Keep wake detection running during speech so "Jarvis…" can interrupt.
         await this.d.startSession('wake');

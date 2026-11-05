@@ -1,10 +1,10 @@
 {
   "name": "clickyy-ai",
   "productName": "Clickyy AI",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Clickyy AI - privacy-conscious voice assistant for Windows 11",
   "author": "Clickyy AI",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "main": "dist/main/main.cjs",
   "scripts": {

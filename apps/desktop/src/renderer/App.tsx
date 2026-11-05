@@ -31,12 +31,13 @@ export function App() {
   const providers = useStore((s) => s.providers);
   const confirming = useStore((s) => s.confirmations.length > 0);
   const wakeFlash = useRef(0);
+  const controllerRef = useRef<VoiceController | null>(null);
 
   const engine = useMemo(() => {
     const mic = new Mic();
     const speaker = new Speaker();
     mic.onFrame = (f) => bridge.sendAudio(f);
-    mic.onLevel = (l) => store.set({ micLevel: l });
+    mic.onLevel = (l) => { store.set({ micLevel: l }); controllerRef.current?.voiceLevel(l); };
     mic.onLost = (reason) => { store.set({ micError: reason }); notify('error', reason); };
     speaker.onState = (v) => { store.set({ speaking: v }); bridge.ttsState(v); };
     speaker.onLevel = (l) => store.set({ speakLevel: l });
@@ -45,6 +46,16 @@ export function App() {
       const s = store.get().settings;
       if (!s || !reply.speech || s.speech.ttsEngine === 'off') return;
       const { rate, pitch } = prosody(s, reply.style);
+      if (s.speech.ttsEngine === 'neural') {
+        if (store.get().speech.neural) {
+          try {
+            await speaker.speakNeural(reply.speech, (sentence) => call('tts:neural', { text: sentence }), s.speech.volume);
+            return;
+          } catch (e) {
+            notify('warn', `Neural voice failed (${(e as Error).message}). Using the Windows voice.`);
+          }
+        }
+      }
       if (s.speech.ttsEngine === 'cloud') {
         try {
           const audio = await call('tts:cloud', { text: reply.speech });
@@ -85,6 +96,7 @@ export function App() {
       onPartial: (t) => store.set({ partial: t }),
       onError: (m) => notify('error', m),
     });
+    controllerRef.current = controller;
     return { mic, speaker, controller, speak };
   }, []);
 

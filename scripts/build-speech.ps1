@@ -15,6 +15,9 @@ try {
   & $py -m PyInstaller --noconfirm --clean --onedir --console --name clickyy-speech `
     --distpath (Join-Path $work 'dist') --workpath (Join-Path $work 'build') --specpath $work `
     --collect-all vosk --collect-submodules uvicorn --hidden-import _cffi_backend `
+    --collect-all faster_whisper --collect-all ctranslate2 --collect-all tokenizers `
+    --collect-all kokoro_onnx --collect-all onnxruntime --collect-all espeakng_loader --collect-all phonemizer --collect-all language_tags `
+    --collect-all av --collect-submodules segments --collect-data csvw `
     run_speech.py
   if ($LASTEXITCODE -ne 0) { throw 'PyInstaller failed' }
 } finally { Pop-Location }
@@ -24,5 +27,10 @@ if (Test-Path $out) { Remove-Item -Recurse -Force $out }
 Copy-Item -Recurse (Join-Path $work 'dist\clickyy-speech') $out
 New-Item -ItemType Directory -Force (Join-Path $out 'models') | Out-Null
 Copy-Item -Recurse $model (Join-Path $out 'models')
+# Advanced voice models (optional): accurate recognition + neural voice.
+foreach ($extra in @('whisper-base.en', 'kokoro')) {
+  $src = Join-Path $svc "models\$extra"
+  if (Test-Path $src) { Copy-Item -Recurse $src (Join-Path $out 'models') } else { Write-Warning "$extra not found; run scripts\download-voice-models.ps1 to include it" }
+}
 $size = [math]::Round(((Get-ChildItem $out -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB, 1)
 Write-Output "Speech service bundle ready: $out ($size MB)"

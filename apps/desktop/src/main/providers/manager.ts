@@ -40,7 +40,7 @@ export class ProviderManager {
     if (s.runtime === 'openai_local') {
       return new OpenAICompatProvider({ id: 'openai_local', label: 'Local server', kind: 'local', baseUrl: s.baseUrl, apiKey: '', model: s.model, timeoutMs: s.timeoutMs, maxTokens: 2048, fetch: this.guard.fetchFor('local-model') });
     }
-    return new OllamaProvider(s.baseUrl, s.model, s.timeoutMs, this.guard.fetchFor('local-model'));
+    return new OllamaProvider(s.baseUrl, s.model, s.timeoutMs, this.guard.fetchFor('local-model'), s.device);
   }
 
   /** Builds a cloud provider for a preset, or null if it has no key / base URL. */
@@ -83,11 +83,20 @@ export class ProviderManager {
     return (p as OpenAICompatProvider).listModels();
   }
 
+  private warmed = '';
+
   async refreshLocal(): Promise<void> {
-    const r = await this.local().check();
+    const p = this.local();
+    const r = await p.check();
     this.localReady = r.ok;
     this.localModels = r.models ?? [];
     this.localMessage = r.message;
+    // Preload the model once so the first spoken question isn't delayed by model loading.
+    const key = `${this.settings().ai.local.baseUrl}|${p.model}`;
+    if (r.ok && this.warmed !== key && p instanceof OllamaProvider) {
+      this.warmed = key;
+      void p.warm();
+    }
   }
 
   /** Providers usable right now, honoring policy, readiness and the circuit breaker. */
@@ -105,7 +114,8 @@ export class ProviderManager {
       b.failures = 0;
     }
     this.breaker.set(id, b);
-    if (id === 'ollama' || id === 'openai_local') this.localReady = false;
+    // Re-check immediately rather than writing the local model off until the next poll.
+    if (id === 'ollama' || id === 'openai_local') void this.refreshLocal();
   }
 
   reportSuccess(id: string) { this.breaker.delete(id); }
