@@ -234,8 +234,23 @@ export class Assistant {
   }
 
   /** One-shot model call with extra content (screenshot, clipboard), no tools. */
+  /**
+   * Candidate providers, giving the local model a chance first: if it should be used but isn't
+   * ready (Ollama not started yet, or started after Clickyy), re-check and start it if needed.
+   */
+  private async usableProviders(): Promise<LlmProvider[]> {
+    const pm = this.d.providers;
+    let list = pm.candidates();
+    const wantsLocal = this.d.settings().ai.policy !== 'online_preferred' || list.length === 0;
+    if (wantsLocal && !list.some((p) => p.kind === 'local') && typeof pm.ensureLocal === 'function') {
+      await pm.ensureLocal();
+      list = pm.candidates();
+    }
+    return list;
+  }
+
   private async askWithContent(prompt: string, ctx: ToolContext, turnId: string, images?: string[]): Promise<Outcome> {
-    const providers = this.d.providers.candidates();
+    const providers = await this.usableProviders();
     if (!providers.length) return { text: 'That needs a language model. Set up a local model or a cloud provider in Settings, AI and routing.', situation: 'info' };
     const s = this.d.settings();
     const system = systemPrompt(s, { memories: [], toolNames: [], policyLabel: POLICY_LABELS[s.ai.policy] });
@@ -387,7 +402,7 @@ export class Assistant {
 
   private async converse(text: string, source: 'text' | 'voice', ctx: ToolContext, turnId: string): Promise<Outcome> {
     const s = this.d.settings();
-    const providers = this.d.providers.candidates();
+    const providers = await this.usableProviders();
     if (!providers.length) return this.noModel(text);
 
     this.items.push({ role: 'user', text });

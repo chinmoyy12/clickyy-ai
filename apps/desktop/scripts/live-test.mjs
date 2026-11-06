@@ -68,8 +68,14 @@ try {
     record(`${provider}: key + model check (${wanted})`, test.ok, test.message ?? 'ok');
   }
 
-  const status = await invoke('providers:status');
-  record('provider is active', status.active !== 'none', status.activeLabel ?? status.local.message ?? '');
+  // The app starts Ollama itself if it isn't running; give it time to come up.
+  const t0 = Date.now();
+  let status = await invoke('providers:status');
+  while (status.active === 'none' && Date.now() - t0 < 45_000) {
+    await new Promise((r) => setTimeout(r, 1000));
+    status = await invoke('providers:status');
+  }
+  record('provider is active', status.active !== 'none', `${status.activeLabel ?? status.local.message ?? ''} · ready after ${Date.now() - t0} ms`);
 
   // 1. Open question, streamed.
   await evaluate('window.__ev = []');

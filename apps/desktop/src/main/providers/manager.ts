@@ -26,6 +26,10 @@ export function orderProviders(settings: Settings, local: LlmProvider | null, cl
   }
 }
 
+function isLoopback(url: string): boolean {
+  try { return ['127.0.0.1', 'localhost', '[::1]', '::1'].includes(new URL(url).hostname); } catch { return false; }
+}
+
 export class ProviderManager {
   private localReady = false;
   private localModels: string[] = [];
@@ -33,14 +37,21 @@ export class ProviderManager {
   private cloudMessage?: string;
   private breaker = new Map<string, { failures: number; openUntil: number }>();
 
-  constructor(private settings: () => Settings, private secrets: SecretStore, private guard: NetGuard, private isOnline: () => boolean) {}
+  /** Installed model used when the configured one is missing (set by refreshLocal). */
+  private localOverride = '';
+
+  /**
+   * @param startRuntime starts the installed local runtime (Ollama); returns false if it isn't installed.
+   */
+  constructor(private settings: () => Settings, private secrets: SecretStore, private guard: NetGuard, private isOnline: () => boolean,
+    private startRuntime?: () => boolean, private startWaitMs = 20_000) {}
 
   local(): LlmProvider & { check: LlmProvider['check'] } {
     const s = this.settings().ai.local;
     if (s.runtime === 'openai_local') {
       return new OpenAICompatProvider({ id: 'openai_local', label: 'Local server', kind: 'local', baseUrl: s.baseUrl, apiKey: '', model: s.model, timeoutMs: s.timeoutMs, maxTokens: 2048, fetch: this.guard.fetchFor('local-model') });
     }
-    return new OllamaProvider(s.baseUrl, s.model, s.timeoutMs, this.guard.fetchFor('local-model'), s.device);
+    return new OllamaProvider(s.baseUrl, this.localOverride || s.model, s.timeoutMs, this.guard.fetchFor('local-model'), s.device);
   }
 
   /** Builds a cloud provider for a preset, or null if it has no key / base URL. */
@@ -84,18 +95,58 @@ export class ProviderManager {
   }
 
   private warmed = '';
+  private localReachable = false;
+  private starting: Promise<void> | null = null;
+
+  /**
+   * Makes sure the local model is usable before a request gives up on it: re-checks right away
+   * (Ollama often starts after Clickyy at sign-in), and if the runtime isn't running at all,
+   * starts the installed Ollama and waits for it.
+   */
+  async ensureLocal(): Promise<void> {
+    const ai = this.settings().ai;
+    const s = ai.local;
+    if (this.localReady) return;
+    await this.refreshLocal();
+    if (this.localReady || this.localReachable || !this.startRuntime || s.runtime !== 'ollama' || !isLoopback(s.baseUrl)) return;
+    if (ai.policy === 'online_preferred' && !ai.cloud.fallbackToLocal) return; // user doesn't want the local model
+    this.starting ??= (async () => {
+      if (!this.startRuntime!()) return;
+      this.localMessage = 'Starting Ollama…';
+      const until = Date.now() + this.startWaitMs;
+      while (Date.now() < until) {
+        await new Promise((r) => setTimeout(r, 500));
+        await this.refreshLocal();
+        if (this.localReachable) return;
+      }
+      this.localMessage = 'Ollama was started but did not respond in time. Try again in a moment.';
+    })().finally(() => { this.starting = null; });
+    await this.starting;
+  }
 
   async refreshLocal(): Promise<void> {
+    this.localOverride = '';
     const p = this.local();
     const r = await p.check();
+    this.localReachable = r.models !== undefined;
     this.localReady = r.ok;
     this.localModels = r.models ?? [];
-    this.localMessage = r.message;
+    this.localMessage = this.starting && !this.localReachable ? 'Starting Ollama…' : r.message;
+    // Configured model missing but others are installed: use one instead of refusing to answer.
+    if (!r.ok && this.localModels.length && this.settings().ai.local.runtime === 'ollama') {
+      const pick = this.localModels.find((m) => !/embed/i.test(m));
+      if (pick) {
+        this.localOverride = pick;
+        this.localReady = true;
+        this.localMessage = this.settings().ai.local.model ? `Using ${pick} because ${this.settings().ai.local.model} isn't installed.` : `Using ${pick}.`;
+      }
+    }
     // Preload the model once so the first spoken question isn't delayed by model loading.
-    const key = `${this.settings().ai.local.baseUrl}|${p.model}`;
-    if (r.ok && this.warmed !== key && p instanceof OllamaProvider) {
+    const active = this.local();
+    const key = `${this.settings().ai.local.baseUrl}|${active.model}`;
+    if (this.localReady && this.warmed !== key && active instanceof OllamaProvider) {
       this.warmed = key;
-      void p.warm();
+      void active.warm();
     }
   }
 

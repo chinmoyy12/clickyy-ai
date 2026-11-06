@@ -47,7 +47,7 @@ Set a primary provider, a fallback provider and a local fallback. If one fails, 
 
 1. **[Download Clickyy-AI-Setup.exe](https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe)** (~440 MB, Windows 11 x64, no admin needed). Offline speech recognition and the neural voice are included.
 2. Run it. This build isn't code-signed yet, so if SmartScreen appears, click **More info → Run anyway**.
-3. Press **Ctrl+Shift+Space** anytime to show Clickyy. For conversation, install [Ollama](https://ollama.com) and run `ollama pull llama3.2`, or add a cloud key in Settings → Credentials.
+3. Press **Ctrl+Shift+Space** anytime to show Clickyy. For conversation, install [Ollama](https://ollama.com) and run `ollama pull llama3.2`, or add a cloud key in Settings → Credentials. You don't need to keep Ollama running: Clickyy starts it when needed, and uses any installed model if the configured one is missing.
 
 <p align="center">
   <img src="docs/screenshots/main.png" width="31%" alt="Main window" />
@@ -70,7 +70,7 @@ Set a primary provider, a fallback provider and a local fallback. If one fails, 
 | Safety | Shell requests refused; power actions blocked until permitted; destructive actions require on-screen confirmation and decline cleanly; unknown apps never launched |
 | Strict Offline | Remote hosts are blocked at the network layer (unit-tested); with no local model the app says so honestly |
 | Bundled offline voice | The installed app runs the frozen speech engine (no Python needed): recognition and the "Jarvis" wake phrase pass end to end |
-| Automated tests | **380 TypeScript tests** (Vitest) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
+| Automated tests | **384 TypeScript tests** (Vitest) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
 
 Not yet verified: a live cloud call (pending an API key; every cloud adapter is tested against mocked HTTP and SDK transports, and `node scripts/live-test.mjs cloud --provider gemini` runs the same 6 live checks once a key is saved), and a spoken command from a person into the live microphone. See [docs/TEST_PLAN.md](docs/TEST_PLAN.md) for the manual checklist.
 

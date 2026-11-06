@@ -155,6 +155,40 @@ describe('provider presets and fallback chain', () => {
     settings = mergeSettings(settings, { ai: { policy: 'strict_offline' } });
     expect(pm.candidates()).toEqual([]);
   });
+  it('starts Ollama when it is not running and waits until it answers', async () => {
+    const settings = mergeSettings(defaultSettings(), { ai: { policy: 'strict_offline', local: { model: 'llama3.2' } } });
+    let running = false;
+    let starts = 0;
+    const impl = (async () => {
+      if (!running) throw new TypeError('fetch failed');
+      return Response.json({ models: [{ name: 'llama3.2:latest' }] });
+    }) as unknown as typeof fetch;
+    const pm = new ProviderManager(() => settings, new MemorySecretStore(), new NetGuard(() => settings.ai.policy, () => {}, impl), () => false,
+      () => { starts++; setTimeout(() => { running = true; }, 700); return true; }, 5000);
+    expect(pm.candidates()).toEqual([]);
+    await pm.ensureLocal();
+    expect(starts).toBe(1);
+    expect(pm.status().local.ready).toBe(true);
+    expect(pm.candidates().map((p) => p.kind)).toEqual(['local']);
+    await pm.ensureLocal(); // already ready: no second start
+    expect(starts).toBe(1);
+  });
+  it('does not start anything when Ollama is not installed, and keeps the install hint', async () => {
+    const settings = mergeSettings(defaultSettings(), { ai: { policy: 'smart_hybrid', local: { model: 'llama3.2' } } });
+    const impl = (async () => { throw new TypeError('fetch failed'); }) as unknown as typeof fetch;
+    const pm = new ProviderManager(() => settings, new MemorySecretStore(), new NetGuard(() => settings.ai.policy, () => {}, impl), () => false, () => false, 1000);
+    await pm.ensureLocal();
+    expect(pm.status().local.ready).toBe(false);
+    expect(pm.status().local.message).toMatch(/Install Ollama/);
+  });
+  it('uses an installed model when the configured one is missing', async () => {
+    const settings = mergeSettings(defaultSettings(), { ai: { policy: 'strict_offline', local: { model: 'qwen3' } } });
+    const impl = (async () => Response.json({ models: [{ name: 'nomic-embed-text:latest' }, { name: 'llama3.2:latest' }] })) as unknown as typeof fetch;
+    const pm = new ProviderManager(() => settings, new MemorySecretStore(), new NetGuard(() => settings.ai.policy, () => {}, impl), () => false);
+    await pm.refreshLocal();
+    expect(pm.candidates().map((p) => p.label)).toEqual(['Ollama · llama3.2:latest']);
+    expect(pm.status().local.message).toMatch(/Using llama3\.2:latest because qwen3/);
+  });
   it('old settings with the custom provider still load', () => {
     const s = mergeSettings(defaultSettings(), { ai: { cloud: { provider: 'openai_compatible', baseUrl: 'https://x.example/v1' } } });
     expect(s.ai.cloud.fallbackProvider).toBe('none');

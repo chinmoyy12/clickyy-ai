@@ -39,6 +39,39 @@ const log = (m: string) => {
 };
 let secretsForRedaction: () => string[] = () => [];
 
+/** Finds the installed Ollama (per-user install, machine install, or PATH). */
+function findOllama(): string | null {
+  const env = process.env;
+  const candidates = [
+    env.LOCALAPPDATA && join(env.LOCALAPPDATA, 'Programs', 'Ollama', 'ollama.exe'),
+    env.ProgramFiles && join(env.ProgramFiles, 'Ollama', 'ollama.exe'),
+    ...(env.PATH ?? '').split(';').filter(Boolean).map((d) => join(d, 'ollama.exe')),
+  ].filter((p): p is string => !!p);
+  return candidates.find((p) => { try { return existsSync(p) && statSync(p).isFile(); } catch { return false; } }) ?? null;
+}
+
+/**
+ * Starts Ollama in the background. Prefers Ollama's own tray app (the same as starting it from the
+ * Start menu; it runs and logs the server), falling back to `ollama serve`. Returns false if Ollama
+ * isn't installed.
+ */
+function startOllama(): boolean {
+  const exe = findOllama();
+  if (!exe) { log('Ollama is not installed; cannot start the local model runtime.'); return false; }
+  const trayApp = join(exe, '..', 'ollama app.exe');
+  const [cmd, args] = existsSync(trayApp) ? [trayApp, []] : [exe, ['serve']];
+  try {
+    const child = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true, cwd: join(exe, '..') });
+    child.on('error', (e) => log(`Starting Ollama failed: ${e.message}`));
+    child.unref();
+    log(`Started Ollama: ${cmd}`);
+    return true;
+  } catch (e) {
+    log(`Starting Ollama failed: ${(e as Error).message}`);
+    return false;
+  }
+}
+
 // Isolated profile for automated end-to-end tests (scripts/e2e.mjs).
 if (process.env.CLICKYY_USER_DATA) app.setPath('userData', process.env.CLICKYY_USER_DATA);
 
@@ -220,7 +253,7 @@ async function main() {
   const registry = createRegistry();
   const broker = new ConfirmationBroker((request) => { emit({ type: 'confirm', request }); emit({ type: 'phase', phase: 'confirming' }); win?.show(); }, (id, approved) => emit({ type: 'confirm_resolved', id, approved }));
   const executor = new ToolExecutor(registry, broker, (call) => emit({ type: 'tool', call }));
-  const providers = new ProviderManager(settings, secrets, guard, () => net.isOnline());
+  const providers = new ProviderManager(settings, secrets, guard, () => net.isOnline(), startOllama);
 
   let speech: SpeechService;
   const scheduler = new Scheduler(repos.reminders, (r, late) => {
@@ -446,7 +479,9 @@ async function main() {
   applyWindowSettings(settings());
   buildTray(assistant);
   scheduler.restore();
-  void providers.refreshLocal();
+  void providers.ensureLocal();
+  // Keep checking in the background so the local model shows up as soon as it's available.
+  setInterval(() => void providers.refreshLocal(), 30_000);
   void speech.start();
   void bridge.call('ping').then(() => log('Windows bridge ready')).catch((e) => log(`Windows bridge unavailable: ${e.message}`));
 

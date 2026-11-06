@@ -22,12 +22,15 @@ class MockProvider implements LlmProvider {
   }
 }
 
-async function make(providers: LlmProvider[], patch: DeepPartial<Settings> = {}) {
+async function make(providers: LlmProvider[], patch: DeepPartial<Settings> = {}, lateLocal?: LlmProvider) {
   const s = await setup(patch);
   const events: AssistantEvent[] = [];
   const failures: string[] = [];
+  let ensured = 0;
   const manager = {
     candidates: () => providers.filter((p) => !failures.includes(p.id)),
+    ensureLocal: async () => { ensured++; if (lateLocal && !providers.includes(lateLocal)) providers = [lateLocal, ...providers]; },
+    get ensured() { return ensured; },
     status: () => ({ policy: s.repos.settings.get().ai.policy, online: true, local: { configured: false, ready: false, model: '', models: [], message: 'No local model runtime found.' }, cloud: { provider: 'anthropic', model: 'm', hasKey: false, allowed: false }, active: providers[0]?.kind ?? 'none' }),
     reportFailure: (id: string) => failures.push(id),
     reportSuccess: () => {},
@@ -40,10 +43,18 @@ async function make(providers: LlmProvider[], patch: DeepPartial<Settings> = {})
     emit: (e) => events.push(e), settings: () => s.repos.settings.get(), updateSettings: (p) => s.repos.settings.update(p),
     speechStatus: () => ({ state: 'ready' }), uiCommand: (c) => ui.push(c), net: fakeNet,
   });
-  return { ...s, assistant, events, ui };
+  return { ...s, assistant, events, ui, manager: manager as unknown as { ensured: number } };
 }
 
 describe('assistant orchestration', () => {
+  it('starts the local model on demand instead of saying no model is available', async () => {
+    const local = new MockProvider('ollama', 'local', [{ text: 'Black holes are regions where gravity wins.', toolCalls: [], stop: 'end' }]);
+    const t = await make([], { ai: { policy: 'strict_offline' } }, local);
+    const r = await t.assistant.submit('explain black holes simply', 'text');
+    expect(t.manager.ensured).toBe(1);
+    expect(r.text).toMatch(/gravity wins/);
+    expect(r.source).toBe('local_llm');
+  });
   it('handles deterministic commands with no model at all', async () => {
     const t = await make([]);
     const r = await t.assistant.submit('Hey Clickyy, set the volume to thirty percent', 'voice');
