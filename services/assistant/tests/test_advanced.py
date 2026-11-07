@@ -95,5 +95,28 @@ def test_round_trip_neural_voice_is_intelligible():
     resampled = np.interp(np.arange(0, len(audio), 1.5), np.arange(len(audio)), audio).astype(np.int16)  # 24k -> 16k
     from clickyy_speech.advanced import WhisperEngine
 
-    text, _ = WhisperEngine(ROOT / "models" / "whisper-base.en").transcribe(resampled.tobytes())
+    text = WhisperEngine(ROOT / "models" / "whisper-base.en").transcribe(resampled.tobytes())[0]
     assert "timer" in text.lower() and ("ten" in text.lower() or "10" in text)
+
+
+HAS_SMALL = (ROOT / "models" / "whisper-small" / "model.bin").exists()
+
+
+@needs_kokoro
+@pytest.mark.skipif(not HAS_SMALL, reason="multilingual Whisper not installed")
+def test_hindi_round_trip_voice_and_recognition():
+    """A Hindi reply in the Hindi neural voice, heard by multilingual Whisper: detected as Hindi, in Devanagari."""
+    import numpy as np
+
+    r = client().post("/tts", json={"text": "अभी शाम के सात बजे हैं।", "voice": "hf_alpha"}, headers=AUTH)
+    assert r.status_code == 200
+    with wave.open(io.BytesIO(r.content)) as w:
+        audio = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32)
+    resampled = np.interp(np.arange(0, len(audio), 1.5), np.arange(len(audio)), audio).astype(np.int16)
+    from clickyy_speech.advanced import WhisperEngine
+
+    text, _, lang = WhisperEngine(ROOT / "models" / "whisper-small").transcribe(resampled.tobytes())
+    assert lang == "hi"
+    assert any("ऀ" <= c <= "ॿ" for c in text)
+    # Whisper small often writes साथ for सात and पजे for बजे; the app's Hindi layer repairs both.
+    assert "शाम" in text and any(w in text for w in ("सात", "साथ", "7"))

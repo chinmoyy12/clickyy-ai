@@ -122,12 +122,14 @@ export class SpeechService {
   private async health() {
     try {
       const r = await fetch(`http://127.0.0.1:${this.port}/health`, { headers: { authorization: `Bearer ${this.token}` }, signal: AbortSignal.timeout(5000) });
-      const body = (await r.json()) as { status: string; engines: { vosk: { ready: boolean; error?: string }; whisper?: { available: boolean }; kokoro?: { available: boolean } }; wakeSupport: Partial<Record<WakePhraseId, boolean>> };
+      const body = (await r.json()) as { status: string; engines: { vosk: { ready: boolean; error?: string }; whisper?: { available: boolean; model?: string; multilingual?: boolean }; wakeVerifier?: { available: boolean }; kokoro?: { available: boolean } }; wakeSupport: Partial<Record<WakePhraseId, boolean>> };
       if (body.status === 'ready') {
         this.restarts = 0;
-        const accurate = !!body.engines.whisper?.available;
+        const w = body.engines.whisper;
+        const accurate = !!w?.available;
         const neural = !!body.engines.kokoro?.available;
-        this.setStatus({ state: 'ready', engine: accurate ? 'vosk + whisper' : 'vosk', wakeSupport: body.wakeSupport, accurate, neural });
+        this.setStatus({ state: 'ready', engine: accurate ? `vosk + ${w?.model ?? 'whisper'}` : 'vosk', wakeSupport: body.wakeSupport, accurate, neural,
+          whisperModel: w?.model, multilingual: w?.multilingual, wakeVerifier: !!body.engines.wakeVerifier?.available });
       } else {
         this.setStatus({ state: 'degraded', engine: 'vosk', message: body.engines.vosk.error ?? 'Speech model missing' });
       }
@@ -169,11 +171,13 @@ export class SpeechService {
     }
   }
 
-  async startSession(mode: 'wake' | 'command', phrases: WakePhraseId[], sensitivity: number, cooldownMs = 2000, accurate = true) {
+  async startSession(mode: 'wake' | 'command', phrases: WakePhraseId[], sensitivity: number, cooldownMs = 2000, accurate = true,
+    language: 'auto' | 'en' | 'hi' = 'auto', verify = true) {
     await this.ensureReady();
     const ws = await this.connect();
     this.sessionActive = true;
-    ws.send(JSON.stringify({ type: 'start', mode, phrases, sensitivity, cooldown_ms: cooldownMs, accurate }));
+    const languages = language === 'auto' ? ['en', 'hi'] : [language];
+    ws.send(JSON.stringify({ type: 'start', mode, phrases, sensitivity, cooldown_ms: cooldownMs, accurate, languages, verify }));
   }
 
   /** Neural (Kokoro) speech for one sentence or short passage; returns a WAV file. */

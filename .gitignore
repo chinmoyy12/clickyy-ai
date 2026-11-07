@@ -19,3 +19,4 @@ apps/desktop/resources/speech-service/
 *.db
 *.db.bak*
 secrets*.json
+services/assistant/eval/data/

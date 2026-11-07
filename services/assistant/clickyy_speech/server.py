@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from .advanced import KokoroEngine, WhisperEngine
 from .engine import EngineUnavailable, Event, Session, VoskEngine
+from .verify import WakeVerifier
 from .wake import WAKE_VARIANTS
 
 MAX_FRAME_BYTES = 64_000  # ~2 s of audio; larger frames are rejected
@@ -37,6 +38,24 @@ class StartMsg(BaseModel):
     sensitivity: float = Field(default=0.5, ge=0.0, le=1.0)
     cooldown_ms: int = Field(default=2000, ge=0, le=10000)
     accurate: bool = True
+    # Recognition languages: ["en", "hi"] (auto between English and Hindi), ["en"] or ["hi"].
+    languages: list[str] = Field(default_factory=lambda: ["en", "hi"], max_length=2)
+    # Second-stage check of the wake word with Whisper (fewer false wakes, so stage one can be more sensitive).
+    verify: bool = True
+
+
+def pick_whisper(models_root: str, explicit: str | None, extra_root: str | None = None) -> str:
+    """Recognition model: an explicit choice; else large-v3-turbo only if the user downloaded it
+    (Settings › Best accuracy; ~4× slower); else the bundled multilingual small; else base.en."""
+    has = lambda d: bool(d) and os.path.isfile(os.path.join(d, "model.bin"))  # noqa: E731
+    if has(explicit):
+        return explicit  # type: ignore[return-value]
+    if extra_root and has(os.path.join(extra_root, "whisper-large-v3-turbo")):
+        return os.path.join(extra_root, "whisper-large-v3-turbo")
+    for name in ("whisper-small", "whisper-base.en"):
+        if has(os.path.join(models_root, name)):
+            return os.path.join(models_root, name)
+    return explicit or os.path.join(models_root, "whisper-base.en")
 
 
 class TtsReq(BaseModel):
@@ -50,7 +69,14 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
     engine = VoskEngine(model_path)
     engine.load()
     models_root = os.path.dirname(os.path.abspath(model_path))
-    whisper = WhisperEngine(whisper_dir or os.path.join(models_root, "whisper-base.en"))
+    extra_root = os.environ.get("CLICKYY_EXTRA_MODELS")  # models downloaded in the app (user data folder)
+    whisper = WhisperEngine(pick_whisper(models_root, whisper_dir, extra_root))
+    # English only: the English base model is about 3× faster than small with the same English
+    # accuracy (eval/run_asr.py), so it takes English-only sessions unless the user chose best accuracy.
+    base_en = os.path.join(models_root, "whisper-base.en")
+    whisper_en = WhisperEngine(base_en) if whisper.multilingual and "large" not in whisper.model_dir.name and os.path.isdir(base_en) else whisper
+    # The small English model re-checks wake words: fast, and "Clicky" is said the same way in any accent.
+    verifier = WakeVerifier(base_en)
     kokoro = KokoroEngine(kokoro_dir or os.path.join(models_root, "kokoro"))
 
     def authorized(value: str | None) -> bool:
@@ -64,6 +90,7 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
     async def warm():
         # Load the heavier engines in the background so the first command isn't slow.
         async def load():
+            await asyncio.to_thread(verifier.load)
             await asyncio.to_thread(whisper.load)
             await asyncio.to_thread(kokoro.load)
         asyncio.get_running_loop().create_task(load())
@@ -77,7 +104,8 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
             "status": "ready" if engine.ready else "degraded",
             "engines": {
                 "vosk": {"ready": engine.ready, "error": engine.error, "model": str(engine.model_path)},
-                "whisper": {"available": whisper.available, "ready": whisper.ready, "error": whisper.error},
+                "whisper": {"available": whisper.available, "ready": whisper.ready, "error": whisper.error, "model": whisper.model_dir.name, "multilingual": whisper.multilingual},
+                "wakeVerifier": {"available": verifier.available, "ready": verifier._model is not None, "error": verifier.error},
                 "kokoro": {"available": kokoro.available, "ready": kokoro.ready, "error": kokoro.error},
             },
             "wakeSupport": {
@@ -110,6 +138,7 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
         await ws.accept()
         session: Session | None = None
         accurate = True
+        languages: tuple[str, ...] = ("en", "hi")
 
         async def send(ev: Event):
             await ws.send_text(ev.to_json())
@@ -118,10 +147,20 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
             for ev in events:
                 # Second pass: re-read the whole utterance with Whisper for an accurate final transcript.
                 if accurate and sess.mode == "command" and ev.type in ("final", "silence") and whisper.available and sess.last_utterance:
-                    refined = await asyncio.to_thread(whisper.transcribe, sess.last_utterance, ev.data.get("text", ""))
+                    refined = await asyncio.to_thread(transcribe, sess.last_utterance, ev.data.get("text", ""))
                     if refined:
-                        ev = Event("final", {"text": refined[0], "confidence": refined[1], "engine": "whisper", "draft": ev.data.get("text", "")})
+                        ev = Event("final", {"text": refined[0], "confidence": refined[1], "engine": "whisper", "language": refined[2], "draft": ev.data.get("text", "")})
+
+                # "Clicky, open Spotify" in one breath: transcribe what came after the wake word.
+                if ev.type == "wake" and sess.last_tail and whisper.available:
+                    tail = await asyncio.to_thread(transcribe, sess.last_tail, "")
+                    if tail:
+                        ev = Event("wake", {**ev.data, "command": tail[0], "language": tail[2]})
                 await send(ev)
+
+        def transcribe(pcm: bytes, hint: str):
+            eng = whisper_en if languages == ("en",) and whisper_en.available else whisper
+            return eng.transcribe(pcm, hint, languages=languages)
 
         try:
             while True:
@@ -149,8 +188,10 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
                 if kind == "start":
                     try:
                         start = StartMsg.model_validate(payload)
-                        session = Session(engine, start.mode, start.phrases, start.sensitivity, start.cooldown_ms / 1000)
+                        session = Session(engine, start.mode, start.phrases, start.sensitivity, start.cooldown_ms / 1000,
+                                          verifier=verifier if start.verify and start.mode == "wake" else None)
                         accurate = start.accurate
+                        languages = tuple(l for l in start.languages if l in ("en", "hi")) or ("en", "hi")
                         await send(Event("ready", {"mode": start.mode, "grammar": session.grammar, "accurate": accurate and whisper.available}))
                     except ValidationError as exc:
                         await send(Event("error", {"code": "bad_start", "message": str(exc.errors()[0]["msg"])}))
@@ -169,6 +210,7 @@ def create_app(token: str, model_path: str, whisper_dir: str | None = None, koko
             pass
 
     return app
+
 
 
 def main() -> None:

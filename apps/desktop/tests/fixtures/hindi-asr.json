@@ -1,0 +1,985 @@
+{
+ "model": "small",
+ "rows": [
+  {
+   "text": "स्पॉटिफ़ाई खोलो",
+   "hyp": "स्पर्टिफाई खोलो",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "स्पॉटिफ़ाई खोलो",
+   "hyp": "स्पाटिफाई खोलो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "स्पॉटिफ़ाई खोलो",
+   "hyp": "स्पाटिफाए खोलो",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "स्पॉटिफ़ाई खोलो",
+   "hyp": "स्पॉटिफ़ी खोलो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "आवाज़ तीस प्रतिशत कर दो",
+   "hyp": "आवास तीस प्रतिषट कर्डो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "आवाज़ तीस प्रतिशत कर दो",
+   "hyp": "आवास दीस प्रतिष्ट कर्डो",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "आवाज़ तीस प्रतिशत कर दो",
+   "hyp": "अवास दीस प्रदिषेट कर्डो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "आवाज़ तीस प्रतिशत कर दो",
+   "hyp": "आवास दीस प्रतिषट कर्दो",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "आज मौसम कैसा है",
+   "hyp": "आज मुस्सम के साहे",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "आज मौसम कैसा है",
+   "hyp": "आज मोसम कैसा है?",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "आज मौसम कैसा है",
+   "hyp": "आज मोसम कैसा है?",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "आज मौसम कैसा है",
+   "hyp": "आज मुस्स्म्ट के साईजा",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "मुझे शाम सात बजे माँ को फ़ोन करने की याद दिलाना",
+   "hyp": "मुझे शाम साथ, बजे माग को फोन करने की याद दिलाना",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "मुझे शाम सात बजे माँ को फ़ोन करने की याद दिलाना",
+   "hyp": "मुझे शाम साथ, बजे मा को फोन करने की याड दिलाना",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "मुझे शाम सात बजे माँ को फ़ोन करने की याद दिलाना",
+   "hyp": "उजे शाम सार, बज़ माँ कोपूं करने की याज गिलाई।",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "मुझे शाम सात बजे माँ को फ़ोन करने की याद दिलाना",
+   "hyp": "मुझे शाम साथ, बजे मा को फोन करने की याज दिलाना",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "स्क्रीनशॉट लो",
+   "hyp": "Screenshot lower",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "स्क्रीनशॉट लो",
+   "hyp": "Screenshot low.",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "स्क्रीनशॉट लो",
+   "hyp": "Screen Chadlore.",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "स्क्रीनशॉट लो",
+   "hyp": "Screenshot low.",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "ब्लूटूथ बंद करो",
+   "hyp": "Now we're just about to get off.",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "ब्लूटूथ बंद करो",
+   "hyp": "ब्लुटुत बन्द करो",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "ब्लूटूथ बंद करो",
+   "hyp": "ब्लुटुत बन्द करो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "ब्लूटूथ बंद करो",
+   "hyp": "ब्लुटुत बंद करों",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "यूट्यूब पर पुराने गाने चलाओ",
+   "hyp": "यूट्यूम पर पुराने गानी चलाओ",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "यूट्यूब पर पुराने गाने चलाओ",
+   "hyp": "यूट्यूम पर पुराने गान चलाओ",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "यूट्यूब पर पुराने गाने चलाओ",
+   "hyp": "यूट्यूम पर पुराने गान चलाओ",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "यूट्यूब पर पुराने गाने चलाओ",
+   "hyp": "यूट्यू पर पुराने गान चलाओ",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "लैपटॉप को तीस मिनट में स्लीप कर दो",
+   "hyp": "लेप्टाब को तीस मिनत में स्लीप कर दो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "लैपटॉप को तीस मिनट में स्लीप कर दो",
+   "hyp": "लेप्टोब को तीस मिनत में स्लीप कर दो",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "लैपटॉप को तीस मिनट में स्लीप कर दो",
+   "hyp": "लेब्टाब को तीस मिनत में स्लीप कर दो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "लैपटॉप को तीस मिनट में स्लीप कर दो",
+   "hyp": "लेप्टोप को, तीस मिनट में स्लीब कर दो",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "बजट के लिए एक्सेल शीट बनाओ",
+   "hyp": "बजजत के लिए एक्सेल शीट पनाओ",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "बजट के लिए एक्सेल शीट बनाओ",
+   "hyp": "बजजत के लिए एक्सेल शीट पनाओ",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "बजट के लिए एक्सेल शीट बनाओ",
+   "hyp": "बजध के लिए एक्सेल शीट बनाओ",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "बजट के लिए एक्सेल शीट बनाओ",
+   "hyp": "बढ़़ के लिए, एक सेल शीप बलाग,",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "मेरी बैटरी कितनी बची है",
+   "hyp": "मेरी बैत्री कितनी भची है",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "मेरी बैटरी कितनी बची है",
+   "hyp": "मेरी बाट्री कितनी भची है",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "मेरी बैटरी कितनी बची है",
+   "hyp": "मेरी बाट्री कितनी भाची लिए ना, बढ़ाओ।",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "मेरी बैटरी कितनी बची है",
+   "hyp": "मेरी बाट्री कितनी भची है",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "दिवाली में कितने दिन बाकी हैं",
+   "hyp": "दिवाली में कितने दन बाखी है?",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "दिवाली में कितने दिन बाकी हैं",
+   "hyp": "दिवाली में किपने विबाची है",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "दिवाली में कितने दिन बाकी हैं",
+   "hyp": "दिवाली में कितने दन बाखी है?",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "दिवाली में कितने दिन बाकी हैं",
+   "hyp": "दिवाली में कितने दन बाकी है",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "पच्चीस मिनट का टाइमर लगाओ",
+   "hyp": "बचीस मिलेट का ताइमिलाओ।",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "पच्चीस मिनट का टाइमर लगाओ",
+   "hyp": "25 मिनेद का ताइमर लगाओ.",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "पच्चीस मिनट का टाइमर लगाओ",
+   "hyp": "पचीस मिनेद का ताइमर लगाओ।",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "पच्चीस मिनट का टाइमर लगाओ",
+   "hyp": "पचीस मिन्नट्का लगाओ।",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "कंप्यूटर लॉक करो",
+   "hyp": "क्मपुटर लग करो",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "कंप्यूटर लॉक करो",
+   "hyp": "कुम्पूटर लोग करोए",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "कंप्यूटर लॉक करो",
+   "hyp": "कुम्तूटर लाग करो",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "कंप्यूटर लॉक करो",
+   "hyp": "क्मपुटर लग करो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "डार्क मोड चालू करो",
+   "hyp": "दार्क मोड चालू करो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "डार्क मोड चालू करो",
+   "hyp": "दार्क मोड चालू करो",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "डार्क मोड चालू करो",
+   "hyp": "दार्क मोड चालू करो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "डार्क मोड चालू करो",
+   "hyp": "दार्क मोड चालू करो",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "अगला गाना बजाओ",
+   "hyp": "अग्ला गाना बजाओ",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "अगला गाना बजाओ",
+   "hyp": "अगला गाना बजाओ",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "अगला गाना बजाओ",
+   "hyp": "अगला गाना बजाओ",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "अगला गाना बजाओ",
+   "hyp": "Next song, please.",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "गाना रोक दो",
+   "hyp": "गाना रोग तोई",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "गाना रोक दो",
+   "hyp": "गाना रोग तोई",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "गाना रोक दो",
+   "hyp": "You can't do it, you can't.",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "गाना रोक दो",
+   "hyp": "Gana Rokdo.",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "अभी क्या समय हुआ है",
+   "hyp": "अभी क्या समे हुए है",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "अभी क्या समय हुआ है",
+   "hyp": "अभी क्या स्विए बढ़ाई?",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "अभी क्या समय हुआ है",
+   "hyp": "अभी क्या समे हुए है?",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "अभी क्या समय हुआ है",
+   "hyp": "अभी क्या समें हुए है?",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "डाउनलोड फ़ोल्डर खोलो",
+   "hyp": "Download through the code.",
+   "lang": "hi",
+   "condition": "far_noisy",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "डाउनलोड फ़ोल्डर खोलो",
+   "hyp": "डाऊन्लोड फुल्डर खोलो",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "डाउनलोड फ़ोल्डर खोलो",
+   "hyp": "दान दूर फुल्डर खोलो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "डाउनलोड फ़ोल्डर खोलो",
+   "hyp": "Download folder colon.",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "राहुल को ईमेल लिखो",
+   "hyp": "राहल को e-mail लिख हो",
+   "lang": "hi",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "राहुल को ईमेल लिखो",
+   "hyp": "राहल को e-mail लिख हो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "राहुल को ईमेल लिखो",
+   "hyp": "ब्राहल कु इमें दिखूब।",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "राहुल को ईमेल लिखो",
+   "hyp": "राहल को इमेल लिख हो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "वाई फाई चालू करो",
+   "hyp": "वाई भाइ चालू करो",
+   "lang": "hi",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "वाई फाई चालू करो",
+   "hyp": "वाई भाए चालू करो",
+   "lang": "hi",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "वाई फाई चालू करो",
+   "hyp": "वाई भाए चालू करो",
+   "lang": "hi",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "वाई फाई चालू करो",
+   "hyp": "वाई भाइ चालू करो",
+   "lang": "hi",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "क्रोम ओपन करो",
+   "hyp": "Chrome Open Caroy.",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "क्रोम ओपन करो",
+   "hyp": "Chrome OpenCaroey.",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "क्रोम ओपन करो",
+   "hyp": "Chrome OpenCaro.",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "क्रोम ओपन करो",
+   "hyp": "क्रोम अबन करो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "वॉल्यूम थोड़ा बढ़ा दो",
+   "hyp": "वॉल्यूम थोडा पढ़ाओ",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "वॉल्यूम थोड़ा बढ़ा दो",
+   "hyp": "वॉल्यूम थोड़ा बढ़़।",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "वॉल्यूम थोड़ा बढ़ा दो",
+   "hyp": "वॉल्यूम थोडा बढ़ाग।",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "वॉल्यूम थोड़ा बढ़ा दो",
+   "hyp": "वॉल्यूम थोड़ा बढ़़ो",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "नोटपैड में नया नोट बनाओ",
+   "hyp": "नोट्पेड में नया नूट बनाओ",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "नोटपैड में नया नोट बनाओ",
+   "hyp": "नोट्पेर में नया नूट बनाओ",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "नोटपैड में नया नोट बनाओ",
+   "hyp": "नोट्पेर में नया नौट बनाओ",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "नोटपैड में नया नोट बनाओ",
+   "hyp": "लोग पैर्ठी, लगाओ, बढ़ाई।",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "कल सुबह नौ बजे मीटिंग का रिमाइंडर सेट करो",
+   "hyp": "कुल सुबहन नाव बजे मीटिंका, रिमाइनर सेट करो.",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "कल सुबह नौ बजे मीटिंग का रिमाइंडर सेट करो",
+   "hyp": "कल सुबहनोबजे मीटिंग का रिमाएंडर सेट करो",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "कल सुबह नौ बजे मीटिंग का रिमाइंडर सेट करो",
+   "hyp": "क्ल्सुबहर नोग वजे मीटीग का, लिमाइंगर सेव कर.",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "कल सुबह नौ बजे मीटिंग का रिमाइंडर सेट करो",
+   "hyp": "कल सुभह, नो बजे मिटिंग का, रिमाएंदर सेट करो.",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "सीपीयू यूसेज चेक करो",
+   "hyp": "स्पियो यूट्यूसेट जेख करो",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "सीपीयू यूसेज चेक करो",
+   "hyp": "CPLU said check carol.",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "सीपीयू यूसेज चेक करो",
+   "hyp": "स्पॉ यूट्यूसेज चेख करो",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "सीपीयू यूसेज चेक करो",
+   "hyp": "स्पॉटिफ़ यूट्याई चेख करो,",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "मेरा लैपटॉप स्लो क्यों चल रहा है",
+   "hyp": "Meena, laptop, new pictures ahead.",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "मेरा लैपटॉप स्लो क्यों चल रहा है",
+   "hyp": "मेरा लेप्टोब स्लो क्यों चल रहा है",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "मेरा लैपटॉप स्लो क्यों चल रहा है",
+   "hyp": "मेरा लेप्टोब स्लोग क्यु चल रहा है?",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "मेरा लैपटॉप स्लो क्यों चल रहा है",
+   "hyp": "मेरा लेप्टोब स्लोग क्यो चल रहा है।",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "डेस्कटॉप पर सारी पीडीएफ फाइलें ढूंढो",
+   "hyp": "देस कतःप पर सारी पीद्येपभाईली दून्गो",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "डेस्कटॉप पर सारी पीडीएफ फाइलें ढूंढो",
+   "hyp": "देस कतोप पर सारी पीड्यएप, भाईलें दून हो",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "डेस्कटॉप पर सारी पीडीएफ फाइलें ढूंढो",
+   "hyp": "देस्कतोप पर सारी पीड्ये प्हाइले दूग।",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "डेस्कटॉप पर सारी पीडीएफ फाइलें ढूंढो",
+   "hyp": "देस कदोप पर सारी पीट्येप, भाईले दून्द हो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "अरिजीत सिंह के गाने प्ले करो",
+   "hyp": "और जीत सीह के गाने प्लेकरो",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "अरिजीत सिंह के गाने प्ले करो",
+   "hyp": "और इजीट सीहर के गाने प्लेख करों",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "अरिजीत सिंह के गाने प्ले करो",
+   "hyp": "अरीजीट सीहें के गाने प्ले करो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "अरिजीत सिंह के गाने प्ले करो",
+   "hyp": "अरीजीत सीह के गाने प्ले करो",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "इंटरनेट स्पीड टेस्ट करो",
+   "hyp": "यूट्यूम, वॉल्याई, स्पॉटिफ़ाओ।",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "इंटरनेट स्पीड टेस्ट करो",
+   "hyp": "इंटरनेट स्पीट टेस्ट करो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "इंटरनेट स्पीड टेस्ट करो",
+   "hyp": "यूट्यूम, वॉल्याई,",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "इंटरनेट स्पीड टेस्ट करो",
+   "hyp": "वॉल्यूब, युट्रनेः वीटेश करूम",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "ब्राइटनेस कम करो",
+   "hyp": "ब्राइत नीस कम करो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "ब्राइटनेस कम करो",
+   "hyp": "ब्राइतनेस कम करोर",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "ब्राइटनेस कम करो",
+   "hyp": "ब्राइत नेश कंखायो",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "ब्राइटनेस कम करो",
+   "hyp": "ब्राइतनेस कम करो",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "व्हाट्सएप पर प्रिया को मैसेज भेजो",
+   "hyp": "व्हाट्सेप पर प्र्प्या को मेसछ भीजो।",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "व्हाट्सएप पर प्रिया को मैसेज भेजो",
+   "hyp": "व्हाट्सएप पड्रिया को मैसे जुगे लिए।",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "व्हाट्सएप पर प्रिया को मैसेज भेजो",
+   "hyp": "वाट्सेप पर प्र्प्या को मैसेंज भीजो",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "व्हाट्सएप पर प्रिया को मैसेज भेजो",
+   "hyp": "व्हाटसएप पर प्रिया को मैसेज भेझो।",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "पाइथन में एक कैलकुलेटर प्रोग्राम लिखो",
+   "hyp": "Buy them, meet, eat, get, meet up, go around the clock.",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "पाइथन में एक कैलकुलेटर प्रोग्राम लिखो",
+   "hyp": "पाइदन में एक खल्कुलेटर प्रोग्राम लिख हो",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "पाइथन में एक कैलकुलेटर प्रोग्राम लिखो",
+   "hyp": "पाइधन में एक क्यल्कुलेटर प्रोग्राम लिखो",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "पाइथन में एक कैलकुलेटर प्रोग्राम लिखो",
+   "hyp": "पाइठन में एक खल्कुलेटर प्रोग्राम लिख हो",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "सिस्टम रीस्टार्ट मत करना",
+   "hyp": "System Restart Madkarna.",
+   "lang": "hinglish",
+   "condition": "clean",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "सिस्टम रीस्टार्ट मत करना",
+   "hyp": "सिस्टम रीस्तार्द मत करना",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "सिस्टम रीस्टार्ट मत करना",
+   "hyp": "सिस्तम रीस्टार्ब मत कर्मा",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "सिस्टम रीस्टार्ट मत करना",
+   "hyp": "सिस्टम रीस्ताल्त मत करना",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "ज़ूम मीटिंग जॉइन करो",
+   "hyp": "जुम मीटिं जोईं करो",
+   "lang": "hinglish",
+   "condition": "noise_15db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "ज़ूम मीटिंग जॉइन करो",
+   "hyp": "जोँम बढ़ागाओ।",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "ज़ूम मीटिंग जॉइन करो",
+   "hyp": "जुम मिटिंग जोईं करो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "ज़ूम मीटिंग जॉइन करो",
+   "hyp": "जुम मीटिंग जोईन करो",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hm_psi"
+  },
+  {
+   "text": "बैकग्राउंड ऐप्स बंद कर दो",
+   "hyp": "बेख्राूंट एक्स बन्द करतो",
+   "lang": "hinglish",
+   "condition": "babble_10db",
+   "voice": "hf_alpha"
+  },
+  {
+   "text": "बैकग्राउंड ऐप्स बंद कर दो",
+   "hyp": "बैक्राूँन्ट आप्स बंद कर तो",
+   "lang": "hinglish",
+   "condition": "room_mic",
+   "voice": "hf_beta"
+  },
+  {
+   "text": "बैकग्राउंड ऐप्स बंद कर दो",
+   "hyp": "बेख्राूंड एप्स बन्द कर दो",
+   "lang": "hinglish",
+   "condition": "quiet",
+   "voice": "hm_omega"
+  },
+  {
+   "text": "बैकग्राउंड ऐप्स बंद कर दो",
+   "hyp": "बैग्राओ, आप स्पॉटिट करतुष्ट",
+   "lang": "hinglish",
+   "condition": "far_noisy",
+   "voice": "hm_psi"
+  }
+ ]
+}

@@ -68,9 +68,10 @@ export type SpeechEvent =
   | { type: 'status'; status: SpeechServiceStatus }
   | { type: 'ready'; mode: 'wake' | 'command' }
   | { type: 'partial'; text: string }
-  | { type: 'final'; text: string; confidence: number }
+  | { type: 'final'; text: string; confidence: number; language?: 'en' | 'hi' }
   | { type: 'silence' }
-  | { type: 'wake'; phrase: WakePhraseId; confidence: number }
+  /** `command` is what was said right after the wake word in the same breath ("Clicky, open Spotify"). */
+  | { type: 'wake'; phrase: WakePhraseId; confidence: number; verified?: boolean; command?: string; language?: 'en' | 'hi' }
   | { type: 'error'; code: string; message: string };
 
 export interface SpeechServiceStatus {
@@ -82,7 +83,15 @@ export interface SpeechServiceStatus {
   accurate?: boolean;
   /** Kokoro neural voice available. */
   neural?: boolean;
+  /** Whisper model in use (e.g. whisper-small) and whether it understands Hindi. */
+  whisperModel?: string;
+  multilingual?: boolean;
+  /** Second-stage wake word verifier loaded. */
+  wakeVerifier?: boolean;
 }
+
+/** The optional "Best accuracy" recognition model (downloaded from Settings). */
+export interface ModelDownloadStatus { id: string; label: string; installed: boolean; downloading: boolean; done: number; total: number; error?: string }
 
 export interface NeuralVoice { id: string; name: string; accent: string; gender: 'female' | 'male' }
 

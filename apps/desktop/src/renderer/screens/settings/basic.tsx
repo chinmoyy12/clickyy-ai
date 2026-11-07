@@ -6,7 +6,7 @@ import { Badge, Button, Row, Section, Select, Slider, TextInput, Toggle } from '
 import { useStore } from '../../state/store';
 import { call } from '../../api';
 import { waitForVoices, type VoiceInfo } from '../../audio/tts';
-import type { NeuralVoice } from '@shared/types';
+import type { ModelDownloadStatus, NeuralVoice } from '@shared/types';
 import type { Update } from '../Settings';
 
 type P = { s: Settings; update: Update };
@@ -151,6 +151,34 @@ export function PersonalitySection({ s, update, onPreview }: P & { onPreview: (t
   );
 }
 
+function BestAccuracyModel() {
+  const [m, setM] = useState<ModelDownloadStatus | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    const poll = () => void call('models:status').then((r) => { if (alive) setM(r); }).catch(() => {});
+    poll();
+    const t = setInterval(poll, 1000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  if (!m) return null;
+  const gb = (n: number) => `${(n / 1e9).toFixed(2)} GB`;
+  return (
+    <Row label="Best accuracy model" hint={m.installed
+      ? 'Installed: Whisper large-v3-turbo transcribes everything. Most accurate, but slower (about 8 s per sentence on an i5-11400H). Remove it to go back to the fast model.'
+      : `Optional ${gb(m.total)} download from Hugging Face (pinned version, checked before use). Much better Hindi and Hinglish (measured 87% and 94% keyword accuracy against 75% and 59%), but about 3× slower: around 8 s per sentence on an i5-11400H.${m.error ? ` Last attempt: ${m.error}` : ''}`}>
+      <div className="flex items-center gap-2">
+        {m.downloading && <><Badge tone="warn">{Math.floor((m.done / m.total) * 100)}% of {gb(m.total)}</Badge><Button onClick={() => void call('models:cancel')}>Cancel</Button></>}
+        {!m.downloading && !m.installed && <Button onClick={() => void call('models:download').then(setM)}>Download</Button>}
+        {m.installed && !confirmRemove && <><Badge tone="ok">Installed</Badge><Button onClick={() => setConfirmRemove(true)}>Remove</Button></>}
+        {m.installed && confirmRemove && <><span className="text-[0.8em] text-muted">Delete the {gb(m.total)} model?</span>
+          <Button onClick={() => void call('models:remove', { confirm: true }).then(() => setConfirmRemove(false))}>Delete</Button>
+          <Button onClick={() => setConfirmRemove(false)}>Keep</Button></>}
+      </div>
+    </Row>
+  );
+}
+
 export function ListeningSection({ s, update }: P) {
   const speech = useStore((x) => x.speech);
   return (
@@ -165,6 +193,11 @@ export function ListeningSection({ s, update }: P) {
         <Row label="Accurate recognition (Whisper)" hint={speech.accurate ? 'After you finish speaking, Whisper re-reads the audio for a near-perfect transcript (about half a second). Live captions still come from Vosk.' : 'Whisper model not installed.'}>
           <Toggle label="Accurate recognition" checked={s.speech.accurateStt} disabled={!speech.accurate} onChange={(v) => void update({ speech: { accurateStt: v } })} />
         </Row>
+        <Row label="Languages" hint={speech.multilingual === false ? 'The installed Whisper model is English-only; Hindi needs the multilingual model.' : 'English + Hindi: speak either or mix them (Hinglish); detected per sentence, about 2–3 s per sentence on a laptop CPU. English only: about 1 s.'}>
+          <Select label="Recognition language" value={s.speech.language} onChange={(v) => void update({ speech: { language: v } })}
+            options={[{ value: 'auto', label: 'English + Hindi (auto)' }, { value: 'en', label: 'English only' }, { value: 'hi', label: 'Hindi only' }]} />
+        </Row>
+        <BestAccuracyModel />
       </Section>
       <Section title="Listening mode">
         <Row label="Mode">
@@ -190,7 +223,10 @@ export function ListeningSection({ s, update }: P) {
             <Toggle label={WAKE_PHRASE_LABELS[id]} checked={s.wake.phrases[id]} onChange={(v) => void update({ wake: { phrases: { [id]: v } } })} />
           </Row>
         ))}
-        <Row label="Sensitivity" hint="Higher catches more but may trigger by accident."><Slider label="Wake sensitivity" value={s.wake.sensitivity} min={0} max={1} step={0.05} onChange={(v) => void update({ wake: { sensitivity: v } })} format={(v) => `${Math.round(v * 100)}%`} /></Row>
+        <Row label="Sensitivity" hint="Higher catches more. Below 40% Clickyy uses a strict check that almost never wakes by mistake but needs a clear “Clicky”."><Slider label="Wake sensitivity" value={s.wake.sensitivity} min={0} max={1} step={0.05} onChange={(v) => void update({ wake: { sensitivity: v } })} format={(v) => `${Math.round(v * 100)}%`} /></Row>
+        <Row label="Double-check the wake word" hint={speech.wakeVerifier ? 'A second, more accurate recognizer confirms "Clicky" before Clickyy wakes, so similar words like "quickly" or "tricky" don\'t trigger it.' : 'Verifier model not installed.'}>
+          <Toggle label="Verify wake word" checked={s.speech.verifyWake} disabled={!speech.wakeVerifier} onChange={(v) => void update({ speech: { verifyWake: v } })} />
+        </Row>
         <Row label="Cooldown"><Slider label="Wake cooldown" value={s.wake.cooldownMs / 1000} min={0.5} max={10} step={0.5} onChange={(v) => void update({ wake: { cooldownMs: v * 1000 } })} format={(v) => `${v}s`} /></Row>
         <Row label="Activation chime"><Toggle label="Activation chime" checked={s.wake.chime} onChange={(v) => void update({ wake: { chime: v } })} /></Row>
       </Section>

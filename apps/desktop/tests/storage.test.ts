@@ -15,8 +15,15 @@ describe('settings', () => {
     expect(s.ai.allowCloudTranscripts).toBe(false);
     expect(s.tools.permissions.files).toBe(false);
     expect(s.tools.permissions.power).toBe(false);
-    expect(s.wake.enabled).toBe(false);
+    // Always listening for "Clicky" by default (on-device, mic badge visible), with the wake verifier on.
+    expect(s.wake.enabled).toBe(true);
+    expect(s.listening.mode).toBe('wake_word');
+    expect(s.speech.verifyWake).toBe(true);
+    expect(s.speech.language).toBe('auto');
     expect(s.ui.launchAtLogin).toBe(false);
+  });
+  it('migrates the old en-US recognition language to English + Hindi', () => {
+    expect(mergeSettings(defaultSettings(), { speech: { language: 'en-US' as never } }).speech.language).toBe('auto');
   });
   it('validates merges', () => {
     expect(() => mergeSettings(defaultSettings(), { speech: { rate: 9 } })).toThrow();

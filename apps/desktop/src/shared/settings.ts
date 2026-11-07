@@ -30,14 +30,16 @@ export const SettingsSchema = z.object({
   assistantName: z.string().trim().min(1).max(32).default('Clickyy'),
   userAddress: z.string().trim().max(40).default(''),
   wake: z.object({
-    enabled: z.boolean().default(false),
+    /** Always listening for "Clicky" (locally, with the mic badge shown) unless the user turns it off. */
+    enabled: z.boolean().default(true),
     phrases: z.object({ hey_clickyy: z.boolean().default(true), clickyy: z.boolean().default(true), jarvis: z.boolean().default(true) }).prefault({}),
-    sensitivity: unit.default(0.5),
+    /** 0.7 measured best: most wakes caught with the same false-wake rate (docs/WAKE_WORDS.md). */
+    sensitivity: unit.default(0.7),
     cooldownMs: z.number().int().min(500).max(10000).default(2000),
     chime: z.boolean().default(true),
   }).prefault({}),
   listening: z.object({
-    mode: z.enum(['push_to_talk', 'wake_word', 'conversation']).default('push_to_talk'),
+    mode: z.enum(['push_to_talk', 'wake_word', 'conversation']).default('wake_word'),
     followUpMs: z.number().int().min(0).max(30000).default(6000),
     commandTimeoutMs: z.number().int().min(2000).max(30000).default(9000),
     interruption: z.enum(['stop', 'ignore']).default('stop'),
@@ -48,7 +50,10 @@ export const SettingsSchema = z.object({
     sttEngine: z.enum(['vosk']).default('vosk'),
     /** Re-read each finished utterance with Whisper for a much more accurate transcript. */
     accurateStt: z.boolean().default(true),
-    language: z.enum(['en-US']).default('en-US'),
+    /** Languages Clickyy listens for: English and Hindi (auto-detected), or just one of them. Older 'en-US' means auto. */
+    language: z.preprocess((v) => (v === 'en-US' ? 'auto' : v), z.enum(['auto', 'en', 'hi']).default('auto')),
+    /** Double-check every wake word with a second recognizer (far fewer false wakes). */
+    verifyWake: z.boolean().default(true),
     ttsEngine: z.enum(['neural', 'system', 'cloud', 'off']).default('neural'),
     neuralVoice: z.string().regex(/^[a-z]{2}_[a-z]+$/).max(40).default('af_heart'),
     voiceName: z.string().max(200).default(''),

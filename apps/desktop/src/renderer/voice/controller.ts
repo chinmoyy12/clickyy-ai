@@ -161,6 +161,18 @@ export class VoiceController {
           if (this.d.isSpeaking()) this.d.stopSpeaking();
           if (this.d.settings().wake.chime) this.d.chime('wake');
           await this.d.cancelSession();
+          const said = ev.command?.trim();
+          if (said && said.length > 1) {
+            // "Clicky, open Spotify" in one breath: run it straight away, like a smart speaker.
+            this.state = 'submitting';
+            this.d.onListening('off');
+            this.d.onPartial(said);
+            if (!this.wantsWake()) this.d.micStop();
+            const reply = await this.d.submit(said);
+            this.d.onPartial('');
+            await this.afterReply(reply);
+            return;
+          }
           await this.listenForCommand(this.d.settings().listening.commandTimeoutMs);
         });
       case 'partial':

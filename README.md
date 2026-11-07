@@ -9,13 +9,13 @@
 </p>
 
 <p align="center">
-  <img alt="tests" src="https://img.shields.io/badge/tests-1732%20TS%20%2B%2025%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
-  <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-61%2F61-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-1797%20TS%20%2B%2057%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-67%2F67-8fcb9b?style=flat-square&labelColor=191b20" />
   <img alt="offline" src="https://img.shields.io/badge/voice-100%25%20offline-d4a373?style=flat-square&labelColor=191b20" />
   <img alt="platform" src="https://img.shields.io/badge/platform-Windows%2011-969aa3?style=flat-square&labelColor=191b20" />
 </p>
 
-**Clickyy** is a privacy-conscious voice assistant and supervised desktop agent for Windows 11. Say *“Hey Clickyy”* or *“Jarvis”*. It listens on-device, answers with a natural voice, runs your PC through validated tools, and thinks with **any model you choose**:
+**Clickyy** is a privacy-conscious voice assistant and supervised desktop agent for Windows 11. Just say *“Clicky”*, in English or Hindi. It listens on-device, answers with a natural voice, runs your PC through validated tools, and thinks with **any model you choose**:
 
 | Brain | How |
 |---|---|
@@ -25,6 +25,16 @@
 | **100% local**: **Ollama**, **LM Studio**, **llama.cpp**, **vLLM** | loopback only, works in Strict Offline mode |
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
+
+### 🎙️ New in 0.5: always listening for "Clicky", in English and Hindi
+
+| | |
+|---|---|
+| 👂 **Always listening for "Clicky"** | On by default, like a smart speaker. It runs on the PC, the "mic on" badge is always shown, and one click mutes it. "Clicky", "Hey Clicky", "Okay Clicky" and "Jarvis" all work. Say it in one breath, "Clicky, set the volume to 30 percent", and it just does it. |
+| ✅ **Two-stage wake word** | A cheap always-on spotter, then a second, more accurate recognizer that confirms it really heard "Clicky". In our benchmark it caught 86.5% of wake words (0.4: 45%), with 3.3% of sound-alikes like "quickly", "tricky" and "Vicky" accepted. |
+| 🇮🇳 **Hindi and Hinglish** | Speak Hindi, English or a mix. Clickyy detects the language every sentence (multilingual Whisper), writes Hindi in Devanagari, understands Hindi commands ("आवाज़ तीस प्रतिशत कर दो", "स्पॉटिफ़ाई खोलो", "कल सुबह नौ बजे मीटिंग का रिमाइंडर सेट करो"), and answers in Hindi with a Hindi neural voice. "मत करना" (don't) is never treated as a yes. |
+| 🎯 **Measured, not guessed** | A synthetic benchmark of 260 English, Hindi and Hinglish commands across 20+ voices (American, British, Indian-accented and Hindi) in clean, noisy, crowd, echoey-room, quiet and far conditions. Keyword accuracy: English 91.3%, Hindi 72.4% (0.4: 44%), Hinglish 61.1%. Details are in [docs/TEST_PLAN.md](docs/TEST_PLAN.md#speech-accuracy-benchmark). |
+| 🚀 **Optional best-accuracy model** | Settings › Voice › Best accuracy downloads Whisper large-v3-turbo (1.6 GB, pinned version, SHA-256 checked). It's the most accurate, but slow on laptop CPUs. |
 
 ### 🧰 New in 0.4: the 10,000-command update
 
@@ -201,10 +211,10 @@ These are honest gaps, not hidden ones.
 
 1. **Cloud providers haven't been called live yet.** The Anthropic adapter and the OpenAI-compatible presets (Gemini, OpenAI, Groq, OpenRouter, Mistral, DeepSeek, xAI) are tested against mocked transports. The local path *is* verified live with llama3.2. Default model names are starting points; use **Load models** to pick a current one.
 2. **Small local models are less capable than cloud ones.** llama3.2 (3B) handles questions and single actions well. Multi-step agent tasks work better with a cloud model or a larger local one.
-3. **Wake words still use Vosk's small model.** "Jarvis" is the most reliable phrase; "Clickyy" is matched through sound-alikes. Commands themselves are transcribed by Whisper. There is no accent-robustness benchmark yet.
+3. **"Clicky" is not perfect, and no wake word is.** On our synthetic benchmark the two-stage wake word catches 86.5% of wake words and accepts 3.3% of sound-alikes, about 6 false wakes per hour of nearby conversation. Real voices and rooms will differ. "Jarvis" and "Hey Clicky" are the most reliable. A trained keyword model on real recordings is the next step ([docs/WAKE_WORDS.md](docs/WAKE_WORDS.md)).
 4. **The neural voice is CPU-bound.** About 1–1.7 s to the first sentence on an i5-11400H; slower PCs can switch to the Windows voice. Profiles adjust wording plus speed (and pitch on Windows voices); Kokoro has no emotion tags.
 5. **Barge-in by talking needs reasonable echo cancellation.** Headphones are best. On loud speakers Clickyy may hear itself, so it's off by default.
 6. **Not implemented:** calendar and email (needs OAuth integrations), document search over your files (RAG), workspace layout save/restore, process termination, cost tracking, macOS and Linux.
 7. **Spotify playlists:** Clickyy opens Spotify search for the playlist; it can't press play on a specific playlist without the Spotify Web API (not integrated).
-8. **The bundled speech engine is English only** (Vosk small en-US). Other languages need a different Vosk model via `CLICKYY_VOSK_MODEL`.
+8. **English and Hindi only, and Hindi is harder.** Whisper small catches 72% of Hindi keywords and 61% of Hinglish keywords on our benchmark, against 91% for English, and far, noisy Hindi is weak. The optional large-v3-turbo download raises Hindi to about 87% and Hinglish to about 94%, at about 8 s per sentence. In English + Hindi mode a sentence takes about 2–3 s to transcribe; English only takes about 1 s. Live captions while you speak are still English-only (Vosk); the final Hindi transcript replaces them.
 9. **Code signing is pending SignPath approval.** The release workflow signs every executable and the installer automatically once the SignPath secrets are added ([docs/SIGNING.md](docs/SIGNING.md)). Until then, Windows SmartScreen warns on first run, and PCs with Smart App Control enabled block the app.

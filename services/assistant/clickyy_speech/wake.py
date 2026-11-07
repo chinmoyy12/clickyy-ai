@@ -16,9 +16,14 @@ from dataclasses import dataclass, field
 # model vocabulary (checked at startup by the service).
 WAKE_VARIANTS: dict[str, list[str]] = {
     "hey_clickyy": ["hey click e", "hey click key", "hey quickie", "hey clique e", "hey clicky"],
-    "clickyy": ["click e", "click key", "quickie", "clique e", "clicky"],
+    "clickyy": ["click e", "click key", "quickie", "clique e", "clicky", "ok click e", "okay click e", "hi click e", "click e e",
+                "click hey", "hi click key", "okay click key", "hello click e"],
     "jarvis": ["jarvis", "hey jarvis"],
 }
+
+
+# Words that may come before the wake word ("Okay Clicky", "Hi Clicky", a breath Vosk calls [unk]).
+LEAD_INS = {"[unk]", "hey", "hi", "okay", "ok", "hello"}
 
 
 def sensitivity_to_threshold(sensitivity: float) -> float:
@@ -51,17 +56,54 @@ class WakeMatcher:
     cooldown_s: float = 2.0
     _last_fire: float = field(default=-1e9, init=False)
 
+    # With a second-stage verifier the first stage can be much more permissive.
+    relax: float = 0.0
+
+    def find(self, result: dict) -> tuple[str, float, float, float] | None:
+        """Best wake variant anywhere in a Vosk final result: (phrase_id, confidence, start_s, end_s).
+
+        The variant may be followed by more words ("clicky open spotify" → "click e [unk] [unk]"),
+        so it is matched as a run of words, not only as the whole text.
+        """
+        words = [w for w in (result.get("result") or []) if w.get("word")]
+        if not words:
+            text = (result.get("text") or "").strip()
+            return (self.lookup[text], 1.0, 0.0, 0.0) if text in self.lookup else None
+        best, best_n = None, 0
+        for variant, pid in self.lookup.items():
+            parts = variant.split()
+            n = len(parts)
+            for i in range(len(words) - n + 1):
+                if [w["word"] for w in words[i : i + n]] != parts:
+                    continue
+                # Only at the start of the utterance, after at most two greeting/filler words
+                # ("[unk]" breath, "okay", "hi"): "Okay Clicky, …" but not "I will click e later".
+                if i > 2 or any(w["word"] not in LEAD_INS for w in words[:i]):
+                    continue
+                conf = sum(w.get("conf", 0.0) for w in words[i : i + n]) / n
+                # Higher confidence wins; on a tie the longer variant ("hey click e" over "click e").
+                if best is None or (conf, n) > (best[1], best_n):
+                    best, best_n = (pid, conf, float(words[i].get("start", 0.0)), float(words[i + n - 1].get("end", 0.0))), n
+        return best
+
     def evaluate(self, result: dict, now: float | None = None) -> tuple[str, float] | None:
         """Evaluate a Vosk final result dict. Returns (phrase_id, confidence) or None."""
-        now = time.monotonic() if now is None else now
-        text = (result.get("text") or "").strip()
-        if not text or text not in self.lookup:
+        hit = self.evaluate_full(result, now)
+        if not hit:
             return None
-        words = result.get("result") or []
-        conf = sum(w.get("conf", 0.0) for w in words) / len(words) if words else 0.0
-        if conf < sensitivity_to_threshold(self.sensitivity):
+        self.fired(now)
+        return hit[0], hit[1]
+
+    def evaluate_full(self, result: dict, now: float | None = None) -> tuple[str, float, float, float] | None:
+        now = time.monotonic() if now is None else now
+        hit = self.find(result)
+        if not hit:
+            return None
+        if hit[1] < max(0.2, sensitivity_to_threshold(self.sensitivity) - self.relax):
             return None
         if now - self._last_fire < self.cooldown_s:
             return None
-        self._last_fire = now
-        return self.lookup[text], round(conf, 3)
+        return (hit[0], round(hit[1], 3), hit[2], hit[3])
+
+    def fired(self, now: float | None = None) -> None:
+        self._last_fire = time.monotonic() if now is None else now

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { IpcSend, type IpcPayload } from '@shared/ipc';
 import { WAKE_PHRASES, type DeepPartial, type Settings, type WakePhraseId } from '@shared/settings';
 import { CLOUD_PROVIDERS, PROVIDER_PRESETS, resolveBaseUrl, type CloudProviderId } from '@shared/providers';
-import type { AssistantEvent, CatalogEntry, Diagnostics, SpeechEvent } from '@shared/types';
+import type { AssistantEvent, CatalogEntry, Diagnostics, ModelDownloadStatus, SpeechEvent } from '@shared/types';
 import { Db } from './storage/db';
 import { createRepos, type Repos } from './storage/repos';
 import { EncryptedFileSecretStore } from './security/secrets';
@@ -25,6 +25,7 @@ import { Assistant } from './assistant/orchestrator';
 import { CATALOG } from './assistant/catalog';
 import { Scheduler } from './scheduler';
 import { locateSpeechService, SpeechService } from './speech/service';
+import { BEST_ACCURACY, download as downloadModel, isInstalled as isModelInstalled, remove as removeModel, totalBytes as modelBytes } from './speech/models';
 import { registerIpc, type Handlers } from './ipc';
 
 const DEV_URL = process.env.CLICKYY_DEV_SERVER_URL;
@@ -254,6 +255,8 @@ async function main() {
   for (const f of ['desktop', 'documents', 'downloads', 'pictures', 'music', 'videos'] as const) {
     try { process.env[`CLICKYY_DIR_${f.toUpperCase()}`] = app.getPath(f); } catch { /* fall back to the home folder */ }
   }
+  // Optional larger recognition models downloaded from Settings live here; the speech service prefers them.
+  process.env.CLICKYY_EXTRA_MODELS ??= join(dataDir, 'models');
   const wasm = join(__dirname, 'sql-wasm.wasm');
   const db = await Db.open(join(dataDir, 'clickyy.db'), wasm);
   repos = createRepos(db);
@@ -263,6 +266,13 @@ async function main() {
   const secrets = new EncryptedFileSecretStore(join(dataDir, 'secrets.bin.json'), safeStorage);
   secretsForRedaction = () => secrets.all();
   const guard = new NetGuard(() => settings().ai.policy, (a) => emit({ type: 'network', active: a.active, host: a.host, purpose: a.purpose }));
+
+  // Optional "Best accuracy" recognition model, downloaded only when the user asks (Settings › Voice).
+  const modelsRoot = process.env.CLICKYY_EXTRA_MODELS!;
+  const dl: ModelDownloadStatus = { id: BEST_ACCURACY.id, label: BEST_ACCURACY.label, installed: false, downloading: false, done: 0, total: modelBytes(BEST_ACCURACY) };
+  let dlAbort: AbortController | null = null;
+  void isModelInstalled(modelsRoot, BEST_ACCURACY).then((ok) => { dl.installed = ok; });
+  const modelStatus = (): ModelDownloadStatus => ({ ...dl });
 
   // Seed the approved app registry with installed well-known apps on first run.
   if (repos.apps.list().length === 0) for (const a of detectApps(existsSync)) repos.apps.upsert(a);
@@ -434,16 +444,41 @@ async function main() {
       const { mode } = p as IpcPayload<'speech:start'>;
       const s = settings();
       const phrases = WAKE_PHRASES.filter((id) => s.wake.phrases[id as WakePhraseId]);
-      await speech.startSession(mode, phrases, s.wake.sensitivity, s.wake.cooldownMs, s.speech.accurateStt);
+      await speech.startSession(mode, phrases, s.wake.sensitivity, s.wake.cooldownMs, s.speech.accurateStt, s.speech.language, s.speech.verifyWake);
       return true;
     },
     'tts:neural': async (p) => {
       const s = settings();
       const { text } = p as { text: string };
-      const wav = await speech.synthesize(text, s.speech.neuralVoice, s.speech.rate);
+      // Hindi (Devanagari) sentences get a Hindi voice of the same gender as the chosen English one.
+      const female = /^[a-z]f_/.test(s.speech.neuralVoice);
+      const voice = /[ऀ-ॿ]/.test(text) ? (female ? 'hf_alpha' : 'hm_omega') : s.speech.neuralVoice;
+      const wav = await speech.synthesize(text, voice, s.speech.rate);
       return wav.toString('base64');
     },
     'tts:voices': () => speech.voices(),
+    'models:status': () => modelStatus(),
+    'models:download': () => {
+      if (!dl.downloading && !dl.installed) {
+        const ctrl = new AbortController();
+        dlAbort = ctrl;
+        Object.assign(dl, { downloading: true, error: undefined, done: 0 });
+        void downloadModel(modelsRoot, BEST_ACCURACY, (done) => { dl.done = done; }, ctrl.signal, guard.fetchFor('model-download') as never)
+          .then(async () => { dl.installed = true; log('Best-accuracy model installed'); await speech.restart(); })
+          .catch((e: Error) => { dl.error = ctrl.signal.aborted ? 'Download cancelled.' : e.message; log(`Model download failed: ${e.message}`); })
+          .finally(() => { dl.downloading = false; dlAbort = null; });
+      }
+      return modelStatus();
+    },
+    'models:cancel': () => { dlAbort?.abort(); return true; },
+    'models:remove': async () => {
+      dlAbort?.abort();
+      await removeModel(modelsRoot, BEST_ACCURACY);
+      dl.installed = false;
+      dl.done = 0;
+      await speech.restart();
+      return true;
+    },
     'speech:stop': () => speech.stopSession(),
     'speech:cancel': () => speech.cancelSession(),
     'tts:cloud': async (p) => {

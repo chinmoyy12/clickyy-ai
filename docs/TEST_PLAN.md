@@ -1,17 +1,18 @@
 # Test plan and results
 
-All results below were **executed** on 2026-11-03 on Windows 11 Home 10.0.26300, i5-11400H, 15.7 GB RAM, Realtek mic array.
+All results below were **executed** between 2026-11-03 and 2026-11-07 on Windows 11 Home 10.0.26300, i5-11400H, 15.7 GB RAM, Realtek mic array.
 
 ## Automated
 
 | Suite | Command | Result | Kind |
 |---|---|---|---|
 | TypeScript typecheck | `npm run typecheck` | ✅ clean | static |
-| Security lint | `npm run lint` | ✅ 60 files clean | static |
-| Vitest (10 files) | `npm test` | ✅ **1,732/1,732** (2026-11-07) | unit/integration, mocks for hardware and network; `commands10k.test.ts` routes 1,081 commands sampled evenly from all 191 intent families of the 10,000-command list, plus the Excel, PDF and ZIP writers, loan, row and code parsers, and repeating reminders |
+| Security lint | `npm run lint` | ✅ 86 files clean | static |
+| Vitest (13 files) | `npm test` | ✅ **1,797/1,797** (2026-11-07, v0.5.0) | includes `hindi.test.ts` (Hindi and Hinglish rules plus Whisper's phonetic spellings), `hindi-asr.test.ts` (140 real Whisper Hindi transcripts end to end) and `models.test.ts` (verified model download); unit/integration, mocks for hardware and network; `commands10k.test.ts` routes 1,081 commands sampled evenly from all 191 intent families of the 10,000-command list, plus the Excel, PDF and ZIP writers, loan, row and code parsers, and repeating reminders |
+| End to end, **installed via NSIS** (v0.5.0, 2026-11-07) | `node scripts/e2e.mjs "%LOCALAPPDATA%\Programs\Clickyy AI\Clickyy AI.exe"` | ✅ **67/67** | adds always-listening defaults, verified "Clicky" and "Jarvis" wakes through the frozen two-stage detector, Whisper small, and Hindi/Hinglish commands (time, battery, CPU, negation) |
 | End to end, **installed via NSIS** (v0.4.0, 2026-11-07) | `node scripts/e2e.mjs "%LOCALAPPDATA%\Programs\Clickyy AI\Clickyy AI.exe"` | ✅ **61/61** | same checks against the silently installed app (product version 0.4.0.0) |
 | End to end, dev build (v0.4.0, 2026-11-07) | `npm run e2e` | ✅ **61/61** | adds live Bluetooth status, a CPU diagnostic, app status (File Explorer), files by type, to-do add/list/complete and a real `.xlsx` from the interactive Excel builder; self-test understands all 435 example commands |
-| pytest | `services/assistant/.venv/Scripts/python -m pytest tests` | ✅ **25/25** (incl. real Whisper + Kokoro) | real Vosk engine on SAPI-synthesized speech |
+| pytest | `services/assistant/.venv/Scripts/python -m pytest tests` | ✅ **57/57** (incl. real Whisper + Kokoro; two-stage wake, verifier spellings and sound-alikes, language choice, model choice, Hindi voice round trip) | real Vosk engine on SAPI-synthesized speech |
 | End to end, dev build (v0.3.0, 2026-11-06) | `npm run e2e` | ✅ **55/55** | real app, real Windows APIs; includes the browser question for YT Music, world clock, 1,451 named capabilities, 119 Start-menu apps, the always-listening switch and the in-app self-test (7/7) |
 | In-app self-test | say "run a self test" | ✅ **7/7** | understanding of all 253 example commands, Windows bridge, speech engine, a real llama3.2 reply, tools, network, storage |
 | **Live local LLM** (installed app) | `node scripts/live-test.mjs local --exe "%LOCALAPPDATA%\Programs\Clickyy AI\Clickyy AI.exe"` | ✅ **6/6** | real llama3.2 via Ollama: streamed answer, follow-up, real tool call, confirmed restart |
@@ -57,6 +58,86 @@ These are measurements, not targets.
 | Speech recognition | 2.5 s utterance streamed in real time plus 1 s of trailing silence: final transcript after ~3.9 s, i.e. about 0.4 s after the audio ended |
 | Memory at idle | Electron (5 processes) 507–526 MB · speech service (Python + Vosk model) 178 MB · Windows bridge 92 MB |
 | Idle CPU (window visible) | ~6% of one core total (GPU 3.9%, renderer 1.8%, main 0%) after throttling the idle orb to 15 fps |
+
+## Speech accuracy benchmark
+
+Executed on 2026-11-07, same machine (i5-11400H, int8 on CPU), with `services/assistant/eval`. Synthetic speech isn't a real person, so treat these as a hard, repeatable regression test, not a promise about your voice and room.
+
+**Corpus** (`eval/build_corpus.py`):
+- **260 command clips:**
+  - 30 English phrases × 4 (every phrase is said at least once by an Indian-accented voice)
+  - 20 Hindi phrases × 4
+  - 15 Hinglish phrases × 4
+- **Voices:**
+  - Kokoro: 20 American, British and Hindi
+  - Windows: David and Zira
+- **Speeds:** 0.9× to 1.15×.
+- **Conditions, rotated:**
+  - clean
+  - steady noise at 15 dB SNR
+  - a 6-voice English and Hindi crowd at 10 dB
+  - a reverberant room through a laptop mic
+  - a quiet speaker (−22 dB)
+  - a far, noisy speaker
+
+**Metrics:**
+- **Keyword recall:** share of the words that matter (app names, numbers, verbs) that were caught. Matching is fuzzy, and Devanagari is transliterated, so "स्पॉटिफ़ाई" counts as Spotify.
+- **All words caught:** share of clips with every keyword caught.
+- **WER:** English word error rate.
+- **Seconds per sentence:** wall time after the speech ends.
+
+### Recognition (Whisper second pass)
+
+Full corpus (260 clips). These are the models Clickyy can use:
+
+| Model | English keywords | English WER | Hindi keywords | Hinglish keywords | All words caught (en / hi / hinglish) | Seconds per sentence |
+|---|---|---|---|---|---|---|
+| base.en (0.4.0; English only) | 88.2% | 18.2% | 44.4% | 53.7% | 75.8% / 6.3% / 15.0% | 1.0 |
+| **small (0.5.0 default, bundled)** | **91.3%** | **13.6%** | **72.4%** | **61.1%** | 85.8% / 38.8% / 28.3% | **2.1 / 2.6 / 2.8** |
+
+Same 44-clip sample (every sixth clip), including the optional download:
+
+| Model | English | Hindi | Hinglish | Seconds per sentence |
+|---|---|---|---|---|
+| base.en | 89.2% | 51.1% | 55.9% | 1.1 |
+| small | 92.3% | 74.5% | 58.8% | 2.0–2.9 |
+| large-v3-turbo (optional download) | **95.4%** | **87.2%** | **94.1%** | 7.5–8 |
+
+Whisper small by condition (keyword recall):
+
+| Condition | English | Hindi | Hinglish |
+|---|---|---|---|
+| clean | 93.5% | 72.1% | 70.6% |
+| steady noise, 15 dB | 86.9% | 82.6% | 73.5% |
+| crowd babble, 10 dB | 93.7% | 78.3% | 56.8% |
+| echoey room, laptop mic | 94.0% | 83.0% | 67.5% |
+| quiet speaker | 95.4% | 80.0% | 70.3% |
+| far and noisy | 83.9% | 34.1% | 26.5% |
+
+**Findings and decisions:**
+- **Speed:**
+  - Whisper always encodes a padded 30-second window, and on this CPU that pass is most of the cost.
+  - The stock detect-language-then-transcribe ran it twice (5.6 s). The service now detects from the same encoder output, which halves the time.
+  - A single decoding pass with no temperature fallback, a token cap and no 3-gram repeats stop runaway Hindi loops.
+- **Language detection:**
+  - Hindi is taken for English in 13% of Hindi and Hinglish clips, mostly the far, noisy ones. English is taken for Hindi in 2% of clips.
+  - Favouring Hindi (weight 1.5) fixed some detections but did not improve commands end to end (73.5% → 72.7%) and hurt far-field English (84% → 74%), so detection is unbiased (`eval/lang_bias.py`).
+- **"English only"** uses base.en: about 1 s per sentence with near-identical English accuracy.
+- **large-v3-turbo** clearly wins on Hindi and Hinglish but is about 3× slower than small on this CPU, so it is an optional download, not the default.
+- **Far and noisy Hindi** is the weakest case for every model except turbo.
+
+Timings were measured with nothing else running. Accuracy runs: `eval/run_asr.py base-en small` (full) and `eval/run_asr.py base-en small turbo --limit 40` (sample).
+
+### Wake word ("Clicky")
+
+See [WAKE_WORDS.md](WAKE_WORDS.md#measured-synthetic-benchmark-servicesassistanteval) for the table:
+- 104 wake clips
+- 123 sound-alike clips (quickly, tricky, Vicky, click here, hey Siri…)
+- 10 minutes of background talk, for false wakes per hour
+
+### Hindi understanding end to end
+
+`tests/hindi-asr.test.ts` feeds the **real Whisper transcripts** of the 140 Hindi and Hinglish clips through the Hindi layer and the router, and checks each one reaches the same command as the clean sentence. Result: **97/132 (73.5%)**, up from 19/132 (14.4%) before the 0.5.0 spelling repair. Whisper writes Hindi phonetically (आवास for आवाज़, लेब्टाब for लैपटॉप, ब्लुटुत for ब्लूटूथ, or romanized as "Spotify kolo"), and the Hindi layer now snaps each word to the closest known word with a phonetic edit distance. Most remaining misses are far and noisy clips where Whisper wrote unrelated words. The test enforces a floor of 72%.
 
 ## Manual acceptance checklist (needs a person)
 

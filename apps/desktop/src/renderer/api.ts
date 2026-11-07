@@ -1,5 +1,5 @@
 import type { IpcChannel, IpcPayload } from '@shared/ipc';
-import type { AppEntry, AuditEntry, CatalogEntry, ConversationSummary, Diagnostics, Memory, ProviderStatus, Reminder, Routine, SpeechServiceStatus, StoredMessage, AssistantReply, ConfirmationRequest, NeuralVoice } from '@shared/types';
+import type { AppEntry, AuditEntry, CatalogEntry, ConversationSummary, Diagnostics, Memory, ProviderStatus, Reminder, Routine, SpeechServiceStatus, StoredMessage, AssistantReply, ConfirmationRequest, NeuralVoice, ModelDownloadStatus } from '@shared/types';
 import type { Settings } from '@shared/settings';
 
 interface Bridge {
@@ -28,6 +28,7 @@ interface Returns {
   'routines:list': Routine[]; 'routines:upsert': Routine; 'routines:preview': Array<{ tool: string; title: string; risk: number; valid: boolean; error?: string; confirm: boolean }>;
   'reminders:list': Reminder[]; 'catalog:list': CatalogEntry[]; 'audit:list': AuditEntry[]; 'diagnostics:get': Diagnostics; 'folders:pick': string | null;
   'tts:cloud': string; 'providers:models': string[]; 'tts:neural': string; 'tts:voices': NeuralVoice[]; 'assistant:status': { busy: boolean; pending: ConfirmationRequest[] };
+  'models:status': ModelDownloadStatus; 'models:download': ModelDownloadStatus;
 }
 
 export function call<C extends IpcChannel>(channel: C, payload?: IpcPayload<C>): Promise<C extends keyof Returns ? Returns[C] : unknown> {

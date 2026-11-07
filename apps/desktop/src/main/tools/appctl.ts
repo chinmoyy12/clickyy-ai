@@ -3,7 +3,7 @@ import type { AppEntry } from '@shared/types';
 import { defineTool, type ToolContext, type ToolDef } from './types';
 import { allApps, findApp, KNOWN_APPS, matchWindow, targetWindow, validateAppTarget } from './apps';
 import type { WindowInfo } from '../windows/bridge';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { outputDir, uniquePath } from './output';
 import { settingsUri } from '../security/url';
 
@@ -224,6 +224,18 @@ export const appControlTools: ToolDef[] = [
       const path = uniquePath(outputDir('Screenshots'), `${label.replace(/[^A-Za-z0-9 _-]/g, '').slice(0, 40) || 'Window'} ${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}`, '.png');
       const r = await ctx.bridge.call<{ ok: boolean; width: number; height: number }>('window.capture', { hwnd: w.hwnd, path }, 10000);
       return { ok: r.ok, data: { path, ...r }, message: `Saved a screenshot of ${label} to Documents, Clickyy, Screenshots.`, detail: path };
+    },
+  }),
+  defineTool({
+    name: 'screen.save', title: 'Screenshot', description: 'Save a screenshot of the whole screen as a PNG in Documents\\Clickyy\\Screenshots.', category: 'Screen', risk: 1, permission: 'screen',
+    input: z.object({}).strict(), confirm: 'never', timeoutMs: 12000, offline: true,
+    describe: () => 'Take a screenshot of the whole screen',
+    async run(_args, ctx) {
+      const png = Buffer.from(await ctx.platform.captureScreen(), 'base64');
+      await mkdir(outputDir('Screenshots'), { recursive: true });
+      const path = uniquePath(outputDir('Screenshots'), `Screenshot ${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}`, '.png');
+      await writeFile(path, png, { flag: 'wx' });
+      return { ok: true, data: { path, bytes: png.length }, message: 'Saved a screenshot to Documents, Clickyy, Screenshots.', detail: path };
     },
   }),
   defineTool({

@@ -18,9 +18,39 @@ import numpy as np
 HALLUCINATIONS = {"thank you.", "thanks for watching!", "thank you for watching.", "you", ".", "bye.", "so", "okay."}
 
 
+PROMPT_EN = "Clickyy, Jarvis, VS Code, Spotify, Chrome, Notepad, WhatsApp, YouTube, Wi-Fi, Bluetooth, Excel, percent."
+# Hindi prompt: Devanagari, with the English app names people mix in, so Hinglish keeps them.
+PROMPT_HI = "क्लिकी, स्पॉटिफ़ाई खोलो, वॉल्यूम बढ़ाओ, क्रोम, व्हाट्सएप, यूट्यूब, एक्सेल, गाना चलाओ, टाइमर लगाओ।"
+
+
+def hindi_score(probs: dict[str, float]) -> float:
+    """Probability mass that sounds like Hindi: Hindi and Urdu (spoken alike), half of nearby languages."""
+    return probs.get("hi", 0.0) + probs.get("ur", 0.0) + 0.5 * (probs.get("pa", 0.0) + probs.get("mr", 0.0) + probs.get("ne", 0.0) + probs.get("bn", 0.0))
+
+
+# Favouring Hindi was measured (eval/lang_bias.py) and did not pay off: at 1.5, Hindi heard as
+# English fell from 19 to 13 of 140 clips, but those clips were too noisy to transcribe anyway
+# (end-to-end Hindi commands 73.5% → 72.7%) and English in far, noisy rooms got worse (84% → 74%).
+HINDI_WEIGHT = 1.0
+
+
+def pick_language(probs: dict[str, float], hindi_weight: float | None = None) -> str:
+    """English or Hindi only."""
+    w = HINDI_WEIGHT if hindi_weight is None else hindi_weight
+    return "hi" if w * hindi_score(probs) > probs.get("en", 0.0) else "en"
+
+
 class WhisperEngine:
-    def __init__(self, model_dir: str | os.PathLike[str]):
+    def __init__(self, model_dir: str | os.PathLike[str], multilingual: bool | None = None, beam_size: int = 3, use_prompt: bool = True,
+                 languages: tuple[str, ...] = ("en", "hi")):
         self.model_dir = Path(model_dir)
+        # English-only models (".en") can't do Hindi; detect from the folder name unless told.
+        self.multilingual = (not self.model_dir.name.endswith(".en")) if multilingual is None else multilingual
+        self.beam_size = beam_size
+        self.use_prompt = use_prompt
+        self.languages = languages
+        self.temperature: float | tuple[float, ...] = 0.0
+        self.max_new_tokens = 160  # ~30 s of fast Hindi speech; commands are far shorter
         self._model = None
         self._lock = threading.Lock()
         self.error: str | None = None
@@ -29,46 +59,116 @@ class WhisperEngine:
     def available(self) -> bool:
         return (self.model_dir / "model.bin").exists()
 
+    _load_lock = threading.Lock()  # one model load at a time (startup warm-up vs. first request)
+
     def load(self) -> bool:
         if self._model is not None:
             return True
         if not self.available:
             self.error = f"Whisper model not found at {self.model_dir}"
             return False
-        try:
-            from faster_whisper import WhisperModel
+        with self._load_lock:
+            if self._model is not None:
+                return True
+            try:
+                from faster_whisper import WhisperModel
 
-            threads = max(2, min(8, (os.cpu_count() or 4) // 2))
-            self._model = WhisperModel(str(self.model_dir), device="cpu", compute_type="int8", cpu_threads=threads)
-            self.error = None
-            return True
-        except Exception as exc:  # noqa: BLE001 - reported via /health
-            self.error = f"Failed to load Whisper: {exc}"
-            return False
+                threads = max(2, min(8, (os.cpu_count() or 4) // 2))
+                self._model = WhisperModel(str(self.model_dir), device="cpu", compute_type="int8", cpu_threads=threads)
+                self.error = None
+                return True
+            except Exception as exc:  # noqa: BLE001 - reported via /health
+                self.error = f"Failed to load Whisper: {exc}"
+                return False
 
     @property
     def ready(self) -> bool:
         return self._model is not None
 
-    def transcribe(self, pcm16: bytes, hint: str = "") -> tuple[str, float] | None:
-        """Transcribe 16 kHz mono PCM16. Returns (text, confidence) or None for no speech."""
+    def detect(self, audio: np.ndarray, languages: tuple[str, ...] | None = None) -> str:
+        """'en' or 'hi' (only the given languages are considered)."""
+        langs = languages or self.languages
+        if not self.multilingual:
+            return "en"
+        if len(langs) == 1:
+            return langs[0]
+        _, _, all_probs = self._model.detect_language(audio)
+        lang = pick_language(dict(all_probs))
+        return lang if lang in langs else langs[0]
+
+    def _detect_once(self, audio: np.ndarray, languages: tuple[str, ...] | None):
+        """Language (en/hi) plus the encoder output it came from, so the audio is encoded only once.
+
+        Whisper always encodes a padded 30 s window; on a laptop CPU that pass is most of the
+        cost (about 2.3 s for the small model), and the stock detect-then-transcribe runs it twice.
+        """
+        langs = languages or self.languages
+        if not self.multilingual:
+            return "en", None
+        if len(langs) == 1:
+            return langs[0], None
+        from faster_whisper.audio import pad_or_trim
+
+        feats = self._model.feature_extractor(audio)
+        frames = min(self._model.feature_extractor.nb_max_frames, feats.shape[-1] - 1)
+        encoded = self._model.encode(pad_or_trim(feats[:, :frames]))
+        probs = {tok[2:-2]: p for tok, p in self._model.model.detect_language(encoded)[0]}
+        lang = pick_language(probs)
+        return (lang if lang in langs else langs[0]), encoded
+
+    def _reuse_encoding(self, encoded) -> None:
+        """Make the next (first) encoder call return the output we already have."""
+        model = self._model
+        original = type(model).encode
+        used = [False]
+
+        def encode(features):
+            if not used[0]:
+                used[0] = True
+                return encoded
+            return original(model, features)  # audio longer than 30 s: later windows encode normally
+
+        model.encode = encode
+
+    def transcribe(self, pcm16: bytes, hint: str = "", language: str | None = None, languages: tuple[str, ...] | None = None) -> tuple[str, float, str] | None:
+        """Transcribe 16 kHz mono PCM16. Returns (text, confidence, language) or None for no speech."""
         if not self.load() or len(pcm16) < 16000:  # < 0.5 s
             return None
         audio = np.frombuffer(pcm16, dtype=np.int16).astype(np.float32) / 32768.0
-        if float(np.sqrt(np.mean(audio**2))) < 0.004:  # near silence
+        rms = float(np.sqrt(np.mean(audio**2)))
+        if rms < 0.002:  # near silence
             return None
+        if rms < 0.03:  # quiet or far speaker: normalize so Whisper hears it at a normal level
+            audio = audio * min(20.0, 0.08 / rms)
         with self._lock:
+            lang, encoded = (language, None) if (language and self.multilingual) else self._detect_once(audio, languages)
+            if encoded is not None:
+                self._reuse_encoding(encoded)
+            base = (PROMPT_HI if lang == "hi" else PROMPT_EN) if self.use_prompt else None
+            # The Vosk draft as a hint; agreeing with it is fine, so only the fixed prompt counts as an echo.
+            prompt = (base + (f" {hint}" if hint and lang == "en" else "")) if base else None
+            # One decoding pass (no temperature fallback, which re-decodes up to 6× on noisy or Hindi
+            # audio), a token cap sized for spoken commands, and no 3-word loops ("यूट्यूब, यूट्यूब, …").
             segments, _ = self._model.transcribe(
-                audio, language="en", beam_size=2, vad_filter=False, without_timestamps=True,
-                condition_on_previous_text=False,
-                initial_prompt="Clickyy, Jarvis, VS Code, Spotify, Chrome, Notepad, Wi-Fi, percent." + (f" {hint}" if hint else ""),
+                audio, language=lang, beam_size=self.beam_size, vad_filter=False, without_timestamps=True,
+                condition_on_previous_text=False, initial_prompt=prompt,
+                temperature=self.temperature, max_new_tokens=self.max_new_tokens, no_repeat_ngram_size=3,
             )
-            segs = [s for s in segments if not (s.no_speech_prob > 0.6 and s.avg_logprob < -0.8)]
+            try:
+                segs = [s for s in segments if not (s.no_speech_prob > 0.6 and s.avg_logprob < -0.8)]
+            finally:
+                self._model.__dict__.pop("encode", None)  # back to the model's own encoder
         text = " ".join(s.text.strip() for s in segs).strip()
-        if not text or text.lower() in HALLUCINATIONS:
+        if not text or text.lower() in HALLUCINATIONS or (base and _echoes_prompt(text, base)):
             return None
         conf = float(np.exp(np.mean([s.avg_logprob for s in segs]))) if segs else 0.0
-        return text, round(min(1.0, conf), 3)
+        return text, round(min(1.0, conf), 3), lang
+
+
+def _echoes_prompt(text: str, prompt: str) -> bool:
+    """Whisper sometimes repeats the prompt back on noise; treat that as no speech."""
+    t = text.strip(" .।,").lower()
+    return len(t) > 12 and t in prompt.lower()
 
 
 VOICE_INFO = {
@@ -128,7 +228,8 @@ class KokoroEngine:
         """Return a 24 kHz mono 16-bit WAV."""
         if not self.load():
             raise RuntimeError(self.error or "Kokoro unavailable")
-        lang = "en-gb" if voice.startswith("b") else "en-us"
+        # Hindi voices (hf_*/hm_*) use the Hindi phonemizer; the app picks one for Devanagari replies.
+        lang = "hi" if voice.startswith("h") else "en-gb" if voice.startswith("b") else "en-us"
         with self._lock:
             samples, sr = self._k.create(text, voice=voice, speed=float(min(2.0, max(0.5, speed))), lang=lang)
         pcm = (np.clip(samples, -1, 1) * 32767).astype(np.int16).tobytes()

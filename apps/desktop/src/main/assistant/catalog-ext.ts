@@ -548,6 +548,9 @@ export const EXTENDED: CommandDef[] = [
       const action = /left/.test(m[2] ?? '') ? 'snap_left' : /right/.test(m[2] ?? '') ? 'snap_right' : 'maximize';
       return tool('windows.arrange', { action, ...(q && !/^(this|current|it)$/.test(q) ? { query: q } : {}) });
     } }),
+  cmd({ id: 'screen.screenshot', category: 'Screen', tool: 'screen.save', description: 'Save a screenshot of the whole screen.', examples: ['take a screenshot', 'capture my screen', 'screenshot'],
+    patterns: [/^(?:take|grab|capture|save|get)(?: me)?(?: a| the)? (?:full |whole )?screen ?shot(?: of (?:my |the )?(?:whole |entire |full )?(?:screen|desktop))?$/, /^screen ?shot(?: please)?$/, /^(?:capture|save) (?:my |the )?(?:whole |entire |full )?screen$/],
+    resolve: () => tool('screen.save', {}) }),
   cmd({ id: 'window.screenshot', category: 'Screen', tool: 'windows.screenshot', description: 'Save a screenshot of one app window.', examples: ['take a screenshot of just the google chrome window', 'screenshot the spotify window'],
     patterns: [/^(?:take|grab|capture|save) (?:a )?screenshot of (?:just |only )?(?:the |my )?(.+?)(?: window| app)?$/, /^screenshot (?:the |my )?(.+?) window$/],
     resolve: (m) => { const q = appArg(m[1]); return q && !/^(screen|whole screen|my screen|desktop|entire screen)$/.test(m[1]) ? tool('windows.screenshot', /^(this|current|it)$/.test(q) ? {} : { query: q }) : null; } }),

@@ -73,13 +73,21 @@ class Event:
 class Session:
     """One recognition session. Feed PCM16 mono 16 kHz bytes, get events."""
 
-    def __init__(self, engine: VoskEngine, mode: str, phrases: list[str], sensitivity: float, cooldown_s: float = 2.0):
+    RING_S = 10  # seconds of recent audio kept in wake mode (for verification and "Clicky, <command>")
+
+    def __init__(self, engine: VoskEngine, mode: str, phrases: list[str], sensitivity: float, cooldown_s: float = 2.0, verifier=None):
         self.mode = mode
+        self.sensitivity = sensitivity
+        self.verifier = verifier if verifier is not None and getattr(verifier, "available", False) else None
+        self._ring = bytearray()
+        self._fed = 0  # bytes fed since the recognizer started
+        self.last_tail = b""  # audio spoken right after the wake word ("Clicky, open Spotify")
+        self.last_verify_text = ""
         if mode == "wake":
             grammar, lookup = build_grammar(phrases, engine.known_word)
             if len(grammar) <= 1:
                 raise EngineUnavailable("No enabled wake phrase is supported by the installed model")
-            self.matcher: WakeMatcher | None = WakeMatcher(lookup, sensitivity, cooldown_s)
+            self.matcher: WakeMatcher | None = WakeMatcher(lookup, sensitivity, cooldown_s, relax=0.3 if self.verifier else 0.0)
             self.rec = engine.recognizer(grammar)
             self.grammar = grammar
         elif mode == "command":
@@ -100,6 +108,12 @@ class Session:
         events: list[Event] = []
         if self.mode == "command" and len(self._utterance) < self.MAX_UTTERANCE:
             self._utterance.extend(pcm)
+        if self.mode == "wake":
+            self._ring.extend(pcm)
+            self._fed += len(pcm)
+            excess = len(self._ring) - SAMPLE_RATE * 2 * self.RING_S
+            if excess > 0:
+                del self._ring[:excess]
         if self.rec.AcceptWaveform(pcm):
             result = json.loads(self.rec.Result())
             events.extend(self._final(result))
@@ -114,11 +128,42 @@ class Session:
         result = json.loads(self.rec.FinalResult())
         return self._final(result, forced=True)
 
+    def _audio(self, start_s: float, end_s: float) -> bytes:
+        """Audio between two recognizer timestamps, from the ring buffer (b"" if it has scrolled away)."""
+        ring_start = self._fed - len(self._ring)  # byte offset of ring[0] in the stream
+        a = max(0, int(start_s * SAMPLE_RATE) * 2 - ring_start)
+        b = min(len(self._ring), int(end_s * SAMPLE_RATE) * 2 - ring_start)
+        a -= a % 2
+        b -= b % 2
+        return bytes(self._ring[a:b]) if b > a else b""
+
+    def _wake(self, result: dict) -> list[Event]:
+        if not self.matcher:
+            return []
+        hit = self.matcher.evaluate_full(result)
+        if not hit:
+            return []
+        pid, conf, start_s, end_s = hit
+        data = {"phrase": pid, "confidence": conf}
+        if self.verifier is not None and end_s > start_s:
+            window = self._audio(max(0.0, start_s - 0.35), end_s + 0.35)
+            # The strict end of the sensitivity slider uses the unprompted (never-false-wake) check.
+            ok, heard = self.verifier.confirm(window, "jarvis" if pid == "jarvis" else "clickyy", strict=self.sensitivity < 0.4)
+            self.last_verify_text = heard
+            if not ok:
+                return []
+            data["verified"] = True
+        self.matcher.fired()
+        # Words after the wake phrase in the same breath: keep them so the command isn't lost.
+        words = [w for w in (result.get("result") or []) if w.get("word")]
+        last_end = float(words[-1].get("end", end_s)) if words else end_s
+        self.last_tail = self._audio(end_s + 0.05, last_end + 0.4) if last_end - end_s > 0.5 else b""
+        return [Event("wake", data)]
+
     def _final(self, result: dict, forced: bool = False) -> list[Event]:
         text = (result.get("text") or "").strip()
         if self.mode == "wake":
-            hit = self.matcher.evaluate(result) if self.matcher else None
-            return [Event("wake", {"phrase": hit[0], "confidence": hit[1]})] if hit else []
+            return self._wake(result)
         self._last_partial = ""
         self.last_utterance = bytes(self._utterance)
         self._utterance.clear()

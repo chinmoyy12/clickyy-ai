@@ -68,6 +68,10 @@ try {
 
   const settings = await invoke('settings:get');
   record('default policy is Smart Hybrid, cloud consent off', settings.ai.policy === 'smart_hybrid' && settings.ai.allowCloudTranscripts === false);
+  record('always listening for "Clicky" by default, verified, English + Hindi', settings.listening.mode === 'wake_word' && settings.wake.enabled && settings.speech.verifyWake && settings.speech.language === 'auto');
+  // The synthetic audio checks below inject recorded speech, so the real microphone must stay closed.
+  await invoke('settings:update', { listening: { mode: 'push_to_talk' }, wake: { enabled: false } });
+  await sleep(500);
 
   // Deterministic, offline commands against real Windows APIs.
   const timed = async (text) => { const s = performance.now(); const r = await say(text); return { r, ms: Math.round(performance.now() - s) }; };
@@ -77,6 +81,15 @@ try {
   record('battery (real power API)', /battery|mains power/i.test(x.r.text), `${x.ms} ms · "${x.r.text}"`);
   x = await timed('show cpu usage');
   record('CPU usage (measured)', /CPU is at \d+ percent/.test(x.r.text), `${x.ms} ms · "${x.r.text}"`);
+  // Hindi and Hinglish, as Whisper writes them (Devanagari).
+  x = await timed('अभी क्या समय हुआ है');
+  record('Hindi: time (अभी क्या समय हुआ है)', /^It's \d/.test(x.r.text), `${x.ms} ms · "${x.r.text}"`);
+  x = await timed('मेरी बैटरी कितनी बची है');
+  record('Hindi: battery', /battery|mains power/i.test(x.r.text), `${x.ms} ms · "${x.r.text}"`);
+  x = await timed('सीपीयू यूसेज चेक करो');
+  record('Hinglish: CPU usage', /CPU is at \d+ percent/.test(x.r.text), `${x.ms} ms · "${x.r.text}"`);
+  x = await timed('सिस्टम रीस्टार्ट मत करना');
+  record('Hindi negation never restarts', !/restart/i.test(JSON.stringify(x.r.actions ?? [])) && !(await invoke('assistant:status')).pending.length, x.r.text);
   x = await timed('how much ram is being used');
   record('RAM usage', /gigabytes of RAM/.test(x.r.text), `${x.ms} ms`);
   x = await timed('how much disk space is available');
@@ -164,18 +177,25 @@ try {
     const final = evs.filter((e) => e.type === 'final').map((e) => e.text).join(' ');
     record('offline speech recognition end-to-end', /notepad|note pad/.test(final), `final="${final}" · partials=${evs.filter((e) => e.type === 'partial').length} · ${Math.round(performance.now() - s)} ms for ~2.5 s of streamed audio`);
 
-    const wake = readFileSync(resolve(root, '../../services/assistant/tests/fixtures/hey_jarvis.wav')).subarray(44).toString('base64');
-    await evaluate('window.__speech = []');
-    await invoke('speech:start', { mode: 'wake' });
-    await evaluate(`(async () => {
-      const bytes = Uint8Array.from(atob(${JSON.stringify(wake)}), (c) => c.charCodeAt(0));
-      for (let i = 0; i < bytes.length; i += 3200) { window.clickyy.sendAudio(bytes.slice(i, i + 3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
-      for (let i = 0; i < 10; i++) { window.clickyy.sendAudio(new Uint8Array(3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
-    })()`);
-    await sleep(500);
-    const wakeEvs = await evaluate('window.__speech');
-    await invoke('speech:cancel');
-    record('wake phrase "Jarvis" detected end-to-end', wakeEvs.some((e) => e.type === 'wake' && e.phrase === 'jarvis'), JSON.stringify(wakeEvs.filter((e) => e.type === 'wake')));
+    // Wake words go through the second-stage verifier now, which adds about a second.
+    const wakeOn = async (fixture) => {
+      const wake = readFileSync(resolve(root, `../../services/assistant/tests/fixtures/${fixture}`)).subarray(44).toString('base64');
+      await evaluate('window.__speech = []');
+      await invoke('speech:start', { mode: 'wake' });
+      await evaluate(`(async () => {
+        const bytes = Uint8Array.from(atob(${JSON.stringify(wake)}), (c) => c.charCodeAt(0));
+        for (let i = 0; i < bytes.length; i += 3200) { window.clickyy.sendAudio(bytes.slice(i, i + 3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
+        for (let i = 0; i < 10; i++) { window.clickyy.sendAudio(new Uint8Array(3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
+      })()`);
+      for (let i = 0; i < 24 && !(await evaluate(`window.__speech.some((e) => e.type === 'wake')`)); i++) await sleep(250);
+      const evs = (await evaluate('window.__speech')).filter((e) => e.type === 'wake');
+      await invoke('speech:cancel');
+      return evs;
+    };
+    let wakeEvs = await wakeOn('hey_jarvis.wav');
+    record('wake phrase "Jarvis" detected end-to-end (verified)', wakeEvs.some((e) => e.phrase === 'jarvis' && e.verified), JSON.stringify(wakeEvs));
+    wakeEvs = await wakeOn('clicky.wav');
+    record('wake word "Clicky" detected end-to-end (verified)', wakeEvs.some((e) => e.phrase === 'clickyy' && e.verified), JSON.stringify(wakeEvs));
   }
 
   // Advanced voice: neural TTS through the app's IPC, and Whisper-refined finals.

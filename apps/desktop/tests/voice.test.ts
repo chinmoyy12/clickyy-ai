@@ -6,7 +6,8 @@ import type { AssistantReply } from '../src/shared/types';
 const tick = () => new Promise((r) => setTimeout(r, 5));
 
 function harness(patch: DeepPartial<Settings> = {}, replyFor: (t: string) => Partial<AssistantReply> = () => ({})) {
-  const settings = mergeSettings(defaultSettings(), patch);
+  // Tests start from push-to-talk with wake off and opt in per test.
+  const settings = mergeSettings(mergeSettings(defaultSettings(), { listening: { mode: 'push_to_talk' }, wake: { enabled: false } }), patch);
   const log: string[] = [];
   let speaking = false;
   let micOn = false;
@@ -56,6 +57,18 @@ describe('voice controller', () => {
     expect(h.vc.current).toBe('command');
     const done = h.vc.handleSpeech({ type: 'final', text: 'what time is it', confidence: 0.9 });
     await tick();
+    h.finishSpeech();
+    await done;
+    expect(h.vc.current).toBe('wake');
+  });
+
+  it('"Clicky, open Spotify" in one breath submits the command without a second listen', async () => {
+    const h = harness({ listening: { mode: 'wake_word' }, wake: { enabled: true } });
+    await h.vc.refresh();
+    const done = h.vc.handleSpeech({ type: 'wake', phrase: 'clickyy', confidence: 0.9, verified: true, command: 'open Spotify', language: 'en' });
+    await tick();
+    expect(h.log).toContain('submit:open Spotify');
+    expect(h.log.filter((l) => l === 'start:command')).toHaveLength(0);
     h.finishSpeech();
     await done;
     expect(h.vc.current).toBe('wake');

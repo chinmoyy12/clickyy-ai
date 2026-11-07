@@ -28,9 +28,13 @@ Copy-Item -Recurse (Join-Path $work 'dist\clickyy-speech') $out
 New-Item -ItemType Directory -Force (Join-Path $out 'models') | Out-Null
 Copy-Item -Recurse $model (Join-Path $out 'models')
 # Advanced voice models (optional): accurate recognition + neural voice.
-foreach ($extra in @('whisper-base.en', 'kokoro')) {
+# whisper-small: English + Hindi transcripts. whisper-base.en: fast wake-word verifier.
+# (large-v3-turbo is not bundled; it is an optional download from Settings.)
+foreach ($extra in @('whisper-small', 'whisper-base.en', 'kokoro')) {
   $src = Join-Path $svc "models\$extra"
   if (Test-Path $src) { Copy-Item -Recurse $src (Join-Path $out 'models') } else { Write-Warning "$extra not found; run scripts\download-voice-models.ps1 to include it" }
 }
+# Hugging Face download caches are not part of the model.
+Get-ChildItem (Join-Path $out 'models') -Recurse -Directory -Force -Filter '.cache' | Remove-Item -Recurse -Force
 $size = [math]::Round(((Get-ChildItem $out -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB, 1)
 Write-Output "Speech service bundle ready: $out ($size MB)"

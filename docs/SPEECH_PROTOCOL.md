@@ -18,7 +18,10 @@ Header `Authorization: Bearer <token>`. Returns 401 otherwise.
 
 ```json
 { "status": "ready" | "degraded",
-  "engines": { "vosk": { "ready": true, "error": null, "model": "…" } },
+  "engines": { "vosk": { "ready": true, "error": null, "model": "…" },
+               "whisper": { "available": true, "ready": true, "model": "whisper-small", "multilingual": true },
+               "wakeVerifier": { "available": true, "ready": true },
+               "kokoro": { "available": true, "ready": false } },
   "wakeSupport": { "hey_clickyy": true, "clickyy": true, "jarvis": true } }
 ```
 
@@ -28,7 +31,7 @@ The client sends text control messages and binary audio:
 
 | Message | Meaning |
 |---|---|
-| `{"type":"start","mode":"wake"\|"command","phrases":[…],"sensitivity":0.5,"cooldown_ms":2000}` | Start a session (replaces any current one) |
+| `{"type":"start","mode":"wake"\|"command","phrases":[…],"sensitivity":0.7,"cooldown_ms":2000,"accurate":true,"languages":["en","hi"],"verify":true}` | Start a session (replaces any current one). `languages`: one or both of `en`/`hi`; with both, Whisper detects the language per utterance (Urdu counts as Hindi). `verify`: second-stage wake check |
 | binary frame | PCM16LE, mono, 16 kHz, ≤ 64,000 bytes, even length (the app sends 100 ms frames) |
 | `{"type":"stop"}` | Flush and emit the final result |
 | `{"type":"cancel"}` | Discard the session |
@@ -40,7 +43,7 @@ The server sends:
 |---|---|
 | `ready` | Session started (includes the active grammar) |
 | `partial {text}` | Command mode, changing hypothesis |
-| `final {text, confidence}` | Endpointed utterance |
+| `final {text, confidence, engine?, language?, draft?}` | Endpointed utterance. `engine:"whisper"` when re-read by Whisper; `language` is `en` or `hi` (Hindi comes back in Devanagari); `draft` is the Vosk text |
 | `silence {forced}` | Endpoint with no words |
-| `wake {phrase, confidence}` | Wake mode detection |
+| `wake {phrase, confidence, verified?, command?, language?}` | Wake detection. `command` is what was said after the wake word in the same breath ("Clicky, open Spotify" → `open Spotify`) |
 | `error {code, message}` | `bad_frame`, `bad_json`, `bad_start`, `engine_unavailable` |

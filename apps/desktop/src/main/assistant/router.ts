@@ -1,6 +1,7 @@
 import type { Routine } from '@shared/types';
 import { CATALOG, CATALOG_BY_ID, type PendingSlot, type Resolution, type RouteCtx } from './catalog';
 import { normalize } from './normalize';
+import { hasDevanagari, understandHindi } from './hindi';
 
 export interface RoutedStep { commandId: string; resolution: Resolution; text: string }
 
@@ -29,7 +30,11 @@ const SPLIT = /\s*(?:,\s*)?\b(?:and then|then|and also|and after that|after that
  * model (if available) can handle it.
  */
 export function route(raw: string, ctx: RouteCtx, routines: Routine[] = [], pending?: PendingSlot | null): RouteResult {
-  const text = normalize(raw);
+  // Hindi / Hinglish commands are rewritten into the English the catalog knows ("स्पॉटिफ़ाई खोलो" → "open spotify").
+  const hi = understandHindi(raw);
+  // Hindi the rules can't map goes to the language model as it was said (it reads Hindi well).
+  if (!hi.mapped && !pending && hasDevanagari(raw)) return { kind: 'none', normalized: hi.text };
+  const text = normalize(hi.mapped || hasDevanagari(raw) ? hi.text : raw);
 
   if (pending) {
     const def = CATALOG_BY_ID.get(pending.commandId);
