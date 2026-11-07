@@ -8,13 +8,18 @@ import { parseClockTime, parseDuration } from './normalize';
 import { findSearchSite, findSite } from './knowledge/sites';
 import { findSettingsPage, findShellFolder, findWinTool } from './knowledge/windows';
 import { findZone } from './knowledge/cities';
+import { CODE_FIRST, EXTENDED } from './catalog-ext';
+import { inBrowser, orList } from './browserAsk';
+
+export { inBrowser };
 
 export type Builtin =
   | 'greeting' | 'presence' | 'capabilities' | 'repeat' | 'slower' | 'faster' | 'stop_speaking' | 'cancel'
   | 'new_session' | 'end_conversation' | 'mode' | 'verbosity' | 'status_model' | 'status_offline' | 'status_mic'
   | 'identity' | 'thanks' | 'shortcuts' | 'ui' | 'mic_pause' | 'refuse_shell' | 'how_are_you' | 'continue'
   | 'briefing' | 'system_report' | 'screen' | 'clipboard_ai' | 'clipboard_read'
-  | 'open_with_browser' | 'set_browser' | 'always_listen' | 'self_test';
+  | 'open_with_browser' | 'set_browser' | 'always_listen' | 'self_test'
+  | 'say' | 'code_task' | 'ai_task' | 'draft_message' | 'battery_alert';
 
 export interface RouteCtx {
   session: SessionState;
@@ -41,9 +46,13 @@ export interface CommandDef {
   tool?: string;
   resolve(m: RegExpMatchArray, text: string, ctx: RouteCtx): Resolution | null;
   /** Fills a pending slot from a follow-up answer. */
-  fill?(answer: string, partial: Record<string, unknown>, ctx: RouteCtx): Resolution | null;
+  fill?(answer: string, partial: Record<string, unknown>, ctx: RouteCtx, raw?: string): Resolution | null;
   /** Try fill() before treating the answer as a new command (short answers like "chrome"). */
   fillFirst?: boolean;
+  /** Never split this command's utterance on "and"/"then" ("how much RAM and CPU Chrome uses"). */
+  atomic?: boolean;
+  /** Commands this one already covers: when every split part is one of them, the whole wins ('*' = never split). */
+  absorbs?: string[] | '*';
 }
 
 const tool = (t: string, args: Record<string, unknown> = {}): Resolution => ({ kind: 'tool', tool: t, args });
@@ -56,23 +65,6 @@ const FOLDERS = ['desktop', 'documents', 'downloads', 'pictures', 'music', 'vide
 const BROWSER_WORD = /\b(google chrome|chrome|microsoft edge|edge|firefox|mozilla|brave|opera)\b/;
 const browserId = (word: string): Exclude<BrowserId, 'default'> =>
   /chrome/.test(word) ? 'chrome' : /edge/.test(word) ? 'edge' : /firefox|mozilla/.test(word) ? 'firefox' : /brave/.test(word) ? 'brave' : 'opera';
-
-const orList = (xs: string[]) => (xs.length <= 2 ? xs.join(' or ') : `${xs.slice(0, -1).join(', ')} or ${xs[xs.length - 1]}`);
-
-/**
- * Opens something in a browser. With the preference set to 'ask' and more than one browser
- * installed, it asks which one ("YouTube Music is a website. Chrome or Edge?").
- */
-function inBrowser(toolName: 'web.open' | 'web.search_site', args: Record<string, unknown>, label: string, ctx: RouteCtx, browser?: BrowserId): Resolution {
-  if (browser) return tool(toolName, { ...args, browser });
-  const pref = ctx.browser ?? 'ask';
-  if (pref !== 'ask') return tool(toolName, pref === 'default' ? args : { ...args, browser: pref });
-  const list = ctx.browsers ?? [];
-  if (list.length < 2) return tool(toolName, args);
-  const names = list.map((b) => BROWSER_LABEL[b]);
-  const what = toolName === 'web.open' ? `${label} is a website. Should I open it in ${orList(names)}?` : `I'll search ${label} in your browser. ${orList(names)}?`;
-  return clarify(`${what} Say "always ${names[0]}" and I'll stop asking.`, { commandId: 'web.browser', slot: 'browser', partial: { tool: toolName, args } });
-}
 
 function openSite(url: string, label: string, ctx: RouteCtx, browser?: BrowserId): Resolution {
   return inBrowser('web.open', { url, label }, label, ctx, browser);
@@ -120,6 +112,8 @@ const pct = (s: string | undefined) => (s ? Math.max(0, Math.min(100, parseInt(s
  * commands come before generic ones ("open settings" before "open <app>").
  */
 export const CATALOG: CommandDef[] = [
+  // Code and Excel requests mention "run" or "script" but never execute anything, so they precede the shell filter.
+  ...CODE_FIRST,
   // ---------- safety ----------
   cmd({ id: 'safety.refuse_shell', category: 'Safety', description: 'Refuses requests to run arbitrary shell commands or scripts.', examples: ['run powershell command', 'execute this script', 'open cmd and run del'],
     patterns: [/\b(run|execute|exec)\b.*\b(powershell|cmd|command prompt|bash|shell|script|terminal command)\b/, /\b(powershell|cmd)\b.*\b(rm|del|format|remove-item|reg delete)\b/, /\bformat (my )?(c|hard) ?(drive)?\b/, /\bdelete (system ?32|windows)\b/],
@@ -174,7 +168,7 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'ui.shortcuts', category: 'Accessibility', description: 'Show keyboard shortcuts.', examples: ['show me the available keyboard shortcuts'],
     patterns: [/(show|what are|list)( me)?( the)?( available)? (keyboard )?shortcuts/], resolve: () => builtin('shortcuts') }),
   cmd({ id: 'ui.mic_pause', category: 'Accessibility', description: 'Pause voice recognition (mute the microphone).', examples: ['pause voice recognition', 'mute the microphone'],
-    patterns: [/pause (voice recognition|listening)|(mute|turn off|disable) (the |your |my )?(microphone|mic)/], resolve: () => builtin('mic_pause') }),
+    patterns: [/pause (voice recognition|listening)|(mute|turn off|disable) (the |your |my )?(microphone|mic)\b(?! access| permissions?| privacy)/], resolve: () => builtin('mic_pause') }),
   cmd({ id: 'ui.motion', category: 'Accessibility', description: 'Reduce or restore animations.', examples: ['reduce animations', 'turn animations back on'],
     patterns: [/(reduce|turn off|disable|less) (the )?(animations?|motion)/, /(turn on|enable|restore) (the )?(animations?|motion)/, /(animations?|motion) back on/],
     resolve: (m, text) => builtin('ui', { setting: 'reducedMotion', value: /reduce|off|disable|less/.test(text) ? 'on' : 'off' }) }),
@@ -183,6 +177,9 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'ui.text_size', category: 'Accessibility', description: 'Change text size.', examples: ['increase the text size', 'make the text smaller'],
     patterns: [/(increase|bigger|larger|enlarge|decrease|smaller|reduce) (the )?(text|font)( size)?|(make )?(the )?(text|font) (bigger|larger|smaller)/],
     resolve: (_m, text) => builtin('ui', { setting: 'textScale', delta: /(increase|bigger|larger|enlarge)/.test(text) ? 0.1 : -0.1 }) }),
+
+  // ---------- commands from the 10,000-command analysis ----------
+  ...EXTENDED,
 
   // ---------- self, voice, browser ----------
   cmd({ id: 'skill.self_test', category: 'Skills', description: 'Self-test: checks the speech engine, microphone path, language model, Windows bridge, tools, network and command understanding.', examples: ['run a self test', 'test yourself', 'are you working properly', 'run a self check'],
@@ -359,7 +356,7 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'system.audio_devices', category: 'System', tool: 'system.audio_devices', description: 'Active audio devices.', examples: ['which audio device is active', "what's my default microphone"],
     patterns: [/which (audio|sound|output|playback) device|what(s| is) (my |the )?(default )?(speakers?|audio device|output device|microphone|mic)|which (speaker|microphone) (is|am)/], resolve: () => tool('system.audio_devices') }),
   cmd({ id: 'system.task_manager', category: 'System', tool: 'system.task_manager', description: 'Open Task Manager.', examples: ['open task manager'],
-    patterns: [/task manager/], resolve: () => tool('system.task_manager') }),
+    patterns: [/task manager/], resolve: (_m, text) => (/^(close|quit|exit|minimi[sz]e|bring|focus|switch|restart|force|kill|end|snap|maximi[sz]e|move|hide)\b/.test(text) ? null : tool('system.task_manager')) }),
   cmd({ id: 'system.settings', category: 'System', tool: 'system.open_settings', description: 'Open a Windows Settings page.', examples: ['open windows settings', 'open bluetooth settings', 'open sound settings'],
     patterns: [/^(open|show|go to|launch)( the| my)? (windows )?settings$/, /^(open|show|go to|take me to)( the| my)? (.+?) (settings?|options)$/],
     resolve: (m) => {

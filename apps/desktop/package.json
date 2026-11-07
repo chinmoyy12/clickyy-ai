@@ -1,7 +1,7 @@
 {
   "name": "clickyy-ai",
   "productName": "Clickyy AI",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Clickyy AI - privacy-conscious voice assistant for Windows 11",
   "author": "Clickyy AI",
   "license": "MIT",
@@ -26,15 +26,42 @@
     "appId": "ai.clickyy.desktop",
     "productName": "Clickyy AI",
     "copyright": "Clickyy AI",
-    "directories": { "output": "release", "buildResources": "resources" },
-    "files": ["dist/**/*", "!dist/**/*.map", "package.json"],
+    "directories": {
+      "output": "release",
+      "buildResources": "resources"
+    },
+    "files": [
+      "dist/**/*",
+      "!dist/**/*.map",
+      "package.json"
+    ],
     "extraResources": [
-      { "from": "resources/windows/bridge.ps1", "to": "windows/bridge.ps1" },
-      { "from": "resources/icon.png", "to": "icon.png" },
-      { "from": "resources/speech-service", "to": "speech-service" }
+      {
+        "from": "resources/windows/bridge.ps1",
+        "to": "windows/bridge.ps1"
+      },
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      },
+      {
+        "from": "resources/speech-service",
+        "to": "speech-service"
+      }
     ],
     "asar": true,
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "icon": "resources/icon.png", "artifactName": "Clickyy-AI-Setup-${version}.${ext}" },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "resources/icon.png",
+      "artifactName": "Clickyy-AI-Setup-${version}.${ext}"
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,

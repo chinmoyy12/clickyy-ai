@@ -1,0 +1,5407 @@
+[
+ {
+  "intent": "MUSIC_AND_MEDIA/LAUNCH_MEDIA_APP",
+  "text": "open music",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/RESUME_OR_START_PLAYBACK",
+  "text": "play music",
+  "expect": "media.play"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_SPECIFIC_TRACK",
+  "text": "play the song \"Alfaaz\"",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PAUSE_MEDIA",
+  "text": "pause the music right now",
+  "expect": "media.pause"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/NEXT_TRACK",
+  "text": "skip to the next track",
+  "expect": "music.next"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PREVIOUS_TRACK",
+  "text": "go back to the previous song",
+  "expect": "music.previous"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_SPOTIFY",
+  "text": "play the song \"Alfaaz\" on Spotify",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_SPOTIFY",
+  "text": "play the song \"Ilahi\" on Spotify",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_SPOTIFY",
+  "text": "play the song \"Heat Waves\" on Spotify",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_SPOTIFY",
+  "text": "play the song \"Happier\" on Spotify",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_SPOTIFY",
+  "text": "play the song \"Bad Romance\" on Spotify",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_SPOTIFY",
+  "text": "play the song \"Old Town Road\" on Spotify",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_YTMUSIC",
+  "text": "play \"Alfaaz\" on YouTube Music",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_YTMUSIC",
+  "text": "play \"Ilahi\" on YouTube Music",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_YTMUSIC",
+  "text": "play \"Heat Waves\" on YouTube Music",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_YTMUSIC",
+  "text": "play \"Happier\" on YouTube Music",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_YTMUSIC",
+  "text": "play \"Bad Romance\" on YouTube Music",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_TRACK_ON_YTMUSIC",
+  "text": "play \"Old Town Road\" on YouTube Music",
+  "expect": "music.song"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/QUEUE_TRACK",
+  "text": "add \"Alfaaz\" to my playback queue",
+  "expect": "music.queue"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/QUEUE_TRACK",
+  "text": "add \"Ilahi\" to my playback queue",
+  "expect": "music.queue"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/QUEUE_TRACK",
+  "text": "add \"Heat Waves\" to my playback queue",
+  "expect": "music.queue"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/QUEUE_TRACK",
+  "text": "add \"Happier\" to my playback queue",
+  "expect": "music.queue"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/QUEUE_TRACK",
+  "text": "add \"Bad Romance\" to my playback queue",
+  "expect": "music.queue"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/QUEUE_TRACK",
+  "text": "add \"Old Town Road\" to my playback queue",
+  "expect": "music.queue"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/LOOP_SPECIFIC_TRACK",
+  "text": "play \"Alfaaz\" on single-track repeat",
+  "expect": "music.repeat"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/LOOP_SPECIFIC_TRACK",
+  "text": "play \"Ilahi\" on single-track repeat",
+  "expect": "music.repeat"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/LOOP_SPECIFIC_TRACK",
+  "text": "play \"Heat Waves\" on single-track repeat",
+  "expect": "music.repeat"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/LOOP_SPECIFIC_TRACK",
+  "text": "play \"Happier\" on single-track repeat",
+  "expect": "music.repeat"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/LOOP_SPECIFIC_TRACK",
+  "text": "play \"Bad Romance\" on single-track repeat",
+  "expect": "music.repeat"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/LOOP_SPECIFIC_TRACK",
+  "text": "play \"Old Town Road\" on single-track repeat",
+  "expect": "music.repeat"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/FETCH_TRACK_LYRICS",
+  "text": "fetch and save synchronized lyrics for \"Alfaaz\"",
+  "expect": "music.lyrics"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/FETCH_TRACK_LYRICS",
+  "text": "fetch and save synchronized lyrics for \"Ilahi\"",
+  "expect": "music.lyrics"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/FETCH_TRACK_LYRICS",
+  "text": "fetch and save synchronized lyrics for \"Heat Waves\"",
+  "expect": "music.lyrics"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/FETCH_TRACK_LYRICS",
+  "text": "fetch and save synchronized lyrics for \"Happier\"",
+  "expect": "music.lyrics"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/FETCH_TRACK_LYRICS",
+  "text": "fetch and save synchronized lyrics for \"Bad Romance\"",
+  "expect": "music.lyrics"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/FETCH_TRACK_LYRICS",
+  "text": "fetch and save synchronized lyrics for \"Old Town Road\"",
+  "expect": "music.lyrics"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SEARCH_TRACK_VARIANT",
+  "text": "find the acoustic or unplugged version of \"Alfaaz\"",
+  "expect": "music.variant"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SEARCH_TRACK_VARIANT",
+  "text": "find the acoustic or unplugged version of \"Ilahi\"",
+  "expect": "music.variant"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SEARCH_TRACK_VARIANT",
+  "text": "find the acoustic or unplugged version of \"Heat Waves\"",
+  "expect": "music.variant"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SEARCH_TRACK_VARIANT",
+  "text": "find the acoustic or unplugged version of \"Happier\"",
+  "expect": "music.variant"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SEARCH_TRACK_VARIANT",
+  "text": "find the acoustic or unplugged version of \"Bad Romance\"",
+  "expect": "music.variant"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SEARCH_TRACK_VARIANT",
+  "text": "find the acoustic or unplugged version of \"Old Town Road\"",
+  "expect": "music.variant"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SET_ALARM_AUDIO",
+  "text": "set \"Alfaaz\" as my morning wake-up alarm audio",
+  "expect": "music.alarm"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SET_ALARM_AUDIO",
+  "text": "set \"Ilahi\" as my morning wake-up alarm audio",
+  "expect": "music.alarm"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SET_ALARM_AUDIO",
+  "text": "set \"Heat Waves\" as my morning wake-up alarm audio",
+  "expect": "music.alarm"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SET_ALARM_AUDIO",
+  "text": "set \"Happier\" as my morning wake-up alarm audio",
+  "expect": "music.alarm"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SET_ALARM_AUDIO",
+  "text": "set \"Bad Romance\" as my morning wake-up alarm audio",
+  "expect": "music.alarm"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SET_ALARM_AUDIO",
+  "text": "set \"Old Town Road\" as my morning wake-up alarm audio",
+  "expect": "music.alarm"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_CATALOG",
+  "text": "play songs by Arijit Singh",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_CATALOG",
+  "text": "play songs by Mohit Chauhan",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_CATALOG",
+  "text": "play songs by Jubin Nautiyal",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_CATALOG",
+  "text": "play songs by Ilaiyaraaja",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_CATALOG",
+  "text": "play songs by Adele",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_CATALOG",
+  "text": "play songs by Linkin Park",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_LATEST_ALBUM",
+  "text": "play the latest album by Arijit Singh",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_LATEST_ALBUM",
+  "text": "play the latest album by Mohit Chauhan",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_LATEST_ALBUM",
+  "text": "play the latest album by Jubin Nautiyal",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_LATEST_ALBUM",
+  "text": "play the latest album by Ilaiyaraaja",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_LATEST_ALBUM",
+  "text": "play the latest album by Adele",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_LATEST_ALBUM",
+  "text": "play the latest album by Linkin Park",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/START_ARTIST_RADIO",
+  "text": "start an endless radio station based on Arijit Singh",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/START_ARTIST_RADIO",
+  "text": "start an endless radio station based on Mohit Chauhan",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/START_ARTIST_RADIO",
+  "text": "start an endless radio station based on Jubin Nautiyal",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/START_ARTIST_RADIO",
+  "text": "start an endless radio station based on Ilaiyaraaja",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/START_ARTIST_RADIO",
+  "text": "start an endless radio station based on Adele",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/START_ARTIST_RADIO",
+  "text": "start an endless radio station based on Linkin Park",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_TOP_HITS",
+  "text": "play the top 10 hits of Arijit Singh",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_TOP_HITS",
+  "text": "play the top 10 hits of Mohit Chauhan",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_TOP_HITS",
+  "text": "play the top 10 hits of Jubin Nautiyal",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_TOP_HITS",
+  "text": "play the top 10 hits of Ilaiyaraaja",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_TOP_HITS",
+  "text": "play the top 10 hits of Adele",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/PLAY_ARTIST_TOP_HITS",
+  "text": "play the top 10 hits of Linkin Park",
+  "expect": "music.artist"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SHUFFLE_LOCAL_ARTIST",
+  "text": "shuffle all local MP3/FLAC songs by Arijit Singh",
+  "expect": "music.local"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SHUFFLE_LOCAL_ARTIST",
+  "text": "shuffle all local MP3/FLAC songs by Mohit Chauhan",
+  "expect": "music.local"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SHUFFLE_LOCAL_ARTIST",
+  "text": "shuffle all local MP3/FLAC songs by Jubin Nautiyal",
+  "expect": "music.local"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SHUFFLE_LOCAL_ARTIST",
+  "text": "shuffle all local MP3/FLAC songs by Ilaiyaraaja",
+  "expect": "music.local"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SHUFFLE_LOCAL_ARTIST",
+  "text": "shuffle all local MP3/FLAC songs by Adele",
+  "expect": "music.local"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SHUFFLE_LOCAL_ARTIST",
+  "text": "shuffle all local MP3/FLAC songs by Linkin Park",
+  "expect": "music.local"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SCHEDULE_PLAYBACK_STOP",
+  "text": "pause playback automatically after the current Arijit Singh song finishes",
+  "expect": "music.stop_after"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SCHEDULE_PLAYBACK_STOP",
+  "text": "pause playback automatically after the current Mohit Chauhan song finishes",
+  "expect": "music.stop_after"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SCHEDULE_PLAYBACK_STOP",
+  "text": "pause playback automatically after the current Jubin Nautiyal song finishes",
+  "expect": "music.stop_after"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SCHEDULE_PLAYBACK_STOP",
+  "text": "pause playback automatically after the current Ilaiyaraaja song finishes",
+  "expect": "music.stop_after"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SCHEDULE_PLAYBACK_STOP",
+  "text": "pause playback automatically after the current Adele song finishes",
+  "expect": "music.stop_after"
+ },
+ {
+  "intent": "MUSIC_AND_MEDIA/SCHEDULE_PLAYBACK_STOP",
+  "text": "pause playback automatically after the current Linkin Park song finishes",
+  "expect": "music.stop_after"
+ },
+ {
+  "intent": "EXCEL_INTERACTIVE_BUILDER/INTERACTIVE_EXCEL_GENERATION",
+  "text": "create an Excel sheet for a monthly personal budget by asking me questions",
+  "expect": "excel.build"
+ },
+ {
+  "intent": "EXCEL_INTERACTIVE_BUILDER/INTERACTIVE_EXCEL_GENERATION",
+  "text": "create an Excel sheet for a project task and milestone tracker by asking me questions",
+  "expect": "excel.build"
+ },
+ {
+  "intent": "EXCEL_INTERACTIVE_BUILDER/INTERACTIVE_EXCEL_GENERATION",
+  "text": "create an Excel sheet for a wedding guest list and RSVP tracker by asking me questions",
+  "expect": "excel.build"
+ },
+ {
+  "intent": "EXCEL_INTERACTIVE_BUILDER/INTERACTIVE_EXCEL_GENERATION",
+  "text": "create an Excel sheet for a Startup SaaS MRR and churn model by asking me questions",
+  "expect": "excel.build"
+ },
+ {
+  "intent": "EXCEL_INTERACTIVE_BUILDER/INTERACTIVE_EXCEL_GENERATION",
+  "text": "create an Excel sheet for a company payroll and tax deduction sheet by asking me questions",
+  "expect": "excel.build"
+ },
+ {
+  "intent": "EXCEL_INTERACTIVE_BUILDER/INTERACTIVE_EXCEL_GENERATION",
+  "text": "create an Excel sheet for a medical prescription and vitals log by asking me questions",
+  "expect": "excel.build"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_CODE_FILE",
+  "text": "write a Python program for a REST API client with retry logic and JSON parsing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_CODE_FILE",
+  "text": "write a JavaScript program for a password generator and encrypted local vault utility",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_CODE_FILE",
+  "text": "write a C++ program for a machine learning linear regression data pipeline with validation split",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_CODE_FILE",
+  "text": "write a HTML/CSS/JS program for a REST API client with retry logic and JSON parsing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_CODE_FILE",
+  "text": "write a Bash shell program for a password generator and encrypted local vault utility",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_CODE_FILE",
+  "text": "write a SQL program for a machine learning linear regression data pipeline with validation split",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_AND_EXECUTE_CODE",
+  "text": "write and run a Python script for a REST API client with retry logic and JSON parsing on my laptop",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_AND_EXECUTE_CODE",
+  "text": "write and run a JavaScript script for a password generator and encrypted local vault utility on my laptop",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_AND_EXECUTE_CODE",
+  "text": "write and run a C++ script for a machine learning linear regression data pipeline with validation split on my laptop",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_AND_EXECUTE_CODE",
+  "text": "write and run a HTML/CSS/JS script for a REST API client with retry logic and JSON parsing on my laptop",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_AND_EXECUTE_CODE",
+  "text": "write and run a Bash shell script for a password generator and encrypted local vault utility on my laptop",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/WRITE_AND_EXECUTE_CODE",
+  "text": "write and run a SQL script for a machine learning linear regression data pipeline with validation split on my laptop",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/SCAFFOLD_CODE_PROJECT",
+  "text": "create a modular Python project for a REST API client with retry logic and JSON parsing with unit tests",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/SCAFFOLD_CODE_PROJECT",
+  "text": "create a modular JavaScript project for a password generator and encrypted local vault utility with unit tests",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/SCAFFOLD_CODE_PROJECT",
+  "text": "create a modular C++ project for a machine learning linear regression data pipeline with validation split with unit tests",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/SCAFFOLD_CODE_PROJECT",
+  "text": "create a modular HTML/CSS/JS project for a REST API client with retry logic and JSON parsing with unit tests",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/SCAFFOLD_CODE_PROJECT",
+  "text": "create a modular Bash shell project for a password generator and encrypted local vault utility with unit tests",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/SCAFFOLD_CODE_PROJECT",
+  "text": "create a modular SQL project for a machine learning linear regression data pipeline with validation split with unit tests",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DEBUG_AND_REFACTOR_CODE",
+  "text": "debug and optimize my Python code for a REST API client with retry logic and JSON parsing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DEBUG_AND_REFACTOR_CODE",
+  "text": "debug and optimize my JavaScript code for a password generator and encrypted local vault utility",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DEBUG_AND_REFACTOR_CODE",
+  "text": "debug and optimize my C++ code for a machine learning linear regression data pipeline with validation split",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DEBUG_AND_REFACTOR_CODE",
+  "text": "debug and optimize my HTML/CSS/JS code for a REST API client with retry logic and JSON parsing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DEBUG_AND_REFACTOR_CODE",
+  "text": "debug and optimize my Bash shell code for a password generator and encrypted local vault utility",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DEBUG_AND_REFACTOR_CODE",
+  "text": "debug and optimize my SQL code for a machine learning linear regression data pipeline with validation split",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DOCUMENT_CODE_FILE",
+  "text": "explain and add docstrings to a Python implementation of a REST API client with retry logic and JSON parsing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DOCUMENT_CODE_FILE",
+  "text": "explain and add docstrings to a JavaScript implementation of a password generator and encrypted local vault utility",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DOCUMENT_CODE_FILE",
+  "text": "explain and add docstrings to a C++ implementation of a machine learning linear regression data pipeline with validation split",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DOCUMENT_CODE_FILE",
+  "text": "explain and add docstrings to a HTML/CSS/JS implementation of a REST API client with retry logic and JSON parsing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DOCUMENT_CODE_FILE",
+  "text": "explain and add docstrings to a Bash shell implementation of a password generator and encrypted local vault utility",
+  "expect": "code.task"
+ },
+ {
+  "intent": "CODE_GENERATION_AND_DEV/DOCUMENT_CODE_FILE",
+  "text": "explain and add docstrings to a SQL implementation of a machine learning linear regression data pipeline with validation split",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BRIGHTNESS",
+  "text": "set laptop screen brightness to 5 percent",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BRIGHTNESS",
+  "text": "set laptop screen brightness to 20 percent",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BRIGHTNESS",
+  "text": "set laptop screen brightness to 35 percent",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BRIGHTNESS",
+  "text": "set laptop screen brightness to 55 percent",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BRIGHTNESS",
+  "text": "set laptop screen brightness to 70 percent",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BRIGHTNESS",
+  "text": "set laptop screen brightness to 85 percent",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIM_DISPLAY",
+  "text": "dim the display to 5% brightness",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIM_DISPLAY",
+  "text": "dim the display to 20% brightness",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIM_DISPLAY",
+  "text": "dim the display to 35% brightness",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIM_DISPLAY",
+  "text": "dim the display to 55% brightness",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIM_DISPLAY",
+  "text": "dim the display to 70% brightness",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIM_DISPLAY",
+  "text": "dim the display to 85% brightness",
+  "expect": "display.brightness"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_VOLUME",
+  "text": "set system master volume to 5 percent",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_VOLUME",
+  "text": "set system master volume to 20 percent",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_VOLUME",
+  "text": "set system master volume to 35 percent",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_VOLUME",
+  "text": "set system master volume to 55 percent",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_VOLUME",
+  "text": "set system master volume to 70 percent",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_VOLUME",
+  "text": "set system master volume to 85 percent",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHANGE_SPEAKER_VOLUME",
+  "text": "change speaker volume to 5%",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHANGE_SPEAKER_VOLUME",
+  "text": "change speaker volume to 20%",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHANGE_SPEAKER_VOLUME",
+  "text": "change speaker volume to 35%",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHANGE_SPEAKER_VOLUME",
+  "text": "change speaker volume to 55%",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHANGE_SPEAKER_VOLUME",
+  "text": "change speaker volume to 70%",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHANGE_SPEAKER_VOLUME",
+  "text": "change speaker volume to 85%",
+  "expect": "audio.set"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_MIC_GAIN",
+  "text": "set microphone input sensitivity to 5 percent",
+  "expect": "audio.mic_level"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_MIC_GAIN",
+  "text": "set microphone input sensitivity to 20 percent",
+  "expect": "audio.mic_level"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_MIC_GAIN",
+  "text": "set microphone input sensitivity to 35 percent",
+  "expect": "audio.mic_level"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_MIC_GAIN",
+  "text": "set microphone input sensitivity to 55 percent",
+  "expect": "audio.mic_level"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_MIC_GAIN",
+  "text": "set microphone input sensitivity to 70 percent",
+  "expect": "audio.mic_level"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_MIC_GAIN",
+  "text": "set microphone input sensitivity to 85 percent",
+  "expect": "audio.mic_level"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BATTERY_ALERT",
+  "text": "alert me when laptop battery drops below 5 percent",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BATTERY_ALERT",
+  "text": "alert me when laptop battery drops below 20 percent",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BATTERY_ALERT",
+  "text": "alert me when laptop battery drops below 35 percent",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BATTERY_ALERT",
+  "text": "alert me when laptop battery drops below 55 percent",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BATTERY_ALERT",
+  "text": "alert me when laptop battery drops below 70 percent",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SET_BATTERY_ALERT",
+  "text": "alert me when laptop battery drops below 85 percent",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CONFIGURE_POWER_SAVER",
+  "text": "enable battery saver mode if battery is at 5%",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CONFIGURE_POWER_SAVER",
+  "text": "enable battery saver mode if battery is at 20%",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CONFIGURE_POWER_SAVER",
+  "text": "enable battery saver mode if battery is at 35%",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CONFIGURE_POWER_SAVER",
+  "text": "enable battery saver mode if battery is at 55%",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CONFIGURE_POWER_SAVER",
+  "text": "enable battery saver mode if battery is at 70%",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CONFIGURE_POWER_SAVER",
+  "text": "enable battery saver mode if battery is at 85%",
+  "expect": "battery.alert"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ENABLE_SYSTEM_FEATURE",
+  "text": "turn on Wi-Fi",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ENABLE_SYSTEM_FEATURE",
+  "text": "turn on Night Light blue light filter",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ENABLE_SYSTEM_FEATURE",
+  "text": "turn on Location services",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ENABLE_SYSTEM_FEATURE",
+  "text": "turn on File extensions visibility",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ENABLE_SYSTEM_FEATURE",
+  "text": "turn on Screen magnifier zoom",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ENABLE_SYSTEM_FEATURE",
+  "text": "turn on Real-time antivirus scanning",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DISABLE_SYSTEM_FEATURE",
+  "text": "turn off Wi-Fi",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DISABLE_SYSTEM_FEATURE",
+  "text": "turn off Night Light blue light filter",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DISABLE_SYSTEM_FEATURE",
+  "text": "turn off Location services",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DISABLE_SYSTEM_FEATURE",
+  "text": "turn off File extensions visibility",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DISABLE_SYSTEM_FEATURE",
+  "text": "turn off Screen magnifier zoom",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DISABLE_SYSTEM_FEATURE",
+  "text": "turn off Real-time antivirus scanning",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TOGGLE_SYSTEM_FEATURE",
+  "text": "toggle Wi-Fi on my laptop",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TOGGLE_SYSTEM_FEATURE",
+  "text": "toggle Night Light blue light filter on my laptop",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TOGGLE_SYSTEM_FEATURE",
+  "text": "toggle Location services on my laptop",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TOGGLE_SYSTEM_FEATURE",
+  "text": "toggle File extensions visibility on my laptop",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TOGGLE_SYSTEM_FEATURE",
+  "text": "toggle Screen magnifier zoom on my laptop",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TOGGLE_SYSTEM_FEATURE",
+  "text": "toggle Real-time antivirus scanning on my laptop",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHECK_FEATURE_STATUS",
+  "text": "check if Wi-Fi is currently enabled",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHECK_FEATURE_STATUS",
+  "text": "check if Night Light blue light filter is currently enabled",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHECK_FEATURE_STATUS",
+  "text": "check if Location services is currently enabled",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHECK_FEATURE_STATUS",
+  "text": "check if File extensions visibility is currently enabled",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHECK_FEATURE_STATUS",
+  "text": "check if Screen magnifier zoom is currently enabled",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CHECK_FEATURE_STATUS",
+  "text": "check if Real-time antivirus scanning is currently enabled",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPEN_FEATURE_SETTINGS",
+  "text": "open the settings page for Wi-Fi",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPEN_FEATURE_SETTINGS",
+  "text": "open the settings page for Night Light blue light filter",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPEN_FEATURE_SETTINGS",
+  "text": "open the settings page for Location services",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPEN_FEATURE_SETTINGS",
+  "text": "open the settings page for File extensions visibility",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPEN_FEATURE_SETTINGS",
+  "text": "open the settings page for Screen magnifier zoom",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPEN_FEATURE_SETTINGS",
+  "text": "open the settings page for Real-time antivirus scanning",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESET_FEATURE_DEFAULT",
+  "text": "reset Wi-Fi to default configuration",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESET_FEATURE_DEFAULT",
+  "text": "reset Night Light blue light filter to default configuration",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESET_FEATURE_DEFAULT",
+  "text": "reset Location services to default configuration",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESET_FEATURE_DEFAULT",
+  "text": "reset File extensions visibility to default configuration",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESET_FEATURE_DEFAULT",
+  "text": "reset Screen magnifier zoom to default configuration",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESET_FEATURE_DEFAULT",
+  "text": "reset Real-time antivirus scanning to default configuration",
+  "expect": "system.feature"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LOCK_WORKSTATION",
+  "text": "lock my laptop screen",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOCK_WORKSTATION",
+  "text": "lock my laptop screen in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOCK_WORKSTATION",
+  "text": "lock my laptop screen in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOCK_WORKSTATION",
+  "text": "lock my laptop screen in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOCK_WORKSTATION",
+  "text": "lock my laptop screen in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOCK_WORKSTATION",
+  "text": "lock my laptop screen in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOCK_WORKSTATION",
+  "text": "lock my laptop screen in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOCK_WORKSTATION",
+  "text": "cancel scheduled lock my laptop screen timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOCK_WORKSTATION",
+  "text": "cancel scheduled lock my laptop screen timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOCK_WORKSTATION",
+  "text": "cancel scheduled lock my laptop screen timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOCK_WORKSTATION",
+  "text": "cancel scheduled lock my laptop screen timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOCK_WORKSTATION",
+  "text": "cancel scheduled lock my laptop screen timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOCK_WORKSTATION",
+  "text": "cancel scheduled lock my laptop screen timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SLEEP_SYSTEM",
+  "text": "put my laptop to sleep",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SLEEP_SYSTEM",
+  "text": "put my laptop to sleep in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SLEEP_SYSTEM",
+  "text": "put my laptop to sleep in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SLEEP_SYSTEM",
+  "text": "put my laptop to sleep in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SLEEP_SYSTEM",
+  "text": "put my laptop to sleep in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SLEEP_SYSTEM",
+  "text": "put my laptop to sleep in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SLEEP_SYSTEM",
+  "text": "put my laptop to sleep in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SLEEP_SYSTEM",
+  "text": "cancel scheduled put my laptop to sleep timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SLEEP_SYSTEM",
+  "text": "cancel scheduled put my laptop to sleep timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SLEEP_SYSTEM",
+  "text": "cancel scheduled put my laptop to sleep timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SLEEP_SYSTEM",
+  "text": "cancel scheduled put my laptop to sleep timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SLEEP_SYSTEM",
+  "text": "cancel scheduled put my laptop to sleep timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SLEEP_SYSTEM",
+  "text": "cancel scheduled put my laptop to sleep timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_HIBERNATE_SYSTEM",
+  "text": "hibernate my laptop now in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_HIBERNATE_SYSTEM",
+  "text": "cancel scheduled hibernate my laptop now timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_HIBERNATE_SYSTEM",
+  "text": "cancel scheduled hibernate my laptop now timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_HIBERNATE_SYSTEM",
+  "text": "cancel scheduled hibernate my laptop now timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_HIBERNATE_SYSTEM",
+  "text": "cancel scheduled hibernate my laptop now timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_HIBERNATE_SYSTEM",
+  "text": "cancel scheduled hibernate my laptop now timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_HIBERNATE_SYSTEM",
+  "text": "cancel scheduled hibernate my laptop now timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESTART_SYSTEM",
+  "text": "restart my laptop safely",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_RESTART_SYSTEM",
+  "text": "restart my laptop safely in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_RESTART_SYSTEM",
+  "text": "restart my laptop safely in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_RESTART_SYSTEM",
+  "text": "restart my laptop safely in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_RESTART_SYSTEM",
+  "text": "restart my laptop safely in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_RESTART_SYSTEM",
+  "text": "restart my laptop safely in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_RESTART_SYSTEM",
+  "text": "restart my laptop safely in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_RESTART_SYSTEM",
+  "text": "cancel scheduled restart my laptop safely timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_RESTART_SYSTEM",
+  "text": "cancel scheduled restart my laptop safely timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_RESTART_SYSTEM",
+  "text": "cancel scheduled restart my laptop safely timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_RESTART_SYSTEM",
+  "text": "cancel scheduled restart my laptop safely timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_RESTART_SYSTEM",
+  "text": "cancel scheduled restart my laptop safely timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_RESTART_SYSTEM",
+  "text": "cancel scheduled restart my laptop safely timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_SHUTDOWN_SYSTEM",
+  "text": "shut down my laptop completely in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SHUTDOWN_SYSTEM",
+  "text": "cancel scheduled shut down my laptop completely timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SHUTDOWN_SYSTEM",
+  "text": "cancel scheduled shut down my laptop completely timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SHUTDOWN_SYSTEM",
+  "text": "cancel scheduled shut down my laptop completely timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SHUTDOWN_SYSTEM",
+  "text": "cancel scheduled shut down my laptop completely timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SHUTDOWN_SYSTEM",
+  "text": "cancel scheduled shut down my laptop completely timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_SHUTDOWN_SYSTEM",
+  "text": "cancel scheduled shut down my laptop completely timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LOGOUT_USER",
+  "text": "sign out of my current user session",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOGOUT_USER",
+  "text": "sign out of my current user session in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOGOUT_USER",
+  "text": "sign out of my current user session in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOGOUT_USER",
+  "text": "sign out of my current user session in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOGOUT_USER",
+  "text": "sign out of my current user session in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOGOUT_USER",
+  "text": "sign out of my current user session in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_LOGOUT_USER",
+  "text": "sign out of my current user session in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOGOUT_USER",
+  "text": "cancel scheduled sign out of my current user session timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOGOUT_USER",
+  "text": "cancel scheduled sign out of my current user session timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOGOUT_USER",
+  "text": "cancel scheduled sign out of my current user session timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOGOUT_USER",
+  "text": "cancel scheduled sign out of my current user session timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOGOUT_USER",
+  "text": "cancel scheduled sign out of my current user session timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_LOGOUT_USER",
+  "text": "cancel scheduled sign out of my current user session timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping",
+  "expect": "power.now"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping in 1 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping in 5 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping in 15 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping in 30 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping in 60 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_TURN_OFF_DISPLAY",
+  "text": "turn off the laptop monitor without sleeping in 120 minutes",
+  "expect": "power.timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_TURN_OFF_DISPLAY",
+  "text": "cancel scheduled turn off the laptop monitor without sleeping timer for 1 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_TURN_OFF_DISPLAY",
+  "text": "cancel scheduled turn off the laptop monitor without sleeping timer for 5 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_TURN_OFF_DISPLAY",
+  "text": "cancel scheduled turn off the laptop monitor without sleeping timer for 15 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_TURN_OFF_DISPLAY",
+  "text": "cancel scheduled turn off the laptop monitor without sleeping timer for 30 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_TURN_OFF_DISPLAY",
+  "text": "cancel scheduled turn off the laptop monitor without sleeping timer for 60 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CANCEL_TURN_OFF_DISPLAY",
+  "text": "cancel scheduled turn off the laptop monitor without sleeping timer for 120 minutes",
+  "expect": "power.cancel_timer"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIAGNOSE_SYSTEM",
+  "text": "check my laptop's CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIAGNOSE_SYSTEM",
+  "text": "check my laptop's battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIAGNOSE_SYSTEM",
+  "text": "check my laptop's Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIAGNOSE_SYSTEM",
+  "text": "check my laptop's system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIAGNOSE_SYSTEM",
+  "text": "check my laptop's audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DIAGNOSE_SYSTEM",
+  "text": "check my laptop's scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LIVE_SYSTEM_REPORT",
+  "text": "show a live report of CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LIVE_SYSTEM_REPORT",
+  "text": "show a live report of battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LIVE_SYSTEM_REPORT",
+  "text": "show a live report of Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LIVE_SYSTEM_REPORT",
+  "text": "show a live report of system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LIVE_SYSTEM_REPORT",
+  "text": "show a live report of audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/LIVE_SYSTEM_REPORT",
+  "text": "show a live report of scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXPORT_SYSTEM_DIAGNOSTIC",
+  "text": "export my laptop's CPU usage and core temperatures to a text log",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXPORT_SYSTEM_DIAGNOSTIC",
+  "text": "export my laptop's battery health, charge percentage, and time remaining to a text log",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXPORT_SYSTEM_DIAGNOSTIC",
+  "text": "export my laptop's Wi-Fi signal strength (RSSI) and link speed to a text log",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXPORT_SYSTEM_DIAGNOSTIC",
+  "text": "export my laptop's system uptime since last reboot to a text log",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXPORT_SYSTEM_DIAGNOSTIC",
+  "text": "export my laptop's audio input and output devices currently active to a text log",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXPORT_SYSTEM_DIAGNOSTIC",
+  "text": "export my laptop's scheduled background tasks and cron jobs to a text log",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/AUDIT_SYSTEM_HEALTH",
+  "text": "warn me if there is any issue with CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/AUDIT_SYSTEM_HEALTH",
+  "text": "warn me if there is any issue with battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/AUDIT_SYSTEM_HEALTH",
+  "text": "warn me if there is any issue with Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/AUDIT_SYSTEM_HEALTH",
+  "text": "warn me if there is any issue with system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/AUDIT_SYSTEM_HEALTH",
+  "text": "warn me if there is any issue with audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/AUDIT_SYSTEM_HEALTH",
+  "text": "warn me if there is any issue with scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SUMMARIZE_SYSTEM_METRIC",
+  "text": "summarize CPU usage and core temperatures in plain English",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SUMMARIZE_SYSTEM_METRIC",
+  "text": "summarize battery health, charge percentage, and time remaining in plain English",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SUMMARIZE_SYSTEM_METRIC",
+  "text": "summarize Wi-Fi signal strength (RSSI) and link speed in plain English",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SUMMARIZE_SYSTEM_METRIC",
+  "text": "summarize system uptime since last reboot in plain English",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SUMMARIZE_SYSTEM_METRIC",
+  "text": "summarize audio input and output devices currently active in plain English",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SUMMARIZE_SYSTEM_METRIC",
+  "text": "summarize scheduled background tasks and cron jobs in plain English",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BENCHMARK_SYSTEM_METRIC",
+  "text": "compare current CPU usage and core temperatures with normal baseline",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BENCHMARK_SYSTEM_METRIC",
+  "text": "compare current battery health, charge percentage, and time remaining with normal baseline",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BENCHMARK_SYSTEM_METRIC",
+  "text": "compare current Wi-Fi signal strength (RSSI) and link speed with normal baseline",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BENCHMARK_SYSTEM_METRIC",
+  "text": "compare current system uptime since last reboot with normal baseline",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BENCHMARK_SYSTEM_METRIC",
+  "text": "compare current audio input and output devices currently active with normal baseline",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BENCHMARK_SYSTEM_METRIC",
+  "text": "compare current scheduled background tasks and cron jobs with normal baseline",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_DIAGNOSTIC_LOG",
+  "text": "log CPU usage and core temperatures every hour today",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_DIAGNOSTIC_LOG",
+  "text": "log battery health, charge percentage, and time remaining every hour today",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_DIAGNOSTIC_LOG",
+  "text": "log Wi-Fi signal strength (RSSI) and link speed every hour today",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_DIAGNOSTIC_LOG",
+  "text": "log system uptime since last reboot every hour today",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_DIAGNOSTIC_LOG",
+  "text": "log audio input and output devices currently active every hour today",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SCHEDULE_DIAGNOSTIC_LOG",
+  "text": "log scheduled background tasks and cron jobs every hour today",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/NOTIFY_SYSTEM_METRIC",
+  "text": "display a desktop notification with CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/NOTIFY_SYSTEM_METRIC",
+  "text": "display a desktop notification with battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/NOTIFY_SYSTEM_METRIC",
+  "text": "display a desktop notification with Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/NOTIFY_SYSTEM_METRIC",
+  "text": "display a desktop notification with system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/NOTIFY_SYSTEM_METRIC",
+  "text": "display a desktop notification with audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/NOTIFY_SYSTEM_METRIC",
+  "text": "display a desktop notification with scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SPEAK_SYSTEM_METRIC",
+  "text": "read out my laptop's CPU usage and core temperatures aloud",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SPEAK_SYSTEM_METRIC",
+  "text": "read out my laptop's battery health, charge percentage, and time remaining aloud",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SPEAK_SYSTEM_METRIC",
+  "text": "read out my laptop's Wi-Fi signal strength (RSSI) and link speed aloud",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SPEAK_SYSTEM_METRIC",
+  "text": "read out my laptop's system uptime since last reboot aloud",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SPEAK_SYSTEM_METRIC",
+  "text": "read out my laptop's audio input and output devices currently active aloud",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SPEAK_SYSTEM_METRIC",
+  "text": "read out my laptop's scheduled background tasks and cron jobs aloud",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/COPY_DIAGNOSTIC_CLIPBOARD",
+  "text": "copy the details of CPU usage and core temperatures to my clipboard",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/COPY_DIAGNOSTIC_CLIPBOARD",
+  "text": "copy the details of battery health, charge percentage, and time remaining to my clipboard",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/COPY_DIAGNOSTIC_CLIPBOARD",
+  "text": "copy the details of Wi-Fi signal strength (RSSI) and link speed to my clipboard",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/COPY_DIAGNOSTIC_CLIPBOARD",
+  "text": "copy the details of system uptime since last reboot to my clipboard",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/COPY_DIAGNOSTIC_CLIPBOARD",
+  "text": "copy the details of audio input and output devices currently active to my clipboard",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/COPY_DIAGNOSTIC_CLIPBOARD",
+  "text": "copy the details of scheduled background tasks and cron jobs to my clipboard",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CAPTURE_DIAGNOSTIC_SNAPSHOT",
+  "text": "take a screenshot and attach CPU usage and core temperatures details",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CAPTURE_DIAGNOSTIC_SNAPSHOT",
+  "text": "take a screenshot and attach battery health, charge percentage, and time remaining details",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CAPTURE_DIAGNOSTIC_SNAPSHOT",
+  "text": "take a screenshot and attach Wi-Fi signal strength (RSSI) and link speed details",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CAPTURE_DIAGNOSTIC_SNAPSHOT",
+  "text": "take a screenshot and attach system uptime since last reboot details",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CAPTURE_DIAGNOSTIC_SNAPSHOT",
+  "text": "take a screenshot and attach audio input and output devices currently active details",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/CAPTURE_DIAGNOSTIC_SNAPSHOT",
+  "text": "take a screenshot and attach scheduled background tasks and cron jobs details",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TROUBLESHOOT_METRIC",
+  "text": "troubleshoot slow performance by checking CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TROUBLESHOOT_METRIC",
+  "text": "troubleshoot slow performance by checking battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TROUBLESHOOT_METRIC",
+  "text": "troubleshoot slow performance by checking Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TROUBLESHOOT_METRIC",
+  "text": "troubleshoot slow performance by checking system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TROUBLESHOOT_METRIC",
+  "text": "troubleshoot slow performance by checking audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TROUBLESHOOT_METRIC",
+  "text": "troubleshoot slow performance by checking scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXCEL_EXPORT_DIAGNOSTIC",
+  "text": "generate an Excel table of CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXCEL_EXPORT_DIAGNOSTIC",
+  "text": "generate an Excel table of battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXCEL_EXPORT_DIAGNOSTIC",
+  "text": "generate an Excel table of Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXCEL_EXPORT_DIAGNOSTIC",
+  "text": "generate an Excel table of system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXCEL_EXPORT_DIAGNOSTIC",
+  "text": "generate an Excel table of audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EXCEL_EXPORT_DIAGNOSTIC",
+  "text": "generate an Excel table of scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VERIFY_SAFE_LIMITS",
+  "text": "verify whether CPU usage and core temperatures is within safe limits",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VERIFY_SAFE_LIMITS",
+  "text": "verify whether battery health, charge percentage, and time remaining is within safe limits",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VERIFY_SAFE_LIMITS",
+  "text": "verify whether Wi-Fi signal strength (RSSI) and link speed is within safe limits",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VERIFY_SAFE_LIMITS",
+  "text": "verify whether system uptime since last reboot is within safe limits",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VERIFY_SAFE_LIMITS",
+  "text": "verify whether audio input and output devices currently active is within safe limits",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VERIFY_SAFE_LIMITS",
+  "text": "verify whether scheduled background tasks and cron jobs is within safe limits",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESCAN_SYSTEM_METRIC",
+  "text": "refresh and re-scan CPU usage and core temperatures right now",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESCAN_SYSTEM_METRIC",
+  "text": "refresh and re-scan battery health, charge percentage, and time remaining right now",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESCAN_SYSTEM_METRIC",
+  "text": "refresh and re-scan Wi-Fi signal strength (RSSI) and link speed right now",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESCAN_SYSTEM_METRIC",
+  "text": "refresh and re-scan system uptime since last reboot right now",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESCAN_SYSTEM_METRIC",
+  "text": "refresh and re-scan audio input and output devices currently active right now",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RESCAN_SYSTEM_METRIC",
+  "text": "refresh and re-scan scheduled background tasks and cron jobs right now",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TREND_SYSTEM_METRIC",
+  "text": "show historical trend for CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TREND_SYSTEM_METRIC",
+  "text": "show historical trend for battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TREND_SYSTEM_METRIC",
+  "text": "show historical trend for Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TREND_SYSTEM_METRIC",
+  "text": "show historical trend for system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TREND_SYSTEM_METRIC",
+  "text": "show historical trend for audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/TREND_SYSTEM_METRIC",
+  "text": "show historical trend for scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/FIND_BOTTLENECK",
+  "text": "highlight any bottleneck in CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/FIND_BOTTLENECK",
+  "text": "highlight any bottleneck in battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/FIND_BOTTLENECK",
+  "text": "highlight any bottleneck in Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/FIND_BOTTLENECK",
+  "text": "highlight any bottleneck in system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/FIND_BOTTLENECK",
+  "text": "highlight any bottleneck in audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/FIND_BOTTLENECK",
+  "text": "highlight any bottleneck in scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHOW_METRIC_HUD",
+  "text": "create a quick desktop widget view for CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHOW_METRIC_HUD",
+  "text": "create a quick desktop widget view for battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHOW_METRIC_HUD",
+  "text": "create a quick desktop widget view for Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHOW_METRIC_HUD",
+  "text": "create a quick desktop widget view for system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHOW_METRIC_HUD",
+  "text": "create a quick desktop widget view for audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SHOW_METRIC_HUD",
+  "text": "create a quick desktop widget view for scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DEEP_DIAGNOSTIC_SCAN",
+  "text": "run a deep diagnostic check on CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DEEP_DIAGNOSTIC_SCAN",
+  "text": "run a deep diagnostic check on battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DEEP_DIAGNOSTIC_SCAN",
+  "text": "run a deep diagnostic check on Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DEEP_DIAGNOSTIC_SCAN",
+  "text": "run a deep diagnostic check on system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DEEP_DIAGNOSTIC_SCAN",
+  "text": "run a deep diagnostic check on audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DEEP_DIAGNOSTIC_SCAN",
+  "text": "run a deep diagnostic check on scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EMAIL_DIAGNOSTIC_REPORT",
+  "text": "email me a snapshot of my laptop's CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EMAIL_DIAGNOSTIC_REPORT",
+  "text": "email me a snapshot of my laptop's battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EMAIL_DIAGNOSTIC_REPORT",
+  "text": "email me a snapshot of my laptop's Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EMAIL_DIAGNOSTIC_REPORT",
+  "text": "email me a snapshot of my laptop's system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EMAIL_DIAGNOSTIC_REPORT",
+  "text": "email me a snapshot of my laptop's audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/EMAIL_DIAGNOSTIC_REPORT",
+  "text": "email me a snapshot of my laptop's scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAVE_JSON_DIAGNOSTIC",
+  "text": "save CPU usage and core temperatures as a JSON status file on Desktop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAVE_JSON_DIAGNOSTIC",
+  "text": "save battery health, charge percentage, and time remaining as a JSON status file on Desktop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAVE_JSON_DIAGNOSTIC",
+  "text": "save Wi-Fi signal strength (RSSI) and link speed as a JSON status file on Desktop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAVE_JSON_DIAGNOSTIC",
+  "text": "save system uptime since last reboot as a JSON status file on Desktop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAVE_JSON_DIAGNOSTIC",
+  "text": "save audio input and output devices currently active as a JSON status file on Desktop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAVE_JSON_DIAGNOSTIC",
+  "text": "save scheduled background tasks and cron jobs as a JSON status file on Desktop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PREFLIGHT_SYSTEM_CHECK",
+  "text": "check CPU usage and core temperatures before I start a heavy task",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PREFLIGHT_SYSTEM_CHECK",
+  "text": "check battery health, charge percentage, and time remaining before I start a heavy task",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PREFLIGHT_SYSTEM_CHECK",
+  "text": "check Wi-Fi signal strength (RSSI) and link speed before I start a heavy task",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PREFLIGHT_SYSTEM_CHECK",
+  "text": "check system uptime since last reboot before I start a heavy task",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PREFLIGHT_SYSTEM_CHECK",
+  "text": "check audio input and output devices currently active before I start a heavy task",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PREFLIGHT_SYSTEM_CHECK",
+  "text": "check scheduled background tasks and cron jobs before I start a heavy task",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MONITOR_DURING_BUILD",
+  "text": "monitor CPU usage and core temperatures while I run my code",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MONITOR_DURING_BUILD",
+  "text": "monitor battery health, charge percentage, and time remaining while I run my code",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MONITOR_DURING_BUILD",
+  "text": "monitor Wi-Fi signal strength (RSSI) and link speed while I run my code",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MONITOR_DURING_BUILD",
+  "text": "monitor system uptime since last reboot while I run my code",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MONITOR_DURING_BUILD",
+  "text": "monitor audio input and output devices currently active while I run my code",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MONITOR_DURING_BUILD",
+  "text": "monitor scheduled background tasks and cron jobs while I run my code",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPTIMIZE_FROM_METRIC",
+  "text": "optimize my laptop based on CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPTIMIZE_FROM_METRIC",
+  "text": "optimize my laptop based on battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPTIMIZE_FROM_METRIC",
+  "text": "optimize my laptop based on Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPTIMIZE_FROM_METRIC",
+  "text": "optimize my laptop based on system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPTIMIZE_FROM_METRIC",
+  "text": "optimize my laptop based on audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/OPTIMIZE_FROM_METRIC",
+  "text": "optimize my laptop based on scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BRIEF_STATUS_METRIC",
+  "text": "give me a 1-line status update on CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BRIEF_STATUS_METRIC",
+  "text": "give me a 1-line status update on battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BRIEF_STATUS_METRIC",
+  "text": "give me a 1-line status update on Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BRIEF_STATUS_METRIC",
+  "text": "give me a 1-line status update on system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BRIEF_STATUS_METRIC",
+  "text": "give me a 1-line status update on audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/BRIEF_STATUS_METRIC",
+  "text": "give me a 1-line status update on scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DETECT_SPIKE_CULPRIT",
+  "text": "check if any background app is spiking CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DETECT_SPIKE_CULPRIT",
+  "text": "check if any background app is spiking battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DETECT_SPIKE_CULPRIT",
+  "text": "check if any background app is spiking Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DETECT_SPIKE_CULPRIT",
+  "text": "check if any background app is spiking system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DETECT_SPIKE_CULPRIT",
+  "text": "check if any background app is spiking audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/DETECT_SPIKE_CULPRIT",
+  "text": "check if any background app is spiking scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PRINT_ASCII_DIAGNOSTIC",
+  "text": "print a terminal table showing CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PRINT_ASCII_DIAGNOSTIC",
+  "text": "print a terminal table showing battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PRINT_ASCII_DIAGNOSTIC",
+  "text": "print a terminal table showing Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PRINT_ASCII_DIAGNOSTIC",
+  "text": "print a terminal table showing system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PRINT_ASCII_DIAGNOSTIC",
+  "text": "print a terminal table showing audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PRINT_ASCII_DIAGNOSTIC",
+  "text": "print a terminal table showing scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ARCHIVE_DIAGNOSTIC",
+  "text": "archive today's CPU usage and core temperatures metrics",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ARCHIVE_DIAGNOSTIC",
+  "text": "archive today's battery health, charge percentage, and time remaining metrics",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ARCHIVE_DIAGNOSTIC",
+  "text": "archive today's Wi-Fi signal strength (RSSI) and link speed metrics",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ARCHIVE_DIAGNOSTIC",
+  "text": "archive today's system uptime since last reboot metrics",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ARCHIVE_DIAGNOSTIC",
+  "text": "archive today's audio input and output devices currently active metrics",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ARCHIVE_DIAGNOSTIC",
+  "text": "archive today's scheduled background tasks and cron jobs metrics",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VALIDATE_SUBSYSTEM",
+  "text": "validate driver and OS health for CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VALIDATE_SUBSYSTEM",
+  "text": "validate driver and OS health for battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VALIDATE_SUBSYSTEM",
+  "text": "validate driver and OS health for Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VALIDATE_SUBSYSTEM",
+  "text": "validate driver and OS health for system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VALIDATE_SUBSYSTEM",
+  "text": "validate driver and OS health for audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/VALIDATE_SUBSYSTEM",
+  "text": "validate driver and OS health for scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAMPLE_METRIC_WINDOW",
+  "text": "run a 10-second stress and stability check on CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAMPLE_METRIC_WINDOW",
+  "text": "run a 10-second stress and stability check on battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAMPLE_METRIC_WINDOW",
+  "text": "run a 10-second stress and stability check on Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAMPLE_METRIC_WINDOW",
+  "text": "run a 10-second stress and stability check on system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAMPLE_METRIC_WINDOW",
+  "text": "run a 10-second stress and stability check on audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SAMPLE_METRIC_WINDOW",
+  "text": "run a 10-second stress and stability check on scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ADVISE_SYSTEM_TUNING",
+  "text": "tell me how to improve CPU usage and core temperatures on my laptop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ADVISE_SYSTEM_TUNING",
+  "text": "tell me how to improve battery health, charge percentage, and time remaining on my laptop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ADVISE_SYSTEM_TUNING",
+  "text": "tell me how to improve Wi-Fi signal strength (RSSI) and link speed on my laptop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ADVISE_SYSTEM_TUNING",
+  "text": "tell me how to improve system uptime since last reboot on my laptop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ADVISE_SYSTEM_TUNING",
+  "text": "tell me how to improve audio input and output devices currently active on my laptop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/ADVISE_SYSTEM_TUNING",
+  "text": "tell me how to improve scheduled background tasks and cron jobs on my laptop",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PIN_DIAGNOSTIC_NOTE",
+  "text": "pin CPU usage and core temperatures report to my notes",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PIN_DIAGNOSTIC_NOTE",
+  "text": "pin battery health, charge percentage, and time remaining report to my notes",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PIN_DIAGNOSTIC_NOTE",
+  "text": "pin Wi-Fi signal strength (RSSI) and link speed report to my notes",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PIN_DIAGNOSTIC_NOTE",
+  "text": "pin system uptime since last reboot report to my notes",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PIN_DIAGNOSTIC_NOTE",
+  "text": "pin audio input and output devices currently active report to my notes",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/PIN_DIAGNOSTIC_NOTE",
+  "text": "pin scheduled background tasks and cron jobs report to my notes",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RECLAIM_RESOURCES",
+  "text": "check CPU usage and core temperatures and free up unused resources",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RECLAIM_RESOURCES",
+  "text": "check battery health, charge percentage, and time remaining and free up unused resources",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RECLAIM_RESOURCES",
+  "text": "check Wi-Fi signal strength (RSSI) and link speed and free up unused resources",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RECLAIM_RESOURCES",
+  "text": "check system uptime since last reboot and free up unused resources",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RECLAIM_RESOURCES",
+  "text": "check audio input and output devices currently active and free up unused resources",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/RECLAIM_RESOURCES",
+  "text": "check scheduled background tasks and cron jobs and free up unused resources",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SECURITY_METRIC_AUDIT",
+  "text": "audit security and anomalies in CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SECURITY_METRIC_AUDIT",
+  "text": "audit security and anomalies in battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SECURITY_METRIC_AUDIT",
+  "text": "audit security and anomalies in Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SECURITY_METRIC_AUDIT",
+  "text": "audit security and anomalies in system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SECURITY_METRIC_AUDIT",
+  "text": "audit security and anomalies in audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/SECURITY_METRIC_AUDIT",
+  "text": "audit security and anomalies in scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MORNING_SYSTEM_CHECK",
+  "text": "run morning health check on CPU usage and core temperatures",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MORNING_SYSTEM_CHECK",
+  "text": "run morning health check on battery health, charge percentage, and time remaining",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MORNING_SYSTEM_CHECK",
+  "text": "run morning health check on Wi-Fi signal strength (RSSI) and link speed",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MORNING_SYSTEM_CHECK",
+  "text": "run morning health check on system uptime since last reboot",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MORNING_SYSTEM_CHECK",
+  "text": "run morning health check on audio input and output devices currently active",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "SYSTEM_AND_HARDWARE_CONTROL/MORNING_SYSTEM_CHECK",
+  "text": "run morning health check on scheduled background tasks and cron jobs",
+  "expect": "system.diagnostic"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LAUNCH_APP",
+  "text": "open Google Chrome",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LAUNCH_APP",
+  "text": "open IntelliJ IDEA",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LAUNCH_APP",
+  "text": "open Microsoft Word",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LAUNCH_APP",
+  "text": "open Zoom",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LAUNCH_APP",
+  "text": "open Calculator",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LAUNCH_APP",
+  "text": "open Blender",
+  "expect": "apps.open"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/START_APP",
+  "text": "start Google Chrome on my laptop",
+  "expect": "app.start_on"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/START_APP",
+  "text": "start IntelliJ IDEA on my laptop",
+  "expect": "app.start_on"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/START_APP",
+  "text": "start Microsoft Word on my laptop",
+  "expect": "app.start_on"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/START_APP",
+  "text": "start Zoom on my laptop",
+  "expect": "app.start_on"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/START_APP",
+  "text": "start Calculator on my laptop",
+  "expect": "app.start_on"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/START_APP",
+  "text": "start Blender on my laptop",
+  "expect": "app.start_on"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLOSE_APP",
+  "text": "close Google Chrome",
+  "expect": "windows.close"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLOSE_APP",
+  "text": "close IntelliJ IDEA",
+  "expect": "windows.close"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLOSE_APP",
+  "text": "close Microsoft Word",
+  "expect": "windows.close"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLOSE_APP",
+  "text": "close Zoom",
+  "expect": "windows.close"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLOSE_APP",
+  "text": "close Calculator",
+  "expect": "windows.close"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLOSE_APP",
+  "text": "close Blender",
+  "expect": "windows.close"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FORCE_KILL_APP",
+  "text": "force quit Google Chrome if it is frozen",
+  "expect": "app.force_quit"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FORCE_KILL_APP",
+  "text": "force quit IntelliJ IDEA if it is frozen",
+  "expect": "app.force_quit"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FORCE_KILL_APP",
+  "text": "force quit Microsoft Word if it is frozen",
+  "expect": "app.force_quit"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FORCE_KILL_APP",
+  "text": "force quit Zoom if it is frozen",
+  "expect": "app.force_quit"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FORCE_KILL_APP",
+  "text": "force quit Calculator if it is frozen",
+  "expect": "app.force_quit"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FORCE_KILL_APP",
+  "text": "force quit Blender if it is frozen",
+  "expect": "app.force_quit"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESTART_APP",
+  "text": "restart Google Chrome",
+  "expect": "app.restart"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESTART_APP",
+  "text": "restart IntelliJ IDEA",
+  "expect": "app.restart"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESTART_APP",
+  "text": "restart Microsoft Word",
+  "expect": "app.restart"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESTART_APP",
+  "text": "restart Zoom",
+  "expect": "app.restart"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESTART_APP",
+  "text": "restart Calculator",
+  "expect": "app.restart"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESTART_APP",
+  "text": "restart Blender",
+  "expect": "app.restart"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MINIMIZE_WINDOW",
+  "text": "minimize Google Chrome window",
+  "expect": "windows.arrange"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MINIMIZE_WINDOW",
+  "text": "minimize IntelliJ IDEA window",
+  "expect": "windows.arrange"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MINIMIZE_WINDOW",
+  "text": "minimize Microsoft Word window",
+  "expect": "windows.arrange"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MINIMIZE_WINDOW",
+  "text": "minimize Zoom window",
+  "expect": "windows.arrange"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MINIMIZE_WINDOW",
+  "text": "minimize Calculator window",
+  "expect": "windows.arrange"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MINIMIZE_WINDOW",
+  "text": "minimize Blender window",
+  "expect": "windows.arrange"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MAXIMIZE_WINDOW",
+  "text": "maximize Google Chrome to full screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MAXIMIZE_WINDOW",
+  "text": "maximize IntelliJ IDEA to full screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MAXIMIZE_WINDOW",
+  "text": "maximize Microsoft Word to full screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MAXIMIZE_WINDOW",
+  "text": "maximize Zoom to full screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MAXIMIZE_WINDOW",
+  "text": "maximize Calculator to full screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MAXIMIZE_WINDOW",
+  "text": "maximize Blender to full screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_LEFT",
+  "text": "snap Google Chrome to the left half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_LEFT",
+  "text": "snap IntelliJ IDEA to the left half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_LEFT",
+  "text": "snap Microsoft Word to the left half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_LEFT",
+  "text": "snap Zoom to the left half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_LEFT",
+  "text": "snap Calculator to the left half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_LEFT",
+  "text": "snap Blender to the left half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_RIGHT",
+  "text": "snap Google Chrome to the right half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_RIGHT",
+  "text": "snap IntelliJ IDEA to the right half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_RIGHT",
+  "text": "snap Microsoft Word to the right half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_RIGHT",
+  "text": "snap Zoom to the right half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_RIGHT",
+  "text": "snap Calculator to the right half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SNAP_WINDOW_RIGHT",
+  "text": "snap Blender to the right half of my screen",
+  "expect": "window.snap_ext"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MOVE_WINDOW_DISPLAY",
+  "text": "move Google Chrome to my second monitor",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MOVE_WINDOW_DISPLAY",
+  "text": "move IntelliJ IDEA to my second monitor",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MOVE_WINDOW_DISPLAY",
+  "text": "move Microsoft Word to my second monitor",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MOVE_WINDOW_DISPLAY",
+  "text": "move Zoom to my second monitor",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MOVE_WINDOW_DISPLAY",
+  "text": "move Calculator to my second monitor",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MOVE_WINDOW_DISPLAY",
+  "text": "move Blender to my second monitor",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FOCUS_WINDOW",
+  "text": "bring Google Chrome to the front",
+  "expect": "windows.focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FOCUS_WINDOW",
+  "text": "bring IntelliJ IDEA to the front",
+  "expect": "windows.focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FOCUS_WINDOW",
+  "text": "bring Microsoft Word to the front",
+  "expect": "windows.focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FOCUS_WINDOW",
+  "text": "bring Zoom to the front",
+  "expect": "windows.focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FOCUS_WINDOW",
+  "text": "bring Calculator to the front",
+  "expect": "windows.focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/FOCUS_WINDOW",
+  "text": "bring Blender to the front",
+  "expect": "windows.focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SOLO_APP_WINDOW",
+  "text": "hide all windows except Google Chrome",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SOLO_APP_WINDOW",
+  "text": "hide all windows except IntelliJ IDEA",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SOLO_APP_WINDOW",
+  "text": "hide all windows except Microsoft Word",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SOLO_APP_WINDOW",
+  "text": "hide all windows except Zoom",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SOLO_APP_WINDOW",
+  "text": "hide all windows except Calculator",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SOLO_APP_WINDOW",
+  "text": "hide all windows except Blender",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/INSPECT_APP_RESOURCES",
+  "text": "check how much RAM and CPU Google Chrome is using",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/INSPECT_APP_RESOURCES",
+  "text": "check how much RAM and CPU IntelliJ IDEA is using",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/INSPECT_APP_RESOURCES",
+  "text": "check how much RAM and CPU Microsoft Word is using",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/INSPECT_APP_RESOURCES",
+  "text": "check how much RAM and CPU Zoom is using",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/INSPECT_APP_RESOURCES",
+  "text": "check how much RAM and CPU Calculator is using",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/INSPECT_APP_RESOURCES",
+  "text": "check how much RAM and CPU Blender is using",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/NEW_APP_WINDOW",
+  "text": "open a new window in Google Chrome",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/NEW_APP_WINDOW",
+  "text": "open a new window in IntelliJ IDEA",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/NEW_APP_WINDOW",
+  "text": "open a new window in Microsoft Word",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/NEW_APP_WINDOW",
+  "text": "open a new window in Zoom",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/NEW_APP_WINDOW",
+  "text": "open a new window in Calculator",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/NEW_APP_WINDOW",
+  "text": "open a new window in Blender",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/PIN_WINDOW_TOP",
+  "text": "pin Google Chrome to the always-on-top layer",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/PIN_WINDOW_TOP",
+  "text": "pin IntelliJ IDEA to the always-on-top layer",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/PIN_WINDOW_TOP",
+  "text": "pin Microsoft Word to the always-on-top layer",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/PIN_WINDOW_TOP",
+  "text": "pin Zoom to the always-on-top layer",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/PIN_WINDOW_TOP",
+  "text": "pin Calculator to the always-on-top layer",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/PIN_WINDOW_TOP",
+  "text": "pin Blender to the always-on-top layer",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNPIN_WINDOW_TOP",
+  "text": "unpin Google Chrome from always-on-top",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNPIN_WINDOW_TOP",
+  "text": "unpin IntelliJ IDEA from always-on-top",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNPIN_WINDOW_TOP",
+  "text": "unpin Microsoft Word from always-on-top",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNPIN_WINDOW_TOP",
+  "text": "unpin Zoom from always-on-top",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNPIN_WINDOW_TOP",
+  "text": "unpin Calculator from always-on-top",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNPIN_WINDOW_TOP",
+  "text": "unpin Blender from always-on-top",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SCREENSHOT_APP_WINDOW",
+  "text": "take a screenshot of just the Google Chrome window",
+  "expect": "window.screenshot"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SCREENSHOT_APP_WINDOW",
+  "text": "take a screenshot of just the IntelliJ IDEA window",
+  "expect": "window.screenshot"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SCREENSHOT_APP_WINDOW",
+  "text": "take a screenshot of just the Microsoft Word window",
+  "expect": "window.screenshot"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SCREENSHOT_APP_WINDOW",
+  "text": "take a screenshot of just the Zoom window",
+  "expect": "window.screenshot"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SCREENSHOT_APP_WINDOW",
+  "text": "take a screenshot of just the Calculator window",
+  "expect": "window.screenshot"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/SCREENSHOT_APP_WINDOW",
+  "text": "take a screenshot of just the Blender window",
+  "expect": "window.screenshot"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MUTE_APP_AUDIO",
+  "text": "mute audio coming only from Google Chrome",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MUTE_APP_AUDIO",
+  "text": "mute audio coming only from IntelliJ IDEA",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MUTE_APP_AUDIO",
+  "text": "mute audio coming only from Microsoft Word",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MUTE_APP_AUDIO",
+  "text": "mute audio coming only from Zoom",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MUTE_APP_AUDIO",
+  "text": "mute audio coming only from Calculator",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/MUTE_APP_AUDIO",
+  "text": "mute audio coming only from Blender",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNMUTE_APP_AUDIO",
+  "text": "unmute audio for Google Chrome",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNMUTE_APP_AUDIO",
+  "text": "unmute audio for IntelliJ IDEA",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNMUTE_APP_AUDIO",
+  "text": "unmute audio for Microsoft Word",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNMUTE_APP_AUDIO",
+  "text": "unmute audio for Zoom",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNMUTE_APP_AUDIO",
+  "text": "unmute audio for Calculator",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/UNMUTE_APP_AUDIO",
+  "text": "unmute audio for Blender",
+  "expect": "app.audio"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_RUNNING",
+  "text": "check if Google Chrome is currently running",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_RUNNING",
+  "text": "check if IntelliJ IDEA is currently running",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_RUNNING",
+  "text": "check if Microsoft Word is currently running",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_RUNNING",
+  "text": "check if Zoom is currently running",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_RUNNING",
+  "text": "check if Calculator is currently running",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_RUNNING",
+  "text": "check if Blender is currently running",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RUN_APP_ELEVATED",
+  "text": "open Google Chrome as administrator",
+  "expect": "app.elevated"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RUN_APP_ELEVATED",
+  "text": "open IntelliJ IDEA as administrator",
+  "expect": "app.elevated"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RUN_APP_ELEVATED",
+  "text": "open Microsoft Word as administrator",
+  "expect": "app.elevated"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RUN_APP_ELEVATED",
+  "text": "open Zoom as administrator",
+  "expect": "app.elevated"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RUN_APP_ELEVATED",
+  "text": "open Calculator as administrator",
+  "expect": "app.elevated"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RUN_APP_ELEVATED",
+  "text": "open Blender as administrator",
+  "expect": "app.elevated"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/ADD_APP_STARTUP",
+  "text": "enable startup launch for Google Chrome",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/ADD_APP_STARTUP",
+  "text": "enable startup launch for IntelliJ IDEA",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/ADD_APP_STARTUP",
+  "text": "enable startup launch for Microsoft Word",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/ADD_APP_STARTUP",
+  "text": "enable startup launch for Zoom",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/ADD_APP_STARTUP",
+  "text": "enable startup launch for Calculator",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/ADD_APP_STARTUP",
+  "text": "enable startup launch for Blender",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/REMOVE_APP_STARTUP",
+  "text": "disable automatic startup for Google Chrome",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/REMOVE_APP_STARTUP",
+  "text": "disable automatic startup for IntelliJ IDEA",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/REMOVE_APP_STARTUP",
+  "text": "disable automatic startup for Microsoft Word",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/REMOVE_APP_STARTUP",
+  "text": "disable automatic startup for Zoom",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/REMOVE_APP_STARTUP",
+  "text": "disable automatic startup for Calculator",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/REMOVE_APP_STARTUP",
+  "text": "disable automatic startup for Blender",
+  "expect": "app.startup"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEAR_APP_CACHE",
+  "text": "clear temporary cache files for Google Chrome",
+  "expect": "app.cache"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEAR_APP_CACHE",
+  "text": "clear temporary cache files for IntelliJ IDEA",
+  "expect": "app.cache"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEAR_APP_CACHE",
+  "text": "clear temporary cache files for Microsoft Word",
+  "expect": "app.cache"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEAR_APP_CACHE",
+  "text": "clear temporary cache files for Zoom",
+  "expect": "app.cache"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEAR_APP_CACHE",
+  "text": "clear temporary cache files for Calculator",
+  "expect": "app.cache"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEAR_APP_CACHE",
+  "text": "clear temporary cache files for Blender",
+  "expect": "app.cache"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LOCATE_APP_BINARY",
+  "text": "show the installation folder path of Google Chrome",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LOCATE_APP_BINARY",
+  "text": "show the installation folder path of IntelliJ IDEA",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LOCATE_APP_BINARY",
+  "text": "show the installation folder path of Microsoft Word",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LOCATE_APP_BINARY",
+  "text": "show the installation folder path of Zoom",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LOCATE_APP_BINARY",
+  "text": "show the installation folder path of Calculator",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/LOCATE_APP_BINARY",
+  "text": "show the installation folder path of Blender",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_VERSION",
+  "text": "check the installed version of Google Chrome",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_VERSION",
+  "text": "check the installed version of IntelliJ IDEA",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_VERSION",
+  "text": "check the installed version of Microsoft Word",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_VERSION",
+  "text": "check the installed version of Zoom",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_VERSION",
+  "text": "check the installed version of Calculator",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CHECK_APP_VERSION",
+  "text": "check the installed version of Blender",
+  "expect": "app.info"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CENTER_APP_WINDOW",
+  "text": "center the Google Chrome window on my screen",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CENTER_APP_WINDOW",
+  "text": "center the IntelliJ IDEA window on my screen",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CENTER_APP_WINDOW",
+  "text": "center the Microsoft Word window on my screen",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CENTER_APP_WINDOW",
+  "text": "center the Zoom window on my screen",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CENTER_APP_WINDOW",
+  "text": "center the Calculator window on my screen",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CENTER_APP_WINDOW",
+  "text": "center the Blender window on my screen",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESIZE_APP_WINDOW",
+  "text": "resize Google Chrome window to 1280x720",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESIZE_APP_WINDOW",
+  "text": "resize IntelliJ IDEA window to 1280x720",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESIZE_APP_WINDOW",
+  "text": "resize Microsoft Word window to 1280x720",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESIZE_APP_WINDOW",
+  "text": "resize Zoom window to 1280x720",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESIZE_APP_WINDOW",
+  "text": "resize Calculator window to 1280x720",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/RESIZE_APP_WINDOW",
+  "text": "resize Blender window to 1280x720",
+  "expect": "window.layout"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/TOGGLE_APP_FOCUS",
+  "text": "switch focus between Google Chrome and my last active window",
+  "expect": "window.toggle_focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/TOGGLE_APP_FOCUS",
+  "text": "switch focus between IntelliJ IDEA and my last active window",
+  "expect": "window.toggle_focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/TOGGLE_APP_FOCUS",
+  "text": "switch focus between Microsoft Word and my last active window",
+  "expect": "window.toggle_focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/TOGGLE_APP_FOCUS",
+  "text": "switch focus between Zoom and my last active window",
+  "expect": "window.toggle_focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/TOGGLE_APP_FOCUS",
+  "text": "switch focus between Calculator and my last active window",
+  "expect": "window.toggle_focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/TOGGLE_APP_FOCUS",
+  "text": "switch focus between Blender and my last active window",
+  "expect": "window.toggle_focus"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEANUP_APP_INSTANCES",
+  "text": "close all background instances of Google Chrome",
+  "expect": "app.close_all"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEANUP_APP_INSTANCES",
+  "text": "close all background instances of IntelliJ IDEA",
+  "expect": "app.close_all"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEANUP_APP_INSTANCES",
+  "text": "close all background instances of Microsoft Word",
+  "expect": "app.close_all"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEANUP_APP_INSTANCES",
+  "text": "close all background instances of Zoom",
+  "expect": "app.close_all"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEANUP_APP_INSTANCES",
+  "text": "close all background instances of Calculator",
+  "expect": "app.close_all"
+ },
+ {
+  "intent": "APP_AND_WINDOW_MANAGEMENT/CLEANUP_APP_INSTANCES",
+  "text": "close all background instances of Blender",
+  "expect": "app.close_all"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SEARCH_FILES_BY_TYPE",
+  "text": "find all PDF documents in my Desktop folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SEARCH_FILES_BY_TYPE",
+  "text": "find all Markdown notes in my Downloads folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SEARCH_FILES_BY_TYPE",
+  "text": "find all Word documents in my Pictures folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SEARCH_FILES_BY_TYPE",
+  "text": "find all PDF documents in my Videos folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SEARCH_FILES_BY_TYPE",
+  "text": "find all Markdown notes in my Projects folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SEARCH_FILES_BY_TYPE",
+  "text": "find all Word documents in my Invoices folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SORT_FILES_BY_DATE",
+  "text": "sort all PDF documents in Desktop by newest date",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SORT_FILES_BY_DATE",
+  "text": "sort all Markdown notes in Downloads by newest date",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SORT_FILES_BY_DATE",
+  "text": "sort all Word documents in Pictures by newest date",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SORT_FILES_BY_DATE",
+  "text": "sort all PDF documents in Videos by newest date",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SORT_FILES_BY_DATE",
+  "text": "sort all Markdown notes in Projects by newest date",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/SORT_FILES_BY_DATE",
+  "text": "sort all Word documents in Invoices by newest date",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ORGANIZE_FILES_SUBFOLDER",
+  "text": "move all PDF documents from Desktop into an organized subfolder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ORGANIZE_FILES_SUBFOLDER",
+  "text": "move all Markdown notes from Downloads into an organized subfolder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ORGANIZE_FILES_SUBFOLDER",
+  "text": "move all Word documents from Pictures into an organized subfolder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ORGANIZE_FILES_SUBFOLDER",
+  "text": "move all PDF documents from Videos into an organized subfolder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ORGANIZE_FILES_SUBFOLDER",
+  "text": "move all Markdown notes from Projects into an organized subfolder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ORGANIZE_FILES_SUBFOLDER",
+  "text": "move all Word documents from Invoices into an organized subfolder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/COUNT_FILES_BY_TYPE",
+  "text": "count how many PDF documents are inside my Desktop folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/COUNT_FILES_BY_TYPE",
+  "text": "count how many Markdown notes are inside my Downloads folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/COUNT_FILES_BY_TYPE",
+  "text": "count how many Word documents are inside my Pictures folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/COUNT_FILES_BY_TYPE",
+  "text": "count how many PDF documents are inside my Videos folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/COUNT_FILES_BY_TYPE",
+  "text": "count how many Markdown notes are inside my Projects folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/COUNT_FILES_BY_TYPE",
+  "text": "count how many Word documents are inside my Invoices folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ZIP_FILES_BY_TYPE",
+  "text": "compress all PDF documents in Desktop into a ZIP archive",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ZIP_FILES_BY_TYPE",
+  "text": "compress all Markdown notes in Downloads into a ZIP archive",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ZIP_FILES_BY_TYPE",
+  "text": "compress all Word documents in Pictures into a ZIP archive",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ZIP_FILES_BY_TYPE",
+  "text": "compress all PDF documents in Videos into a ZIP archive",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ZIP_FILES_BY_TYPE",
+  "text": "compress all Markdown notes in Projects into a ZIP archive",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/ZIP_FILES_BY_TYPE",
+  "text": "compress all Word documents in Invoices into a ZIP archive",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BACKUP_FILES_BY_TYPE",
+  "text": "back up all PDF documents from Desktop to my Backups folder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BACKUP_FILES_BY_TYPE",
+  "text": "back up all Markdown notes from Downloads to my Backups folder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BACKUP_FILES_BY_TYPE",
+  "text": "back up all Word documents from Pictures to my Backups folder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BACKUP_FILES_BY_TYPE",
+  "text": "back up all PDF documents from Videos to my Backups folder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BACKUP_FILES_BY_TYPE",
+  "text": "back up all Markdown notes from Projects to my Backups folder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BACKUP_FILES_BY_TYPE",
+  "text": "back up all Word documents from Invoices to my Backups folder",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_LARGEST_FILES",
+  "text": "list the 5 largest PDF documents in my Desktop folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_LARGEST_FILES",
+  "text": "list the 5 largest Markdown notes in my Downloads folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_LARGEST_FILES",
+  "text": "list the 5 largest Word documents in my Pictures folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_LARGEST_FILES",
+  "text": "list the 5 largest PDF documents in my Videos folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_LARGEST_FILES",
+  "text": "list the 5 largest Markdown notes in my Projects folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_LARGEST_FILES",
+  "text": "list the 5 largest Word documents in my Invoices folder",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_RECENT_FILES",
+  "text": "find PDF documents in Desktop modified today",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_RECENT_FILES",
+  "text": "find Markdown notes in Downloads modified today",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_RECENT_FILES",
+  "text": "find Word documents in Pictures modified today",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_RECENT_FILES",
+  "text": "find PDF documents in Videos modified today",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_RECENT_FILES",
+  "text": "find Markdown notes in Projects modified today",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/FIND_RECENT_FILES",
+  "text": "find Word documents in Invoices modified today",
+  "expect": "files.by_type"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BATCH_RENAME_DATE",
+  "text": "rename all PDF documents in Desktop with today's date prefix",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BATCH_RENAME_DATE",
+  "text": "rename all Markdown notes in Downloads with today's date prefix",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BATCH_RENAME_DATE",
+  "text": "rename all Word documents in Pictures with today's date prefix",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BATCH_RENAME_DATE",
+  "text": "rename all PDF documents in Videos with today's date prefix",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BATCH_RENAME_DATE",
+  "text": "rename all Markdown notes in Projects with today's date prefix",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/BATCH_RENAME_DATE",
+  "text": "rename all Word documents in Invoices with today's date prefix",
+  "expect": "files.bulk"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/DEDUPLICATE_FILES",
+  "text": "check for duplicate PDF documents inside Desktop",
+  "expect": "files.duplicates"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/DEDUPLICATE_FILES",
+  "text": "check for duplicate Markdown notes inside Downloads",
+  "expect": "files.duplicates"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/DEDUPLICATE_FILES",
+  "text": "check for duplicate Word documents inside Pictures",
+  "expect": "files.duplicates"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/DEDUPLICATE_FILES",
+  "text": "check for duplicate PDF documents inside Videos",
+  "expect": "files.duplicates"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/DEDUPLICATE_FILES",
+  "text": "check for duplicate Markdown notes inside Projects",
+  "expect": "files.duplicates"
+ },
+ {
+  "intent": "FILE_AND_FOLDER_OPERATIONS/DEDUPLICATE_FILES",
+  "text": "check for duplicate Word documents inside Invoices",
+  "expect": "files.duplicates"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/WEB_SEARCH_PLATFORM",
+  "text": "search Google for Python openpyxl tutorial",
+  "expect": "web.site_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/WEB_SEARCH_PLATFORM",
+  "text": "search GitHub for today's stock market news",
+  "expect": "web.site_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/WEB_SEARCH_PLATFORM",
+  "text": "search Reddit for cheap flights to Delhi",
+  "expect": "web.site_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/WEB_SEARCH_PLATFORM",
+  "text": "search Google for keyboard shortcuts for VS Code",
+  "expect": "web.site_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/WEB_SEARCH_PLATFORM",
+  "text": "search GitHub for React hooks documentation",
+  "expect": "web.site_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/WEB_SEARCH_PLATFORM",
+  "text": "search Reddit for healthy high protein recipes",
+  "expect": "web.site_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/OPEN_SEARCH_TAB",
+  "text": "open Google in a new tab and look up Python openpyxl tutorial",
+  "expect": "web.new_tab_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/OPEN_SEARCH_TAB",
+  "text": "open GitHub in a new tab and look up today's stock market news",
+  "expect": "web.new_tab_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/OPEN_SEARCH_TAB",
+  "text": "open Reddit in a new tab and look up cheap flights to Delhi",
+  "expect": "web.new_tab_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/OPEN_SEARCH_TAB",
+  "text": "open Google in a new tab and look up keyboard shortcuts for VS Code",
+  "expect": "web.new_tab_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/OPEN_SEARCH_TAB",
+  "text": "open GitHub in a new tab and look up React hooks documentation",
+  "expect": "web.new_tab_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/OPEN_SEARCH_TAB",
+  "text": "open Reddit in a new tab and look up healthy high protein recipes",
+  "expect": "web.new_tab_search"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SUMMARIZE_WEB_RESULTS",
+  "text": "summarize the top results on Google about Python openpyxl tutorial",
+  "expect": "web.summary"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SUMMARIZE_WEB_RESULTS",
+  "text": "summarize the top results on GitHub about today's stock market news",
+  "expect": "web.summary"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SUMMARIZE_WEB_RESULTS",
+  "text": "summarize the top results on Reddit about cheap flights to Delhi",
+  "expect": "web.summary"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SUMMARIZE_WEB_RESULTS",
+  "text": "summarize the top results on Google about keyboard shortcuts for VS Code",
+  "expect": "web.summary"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SUMMARIZE_WEB_RESULTS",
+  "text": "summarize the top results on GitHub about React hooks documentation",
+  "expect": "web.summary"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SUMMARIZE_WEB_RESULTS",
+  "text": "summarize the top results on Reddit about healthy high protein recipes",
+  "expect": "web.summary"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SAVE_SEARCH_BOOKMARKS",
+  "text": "save the best links from Google on Python openpyxl tutorial to a text file",
+  "expect": "web.save_links"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SAVE_SEARCH_BOOKMARKS",
+  "text": "save the best links from GitHub on today's stock market news to a text file",
+  "expect": "web.save_links"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SAVE_SEARCH_BOOKMARKS",
+  "text": "save the best links from Reddit on cheap flights to Delhi to a text file",
+  "expect": "web.save_links"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SAVE_SEARCH_BOOKMARKS",
+  "text": "save the best links from Google on keyboard shortcuts for VS Code to a text file",
+  "expect": "web.save_links"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SAVE_SEARCH_BOOKMARKS",
+  "text": "save the best links from GitHub on React hooks documentation to a text file",
+  "expect": "web.save_links"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/SAVE_SEARCH_BOOKMARKS",
+  "text": "save the best links from Reddit on healthy high protein recipes to a text file",
+  "expect": "web.save_links"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/INCOGNITO_WEB_SEARCH",
+  "text": "open Google in incognito mode and search for Python openpyxl tutorial",
+  "expect": "web.private"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/INCOGNITO_WEB_SEARCH",
+  "text": "open GitHub in incognito mode and search for today's stock market news",
+  "expect": "web.private"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/INCOGNITO_WEB_SEARCH",
+  "text": "open Reddit in incognito mode and search for cheap flights to Delhi",
+  "expect": "web.private"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/INCOGNITO_WEB_SEARCH",
+  "text": "open Google in incognito mode and search for keyboard shortcuts for VS Code",
+  "expect": "web.private"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/INCOGNITO_WEB_SEARCH",
+  "text": "open GitHub in incognito mode and search for React hooks documentation",
+  "expect": "web.private"
+ },
+ {
+  "intent": "WEB_AND_BROWSER_AUTOMATION/INCOGNITO_WEB_SEARCH",
+  "text": "open Reddit in incognito mode and search for healthy high protein recipes",
+  "expect": "web.private"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_REMINDER",
+  "text": "set a reminder for my team standup meeting at 9:00 AM tomorrow",
+  "expect": "reminder.for_at"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_REMINDER",
+  "text": "set a reminder for my dentist appointment at 9:00 AM tomorrow",
+  "expect": "reminder.for_at"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_REMINDER",
+  "text": "set a reminder for my monthly expense reconciliation at 9:00 AM tomorrow",
+  "expect": "reminder.for_at"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_REMINDER",
+  "text": "set a reminder for my pay electricity and internet bill at 9:00 AM tomorrow",
+  "expect": "reminder.for_at"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_REMINDER",
+  "text": "set a reminder for my read 20 pages of a book at 9:00 AM tomorrow",
+  "expect": "reminder.for_at"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_REMINDER",
+  "text": "set a reminder for my clean up email inbox at 9:00 AM tomorrow",
+  "expect": "reminder.for_at"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SCHEDULE_CALENDAR_EVENT",
+  "text": "schedule team standup meeting on my calendar for Friday at 3:00 PM",
+  "expect": "calendar.event"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SCHEDULE_CALENDAR_EVENT",
+  "text": "schedule dentist appointment on my calendar for Friday at 3:00 PM",
+  "expect": "calendar.event"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SCHEDULE_CALENDAR_EVENT",
+  "text": "schedule monthly expense reconciliation on my calendar for Friday at 3:00 PM",
+  "expect": "calendar.event"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SCHEDULE_CALENDAR_EVENT",
+  "text": "schedule pay electricity and internet bill on my calendar for Friday at 3:00 PM",
+  "expect": "calendar.event"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SCHEDULE_CALENDAR_EVENT",
+  "text": "schedule read 20 pages of a book on my calendar for Friday at 3:00 PM",
+  "expect": "calendar.event"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SCHEDULE_CALENDAR_EVENT",
+  "text": "schedule clean up email inbox on my calendar for Friday at 3:00 PM",
+  "expect": "calendar.event"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_POMODORO_TIMER",
+  "text": "start a 25-minute Pomodoro timer for team standup meeting",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_POMODORO_TIMER",
+  "text": "start a 25-minute Pomodoro timer for dentist appointment",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_POMODORO_TIMER",
+  "text": "start a 25-minute Pomodoro timer for monthly expense reconciliation",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_POMODORO_TIMER",
+  "text": "start a 25-minute Pomodoro timer for pay electricity and internet bill",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_POMODORO_TIMER",
+  "text": "start a 25-minute Pomodoro timer for read 20 pages of a book",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_POMODORO_TIMER",
+  "text": "start a 25-minute Pomodoro timer for clean up email inbox",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_DEEPWORK_TIMER",
+  "text": "start a 45-minute deep work timer for team standup meeting",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_DEEPWORK_TIMER",
+  "text": "start a 45-minute deep work timer for dentist appointment",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_DEEPWORK_TIMER",
+  "text": "start a 45-minute deep work timer for monthly expense reconciliation",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_DEEPWORK_TIMER",
+  "text": "start a 45-minute deep work timer for pay electricity and internet bill",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_DEEPWORK_TIMER",
+  "text": "start a 45-minute deep work timer for read 20 pages of a book",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_DEEPWORK_TIMER",
+  "text": "start a 45-minute deep work timer for clean up email inbox",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_60M_TIMER",
+  "text": "start a 60-minute countdown timer for team standup meeting",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_60M_TIMER",
+  "text": "start a 60-minute countdown timer for dentist appointment",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_60M_TIMER",
+  "text": "start a 60-minute countdown timer for monthly expense reconciliation",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_60M_TIMER",
+  "text": "start a 60-minute countdown timer for pay electricity and internet bill",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_60M_TIMER",
+  "text": "start a 60-minute countdown timer for read 20 pages of a book",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_60M_TIMER",
+  "text": "start a 60-minute countdown timer for clean up email inbox",
+  "expect": "focus.timer_for"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HIGH_PRIORITY_TODO",
+  "text": "add 'team standup meeting' to my high-priority to-do list",
+  "expect": "todo.add"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HIGH_PRIORITY_TODO",
+  "text": "add 'dentist appointment' to my high-priority to-do list",
+  "expect": "todo.add"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HIGH_PRIORITY_TODO",
+  "text": "add 'monthly expense reconciliation' to my high-priority to-do list",
+  "expect": "todo.add"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HIGH_PRIORITY_TODO",
+  "text": "add 'pay electricity and internet bill' to my high-priority to-do list",
+  "expect": "todo.add"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HIGH_PRIORITY_TODO",
+  "text": "add 'read 20 pages of a book' to my high-priority to-do list",
+  "expect": "todo.add"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HIGH_PRIORITY_TODO",
+  "text": "add 'clean up email inbox' to my high-priority to-do list",
+  "expect": "todo.add"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/COMPLETE_TODO_ITEM",
+  "text": "mark 'team standup meeting' as completed on my to-do list",
+  "expect": "todo.complete"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/COMPLETE_TODO_ITEM",
+  "text": "mark 'dentist appointment' as completed on my to-do list",
+  "expect": "todo.complete"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/COMPLETE_TODO_ITEM",
+  "text": "mark 'monthly expense reconciliation' as completed on my to-do list",
+  "expect": "todo.complete"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/COMPLETE_TODO_ITEM",
+  "text": "mark 'pay electricity and internet bill' as completed on my to-do list",
+  "expect": "todo.complete"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/COMPLETE_TODO_ITEM",
+  "text": "mark 'read 20 pages of a book' as completed on my to-do list",
+  "expect": "todo.complete"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/COMPLETE_TODO_ITEM",
+  "text": "mark 'clean up email inbox' as completed on my to-do list",
+  "expect": "todo.complete"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_INTERACTIVE_NOTE",
+  "text": "create a new note titled 'team standup meeting' and ask me what to write",
+  "expect": "note.create"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_INTERACTIVE_NOTE",
+  "text": "create a new note titled 'dentist appointment' and ask me what to write",
+  "expect": "note.create"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_INTERACTIVE_NOTE",
+  "text": "create a new note titled 'monthly expense reconciliation' and ask me what to write",
+  "expect": "note.create"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_INTERACTIVE_NOTE",
+  "text": "create a new note titled 'pay electricity and internet bill' and ask me what to write",
+  "expect": "note.create"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_INTERACTIVE_NOTE",
+  "text": "create a new note titled 'read 20 pages of a book' and ask me what to write",
+  "expect": "note.create"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_INTERACTIVE_NOTE",
+  "text": "create a new note titled 'clean up email inbox' and ask me what to write",
+  "expect": "note.create"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/APPEND_VOICE_NOTE",
+  "text": "append a voice note to my 'team standup meeting' file",
+  "expect": "note.append"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/APPEND_VOICE_NOTE",
+  "text": "append a voice note to my 'dentist appointment' file",
+  "expect": "note.append"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/APPEND_VOICE_NOTE",
+  "text": "append a voice note to my 'monthly expense reconciliation' file",
+  "expect": "note.append"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/APPEND_VOICE_NOTE",
+  "text": "append a voice note to my 'pay electricity and internet bill' file",
+  "expect": "note.append"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/APPEND_VOICE_NOTE",
+  "text": "append a voice note to my 'read 20 pages of a book' file",
+  "expect": "note.append"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/APPEND_VOICE_NOTE",
+  "text": "append a voice note to my 'clean up email inbox' file",
+  "expect": "note.append"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_RECURRING_ALARM",
+  "text": "set a recurring daily alarm for team standup meeting at 7:30 AM",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_RECURRING_ALARM",
+  "text": "set a recurring daily alarm for dentist appointment at 7:30 AM",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_RECURRING_ALARM",
+  "text": "set a recurring daily alarm for monthly expense reconciliation at 7:30 AM",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_RECURRING_ALARM",
+  "text": "set a recurring daily alarm for pay electricity and internet bill at 7:30 AM",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_RECURRING_ALARM",
+  "text": "set a recurring daily alarm for read 20 pages of a book at 7:30 AM",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_RECURRING_ALARM",
+  "text": "set a recurring daily alarm for clean up email inbox at 7:30 AM",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_WEEKLY_REMINDER",
+  "text": "set a recurring weekly reminder for team standup meeting every Monday",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_WEEKLY_REMINDER",
+  "text": "set a recurring weekly reminder for dentist appointment every Monday",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_WEEKLY_REMINDER",
+  "text": "set a recurring weekly reminder for monthly expense reconciliation every Monday",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_WEEKLY_REMINDER",
+  "text": "set a recurring weekly reminder for pay electricity and internet bill every Monday",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_WEEKLY_REMINDER",
+  "text": "set a recurring weekly reminder for read 20 pages of a book every Monday",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_WEEKLY_REMINDER",
+  "text": "set a recurring weekly reminder for clean up email inbox every Monday",
+  "expect": "reminder.repeat"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SNOOZE_ALERT",
+  "text": "snooze my team standup meeting alert for 10 minutes",
+  "expect": "reminder.snooze"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SNOOZE_ALERT",
+  "text": "snooze my dentist appointment alert for 10 minutes",
+  "expect": "reminder.snooze"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SNOOZE_ALERT",
+  "text": "snooze my monthly expense reconciliation alert for 10 minutes",
+  "expect": "reminder.snooze"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SNOOZE_ALERT",
+  "text": "snooze my pay electricity and internet bill alert for 10 minutes",
+  "expect": "reminder.snooze"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SNOOZE_ALERT",
+  "text": "snooze my read 20 pages of a book alert for 10 minutes",
+  "expect": "reminder.snooze"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SNOOZE_ALERT",
+  "text": "snooze my clean up email inbox alert for 10 minutes",
+  "expect": "reminder.snooze"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DELETE_REMINDER",
+  "text": "cancel the scheduled reminder for team standup meeting",
+  "expect": "reminder.cancel_named"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DELETE_REMINDER",
+  "text": "cancel the scheduled reminder for dentist appointment",
+  "expect": "reminder.cancel_named"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DELETE_REMINDER",
+  "text": "cancel the scheduled reminder for monthly expense reconciliation",
+  "expect": "reminder.cancel_named"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DELETE_REMINDER",
+  "text": "cancel the scheduled reminder for pay electricity and internet bill",
+  "expect": "reminder.cancel_named"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DELETE_REMINDER",
+  "text": "cancel the scheduled reminder for read 20 pages of a book",
+  "expect": "reminder.cancel_named"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DELETE_REMINDER",
+  "text": "cancel the scheduled reminder for clean up email inbox",
+  "expect": "reminder.cancel_named"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/QUERY_SCHEDULE",
+  "text": "check when my next team standup meeting is scheduled",
+  "expect": "reminder.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/QUERY_SCHEDULE",
+  "text": "check when my next dentist appointment is scheduled",
+  "expect": "reminder.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/QUERY_SCHEDULE",
+  "text": "check when my next monthly expense reconciliation is scheduled",
+  "expect": "reminder.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/QUERY_SCHEDULE",
+  "text": "check when my next pay electricity and internet bill is scheduled",
+  "expect": "reminder.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/QUERY_SCHEDULE",
+  "text": "check when my next read 20 pages of a book is scheduled",
+  "expect": "reminder.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/QUERY_SCHEDULE",
+  "text": "check when my next clean up email inbox is scheduled",
+  "expect": "reminder.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/RESCHEDULE_EVENT",
+  "text": "reschedule my team standup meeting to tomorrow evening at 6:00 PM",
+  "expect": "reminder.reschedule"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/RESCHEDULE_EVENT",
+  "text": "reschedule my dentist appointment to tomorrow evening at 6:00 PM",
+  "expect": "reminder.reschedule"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/RESCHEDULE_EVENT",
+  "text": "reschedule my monthly expense reconciliation to tomorrow evening at 6:00 PM",
+  "expect": "reminder.reschedule"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/RESCHEDULE_EVENT",
+  "text": "reschedule my pay electricity and internet bill to tomorrow evening at 6:00 PM",
+  "expect": "reminder.reschedule"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/RESCHEDULE_EVENT",
+  "text": "reschedule my read 20 pages of a book to tomorrow evening at 6:00 PM",
+  "expect": "reminder.reschedule"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/RESCHEDULE_EVENT",
+  "text": "reschedule my clean up email inbox to tomorrow evening at 6:00 PM",
+  "expect": "reminder.reschedule"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/LOG_TIME_TRACKER",
+  "text": "log 1 hour spent on team standup meeting in my time tracker sheet",
+  "expect": "time.log"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/LOG_TIME_TRACKER",
+  "text": "log 1 hour spent on dentist appointment in my time tracker sheet",
+  "expect": "time.log"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/LOG_TIME_TRACKER",
+  "text": "log 1 hour spent on monthly expense reconciliation in my time tracker sheet",
+  "expect": "time.log"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/LOG_TIME_TRACKER",
+  "text": "log 1 hour spent on pay electricity and internet bill in my time tracker sheet",
+  "expect": "time.log"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/LOG_TIME_TRACKER",
+  "text": "log 1 hour spent on read 20 pages of a book in my time tracker sheet",
+  "expect": "time.log"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/LOG_TIME_TRACKER",
+  "text": "log 1 hour spent on clean up email inbox in my time tracker sheet",
+  "expect": "time.log"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SEARCH_NOTES",
+  "text": "show me all notes related to team standup meeting",
+  "expect": "note.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SEARCH_NOTES",
+  "text": "show me all notes related to dentist appointment",
+  "expect": "note.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SEARCH_NOTES",
+  "text": "show me all notes related to monthly expense reconciliation",
+  "expect": "note.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SEARCH_NOTES",
+  "text": "show me all notes related to pay electricity and internet bill",
+  "expect": "note.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SEARCH_NOTES",
+  "text": "show me all notes related to read 20 pages of a book",
+  "expect": "note.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SEARCH_NOTES",
+  "text": "show me all notes related to clean up email inbox",
+  "expect": "note.find"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/PIN_CHECKLIST",
+  "text": "pin the checklist for team standup meeting to my desktop",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/PIN_CHECKLIST",
+  "text": "pin the checklist for dentist appointment to my desktop",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/PIN_CHECKLIST",
+  "text": "pin the checklist for monthly expense reconciliation to my desktop",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/PIN_CHECKLIST",
+  "text": "pin the checklist for pay electricity and internet bill to my desktop",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/PIN_CHECKLIST",
+  "text": "pin the checklist for read 20 pages of a book to my desktop",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/PIN_CHECKLIST",
+  "text": "pin the checklist for clean up email inbox to my desktop",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SUMMARIZE_TASK_PROGRESS",
+  "text": "summarize my progress on team standup meeting this week",
+  "expect": "time.summary"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SUMMARIZE_TASK_PROGRESS",
+  "text": "summarize my progress on dentist appointment this week",
+  "expect": "time.summary"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SUMMARIZE_TASK_PROGRESS",
+  "text": "summarize my progress on monthly expense reconciliation this week",
+  "expect": "time.summary"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SUMMARIZE_TASK_PROGRESS",
+  "text": "summarize my progress on pay electricity and internet bill this week",
+  "expect": "time.summary"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SUMMARIZE_TASK_PROGRESS",
+  "text": "summarize my progress on read 20 pages of a book this week",
+  "expect": "time.summary"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SUMMARIZE_TASK_PROGRESS",
+  "text": "summarize my progress on clean up email inbox this week",
+  "expect": "time.summary"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/EXPORT_NOTE_PDF",
+  "text": "export my notes on team standup meeting to a clean PDF",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/EXPORT_NOTE_PDF",
+  "text": "export my notes on dentist appointment to a clean PDF",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/EXPORT_NOTE_PDF",
+  "text": "export my notes on monthly expense reconciliation to a clean PDF",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/EXPORT_NOTE_PDF",
+  "text": "export my notes on pay electricity and internet bill to a clean PDF",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/EXPORT_NOTE_PDF",
+  "text": "export my notes on read 20 pages of a book to a clean PDF",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/EXPORT_NOTE_PDF",
+  "text": "export my notes on clean up email inbox to a clean PDF",
+  "expect": "note.export"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DRAFT_TASK_EMAIL",
+  "text": "email the action items from team standup meeting to my team",
+  "expect": "notes.email"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DRAFT_TASK_EMAIL",
+  "text": "email the action items from dentist appointment to my team",
+  "expect": "notes.email"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DRAFT_TASK_EMAIL",
+  "text": "email the action items from monthly expense reconciliation to my team",
+  "expect": "notes.email"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DRAFT_TASK_EMAIL",
+  "text": "email the action items from pay electricity and internet bill to my team",
+  "expect": "notes.email"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DRAFT_TASK_EMAIL",
+  "text": "email the action items from read 20 pages of a book to my team",
+  "expect": "notes.email"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DRAFT_TASK_EMAIL",
+  "text": "email the action items from clean up email inbox to my team",
+  "expect": "notes.email"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_PRE_EVENT_ALERT",
+  "text": "set a 15-minute warning before team standup meeting starts",
+  "expect": "reminder.before"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_PRE_EVENT_ALERT",
+  "text": "set a 15-minute warning before dentist appointment starts",
+  "expect": "reminder.before"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_PRE_EVENT_ALERT",
+  "text": "set a 15-minute warning before monthly expense reconciliation starts",
+  "expect": "reminder.before"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_PRE_EVENT_ALERT",
+  "text": "set a 15-minute warning before pay electricity and internet bill starts",
+  "expect": "reminder.before"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_PRE_EVENT_ALERT",
+  "text": "set a 15-minute warning before read 20 pages of a book starts",
+  "expect": "reminder.before"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SET_PRE_EVENT_ALERT",
+  "text": "set a 15-minute warning before clean up email inbox starts",
+  "expect": "reminder.before"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/BLOCK_FOCUS_TIME",
+  "text": "block 2 hours on my calendar for team standup meeting",
+  "expect": "calendar.block"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/BLOCK_FOCUS_TIME",
+  "text": "block 2 hours on my calendar for dentist appointment",
+  "expect": "calendar.block"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/BLOCK_FOCUS_TIME",
+  "text": "block 2 hours on my calendar for monthly expense reconciliation",
+  "expect": "calendar.block"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/BLOCK_FOCUS_TIME",
+  "text": "block 2 hours on my calendar for pay electricity and internet bill",
+  "expect": "calendar.block"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/BLOCK_FOCUS_TIME",
+  "text": "block 2 hours on my calendar for read 20 pages of a book",
+  "expect": "calendar.block"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/BLOCK_FOCUS_TIME",
+  "text": "block 2 hours on my calendar for clean up email inbox",
+  "expect": "calendar.block"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HABIT_ROW",
+  "text": "create an Excel habit row for team standup meeting",
+  "expect": "excel.habit_row"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HABIT_ROW",
+  "text": "create an Excel habit row for dentist appointment",
+  "expect": "excel.habit_row"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HABIT_ROW",
+  "text": "create an Excel habit row for monthly expense reconciliation",
+  "expect": "excel.habit_row"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HABIT_ROW",
+  "text": "create an Excel habit row for pay electricity and internet bill",
+  "expect": "excel.habit_row"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HABIT_ROW",
+  "text": "create an Excel habit row for read 20 pages of a book",
+  "expect": "excel.habit_row"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ADD_HABIT_ROW",
+  "text": "create an Excel habit row for clean up email inbox",
+  "expect": "excel.habit_row"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/INTERACTIVE_DAILY_REVIEW",
+  "text": "ask me 3 review questions about my team standup meeting today",
+  "expect": "none"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/INTERACTIVE_DAILY_REVIEW",
+  "text": "ask me 3 review questions about my dentist appointment today",
+  "expect": "none"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/INTERACTIVE_DAILY_REVIEW",
+  "text": "ask me 3 review questions about my monthly expense reconciliation today",
+  "expect": "none"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/INTERACTIVE_DAILY_REVIEW",
+  "text": "ask me 3 review questions about my pay electricity and internet bill today",
+  "expect": "none"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/INTERACTIVE_DAILY_REVIEW",
+  "text": "ask me 3 review questions about my read 20 pages of a book today",
+  "expect": "none"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/INTERACTIVE_DAILY_REVIEW",
+  "text": "ask me 3 review questions about my clean up email inbox today",
+  "expect": "none"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DEFER_TASK_BACKLOG",
+  "text": "move team standup meeting to next week's backlog",
+  "expect": "todo.defer"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DEFER_TASK_BACKLOG",
+  "text": "move dentist appointment to next week's backlog",
+  "expect": "todo.defer"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DEFER_TASK_BACKLOG",
+  "text": "move monthly expense reconciliation to next week's backlog",
+  "expect": "todo.defer"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DEFER_TASK_BACKLOG",
+  "text": "move pay electricity and internet bill to next week's backlog",
+  "expect": "todo.defer"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DEFER_TASK_BACKLOG",
+  "text": "move read 20 pages of a book to next week's backlog",
+  "expect": "todo.defer"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/DEFER_TASK_BACKLOG",
+  "text": "move clean up email inbox to next week's backlog",
+  "expect": "todo.defer"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_STOPWATCH",
+  "text": "set a stopwatch to measure how long team standup meeting takes",
+  "expect": "stopwatch"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_STOPWATCH",
+  "text": "set a stopwatch to measure how long dentist appointment takes",
+  "expect": "stopwatch"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_STOPWATCH",
+  "text": "set a stopwatch to measure how long monthly expense reconciliation takes",
+  "expect": "stopwatch"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_STOPWATCH",
+  "text": "set a stopwatch to measure how long pay electricity and internet bill takes",
+  "expect": "stopwatch"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_STOPWATCH",
+  "text": "set a stopwatch to measure how long read 20 pages of a book takes",
+  "expect": "stopwatch"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/START_STOPWATCH",
+  "text": "set a stopwatch to measure how long clean up email inbox takes",
+  "expect": "stopwatch"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SPEAK_CHECKLIST",
+  "text": "read out my checklist for team standup meeting",
+  "expect": "checklist.read"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SPEAK_CHECKLIST",
+  "text": "read out my checklist for dentist appointment",
+  "expect": "checklist.read"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SPEAK_CHECKLIST",
+  "text": "read out my checklist for monthly expense reconciliation",
+  "expect": "checklist.read"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SPEAK_CHECKLIST",
+  "text": "read out my checklist for pay electricity and internet bill",
+  "expect": "checklist.read"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SPEAK_CHECKLIST",
+  "text": "read out my checklist for read 20 pages of a book",
+  "expect": "checklist.read"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/SPEAK_CHECKLIST",
+  "text": "read out my checklist for clean up email inbox",
+  "expect": "checklist.read"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ARCHIVE_SUBTASKS",
+  "text": "clear completed sub-tasks under team standup meeting",
+  "expect": "todo.clear_done"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ARCHIVE_SUBTASKS",
+  "text": "clear completed sub-tasks under dentist appointment",
+  "expect": "todo.clear_done"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ARCHIVE_SUBTASKS",
+  "text": "clear completed sub-tasks under monthly expense reconciliation",
+  "expect": "todo.clear_done"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ARCHIVE_SUBTASKS",
+  "text": "clear completed sub-tasks under pay electricity and internet bill",
+  "expect": "todo.clear_done"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ARCHIVE_SUBTASKS",
+  "text": "clear completed sub-tasks under read 20 pages of a book",
+  "expect": "todo.clear_done"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/ARCHIVE_SUBTASKS",
+  "text": "clear completed sub-tasks under clean up email inbox",
+  "expect": "todo.clear_done"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_WORKSPACE_SHORTCUT",
+  "text": "create a desktop shortcut to launch my team standup meeting workspace",
+  "expect": "workspace.shortcut"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_WORKSPACE_SHORTCUT",
+  "text": "create a desktop shortcut to launch my dentist appointment workspace",
+  "expect": "workspace.shortcut"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_WORKSPACE_SHORTCUT",
+  "text": "create a desktop shortcut to launch my monthly expense reconciliation workspace",
+  "expect": "workspace.shortcut"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_WORKSPACE_SHORTCUT",
+  "text": "create a desktop shortcut to launch my pay electricity and internet bill workspace",
+  "expect": "workspace.shortcut"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_WORKSPACE_SHORTCUT",
+  "text": "create a desktop shortcut to launch my read 20 pages of a book workspace",
+  "expect": "workspace.shortcut"
+ },
+ {
+  "intent": "PRODUCTIVITY_AND_SCHEDULE/CREATE_WORKSPACE_SHORTCUT",
+  "text": "create a desktop shortcut to launch my clean up email inbox workspace",
+  "expect": "workspace.shortcut"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/DRAFT_EMAIL",
+  "text": "draft an email to Rahul about the updated Excel report",
+  "expect": "message.email"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/DRAFT_EMAIL",
+  "text": "draft an email to Neha about the Python code repository link",
+  "expect": "message.email"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/DRAFT_EMAIL",
+  "text": "draft an email to Rohan about confirmation for tomorrow's call",
+  "expect": "message.email"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/DRAFT_EMAIL",
+  "text": "draft an email to Suresh about the updated Excel report",
+  "expect": "message.email"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/DRAFT_EMAIL",
+  "text": "draft an email to Pooja about the Python code repository link",
+  "expect": "message.email"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/DRAFT_EMAIL",
+  "text": "draft an email to the HR team about confirmation for tomorrow's call",
+  "expect": "message.email"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/SEND_WHATSAPP_MSG",
+  "text": "send a WhatsApp message to Rahul about the updated Excel report",
+  "expect": "message.whatsapp"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/SEND_WHATSAPP_MSG",
+  "text": "send a WhatsApp message to Neha about the Python code repository link",
+  "expect": "message.whatsapp"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/SEND_WHATSAPP_MSG",
+  "text": "send a WhatsApp message to Rohan about confirmation for tomorrow's call",
+  "expect": "message.whatsapp"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/SEND_WHATSAPP_MSG",
+  "text": "send a WhatsApp message to Suresh about the updated Excel report",
+  "expect": "message.whatsapp"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/SEND_WHATSAPP_MSG",
+  "text": "send a WhatsApp message to Pooja about the Python code repository link",
+  "expect": "message.whatsapp"
+ },
+ {
+  "intent": "COMMUNICATION_AND_MESSAGING/SEND_WHATSAPP_MSG",
+  "text": "send a WhatsApp message to the HR team about confirmation for tomorrow's call",
+  "expect": "message.whatsapp"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXPLAIN_SIMPLE",
+  "text": "explain quantum computing like I am a beginner",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXPLAIN_SIMPLE",
+  "text": "explain photosynthesis like I am a beginner",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXPLAIN_SIMPLE",
+  "text": "explain REST vs GraphQL APIs like I am a beginner",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXPLAIN_SIMPLE",
+  "text": "explain climate change mitigation like I am a beginner",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXPLAIN_SIMPLE",
+  "text": "explain CRISPR gene editing like I am a beginner",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXPLAIN_SIMPLE",
+  "text": "explain cybersecurity encryption (AES/RSA) like I am a beginner",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TECHNICAL_SUMMARY",
+  "text": "give me a deep technical summary of quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TECHNICAL_SUMMARY",
+  "text": "give me a deep technical summary of photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TECHNICAL_SUMMARY",
+  "text": "give me a deep technical summary of REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TECHNICAL_SUMMARY",
+  "text": "give me a deep technical summary of climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TECHNICAL_SUMMARY",
+  "text": "give me a deep technical summary of CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TECHNICAL_SUMMARY",
+  "text": "give me a deep technical summary of cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_INTERACTIVE_QUIZ",
+  "text": "create a 10-question quiz on quantum computing and test me interactively",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_INTERACTIVE_QUIZ",
+  "text": "create a 10-question quiz on photosynthesis and test me interactively",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_INTERACTIVE_QUIZ",
+  "text": "create a 10-question quiz on REST vs GraphQL APIs and test me interactively",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_INTERACTIVE_QUIZ",
+  "text": "create a 10-question quiz on climate change mitigation and test me interactively",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_INTERACTIVE_QUIZ",
+  "text": "create a 10-question quiz on CRISPR gene editing and test me interactively",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_INTERACTIVE_QUIZ",
+  "text": "create a 10-question quiz on cybersecurity encryption (AES/RSA) and test me interactively",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FLASHCARD_EXPORT",
+  "text": "generate flashcards for studying quantum computing and save to a text file",
+  "expect": "ai.flashcards"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FLASHCARD_EXPORT",
+  "text": "generate flashcards for studying photosynthesis and save to a text file",
+  "expect": "ai.flashcards"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FLASHCARD_EXPORT",
+  "text": "generate flashcards for studying REST vs GraphQL APIs and save to a text file",
+  "expect": "ai.flashcards"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FLASHCARD_EXPORT",
+  "text": "generate flashcards for studying climate change mitigation and save to a text file",
+  "expect": "ai.flashcards"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FLASHCARD_EXPORT",
+  "text": "generate flashcards for studying CRISPR gene editing and save to a text file",
+  "expect": "ai.flashcards"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FLASHCARD_EXPORT",
+  "text": "generate flashcards for studying cybersecurity encryption (AES/RSA) and save to a text file",
+  "expect": "ai.flashcards"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_SPEECH_SCRIPT",
+  "text": "write a 5-minute presentation script about quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_SPEECH_SCRIPT",
+  "text": "write a 5-minute presentation script about photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_SPEECH_SCRIPT",
+  "text": "write a 5-minute presentation script about REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_SPEECH_SCRIPT",
+  "text": "write a 5-minute presentation script about climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_SPEECH_SCRIPT",
+  "text": "write a 5-minute presentation script about CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_SPEECH_SCRIPT",
+  "text": "write a 5-minute presentation script about cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROS_CONS_ANALYSIS",
+  "text": "summarize the pros, cons, and real-world use cases of quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROS_CONS_ANALYSIS",
+  "text": "summarize the pros, cons, and real-world use cases of photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROS_CONS_ANALYSIS",
+  "text": "summarize the pros, cons, and real-world use cases of REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROS_CONS_ANALYSIS",
+  "text": "summarize the pros, cons, and real-world use cases of climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROS_CONS_ANALYSIS",
+  "text": "summarize the pros, cons, and real-world use cases of CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROS_CONS_ANALYSIS",
+  "text": "summarize the pros, cons, and real-world use cases of cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MULTILINGUAL_TRANSLATE",
+  "text": "translate an explanation of quantum computing into Hindi and Assamese",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MULTILINGUAL_TRANSLATE",
+  "text": "translate an explanation of photosynthesis into Hindi and Assamese",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MULTILINGUAL_TRANSLATE",
+  "text": "translate an explanation of REST vs GraphQL APIs into Hindi and Assamese",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MULTILINGUAL_TRANSLATE",
+  "text": "translate an explanation of climate change mitigation into Hindi and Assamese",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MULTILINGUAL_TRANSLATE",
+  "text": "translate an explanation of CRISPR gene editing into Hindi and Assamese",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MULTILINGUAL_TRANSLATE",
+  "text": "translate an explanation of cybersecurity encryption (AES/RSA) into Hindi and Assamese",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_LEARNING_ROADMAP",
+  "text": "create a step-by-step learning roadmap to master quantum computing in 30 days",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_LEARNING_ROADMAP",
+  "text": "create a step-by-step learning roadmap to master photosynthesis in 30 days",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_LEARNING_ROADMAP",
+  "text": "create a step-by-step learning roadmap to master REST vs GraphQL APIs in 30 days",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_LEARNING_ROADMAP",
+  "text": "create a step-by-step learning roadmap to master climate change mitigation in 30 days",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_LEARNING_ROADMAP",
+  "text": "create a step-by-step learning roadmap to master CRISPR gene editing in 30 days",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_LEARNING_ROADMAP",
+  "text": "create a step-by-step learning roadmap to master cybersecurity encryption (AES/RSA) in 30 days",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MOCK_INTERVIEW",
+  "text": "ask me interview questions on quantum computing and critique my responses",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MOCK_INTERVIEW",
+  "text": "ask me interview questions on photosynthesis and critique my responses",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MOCK_INTERVIEW",
+  "text": "ask me interview questions on REST vs GraphQL APIs and critique my responses",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MOCK_INTERVIEW",
+  "text": "ask me interview questions on climate change mitigation and critique my responses",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MOCK_INTERVIEW",
+  "text": "ask me interview questions on CRISPR gene editing and critique my responses",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_MOCK_INTERVIEW",
+  "text": "ask me interview questions on cybersecurity encryption (AES/RSA) and critique my responses",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_ARTICLE_DRAFT",
+  "text": "draft a professional blog post or LinkedIn article about quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_ARTICLE_DRAFT",
+  "text": "draft a professional blog post or LinkedIn article about photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_ARTICLE_DRAFT",
+  "text": "draft a professional blog post or LinkedIn article about REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_ARTICLE_DRAFT",
+  "text": "draft a professional blog post or LinkedIn article about climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_ARTICLE_DRAFT",
+  "text": "draft a professional blog post or LinkedIn article about CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_ARTICLE_DRAFT",
+  "text": "draft a professional blog post or LinkedIn article about cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXCEL_COMPARISON",
+  "text": "compare quantum computing with traditional alternatives in an Excel sheet",
+  "expect": "ai.excel_compare"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXCEL_COMPARISON",
+  "text": "compare photosynthesis with traditional alternatives in an Excel sheet",
+  "expect": "ai.excel_compare"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXCEL_COMPARISON",
+  "text": "compare REST vs GraphQL APIs with traditional alternatives in an Excel sheet",
+  "expect": "ai.excel_compare"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXCEL_COMPARISON",
+  "text": "compare climate change mitigation with traditional alternatives in an Excel sheet",
+  "expect": "ai.excel_compare"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXCEL_COMPARISON",
+  "text": "compare CRISPR gene editing with traditional alternatives in an Excel sheet",
+  "expect": "ai.excel_compare"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_EXCEL_COMPARISON",
+  "text": "compare cybersecurity encryption (AES/RSA) with traditional alternatives in an Excel sheet",
+  "expect": "ai.excel_compare"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FACT_CLARIFICATION",
+  "text": "find common misconceptions about quantum computing and clarify them",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FACT_CLARIFICATION",
+  "text": "find common misconceptions about photosynthesis and clarify them",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FACT_CLARIFICATION",
+  "text": "find common misconceptions about REST vs GraphQL APIs and clarify them",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FACT_CLARIFICATION",
+  "text": "find common misconceptions about climate change mitigation and clarify them",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FACT_CLARIFICATION",
+  "text": "find common misconceptions about CRISPR gene editing and clarify them",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FACT_CLARIFICATION",
+  "text": "find common misconceptions about cybersecurity encryption (AES/RSA) and clarify them",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROJECT_IDEAS",
+  "text": "give me 5 practical project ideas using quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROJECT_IDEAS",
+  "text": "give me 5 practical project ideas using photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROJECT_IDEAS",
+  "text": "give me 5 practical project ideas using REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROJECT_IDEAS",
+  "text": "give me 5 practical project ideas using climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROJECT_IDEAS",
+  "text": "give me 5 practical project ideas using CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_PROJECT_IDEAS",
+  "text": "give me 5 practical project ideas using cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_CHEAT_SHEET",
+  "text": "create a cheat sheet of key terms and formulas for quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_CHEAT_SHEET",
+  "text": "create a cheat sheet of key terms and formulas for photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_CHEAT_SHEET",
+  "text": "create a cheat sheet of key terms and formulas for REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_CHEAT_SHEET",
+  "text": "create a cheat sheet of key terms and formulas for climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_CHEAT_SHEET",
+  "text": "create a cheat sheet of key terms and formulas for CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_CHEAT_SHEET",
+  "text": "create a cheat sheet of key terms and formulas for cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_VOICE_BRIEFING",
+  "text": "read out a 60-second audio briefing on quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_VOICE_BRIEFING",
+  "text": "read out a 60-second audio briefing on photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_VOICE_BRIEFING",
+  "text": "read out a 60-second audio briefing on REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_VOICE_BRIEFING",
+  "text": "read out a 60-second audio briefing on climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_VOICE_BRIEFING",
+  "text": "read out a 60-second audio briefing on CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_VOICE_BRIEFING",
+  "text": "read out a 60-second audio briefing on cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_RESEARCH_BRAINSTORM",
+  "text": "help me brainstorm research questions around quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_RESEARCH_BRAINSTORM",
+  "text": "help me brainstorm research questions around photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_RESEARCH_BRAINSTORM",
+  "text": "help me brainstorm research questions around REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_RESEARCH_BRAINSTORM",
+  "text": "help me brainstorm research questions around climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_RESEARCH_BRAINSTORM",
+  "text": "help me brainstorm research questions around CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_RESEARCH_BRAINSTORM",
+  "text": "help me brainstorm research questions around cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_DEMO_SCRIPT",
+  "text": "write a Python simulation or demo illustrating quantum computing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_DEMO_SCRIPT",
+  "text": "write a Python simulation or demo illustrating photosynthesis",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_DEMO_SCRIPT",
+  "text": "write a Python simulation or demo illustrating REST vs GraphQL APIs",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_DEMO_SCRIPT",
+  "text": "write a Python simulation or demo illustrating climate change mitigation",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_DEMO_SCRIPT",
+  "text": "write a Python simulation or demo illustrating CRISPR gene editing",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_DEMO_SCRIPT",
+  "text": "write a Python simulation or demo illustrating cybersecurity encryption (AES/RSA)",
+  "expect": "code.task"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TEXT_MINDMAP",
+  "text": "create a mind-map outline of quantum computing in plain text",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TEXT_MINDMAP",
+  "text": "create a mind-map outline of photosynthesis in plain text",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TEXT_MINDMAP",
+  "text": "create a mind-map outline of REST vs GraphQL APIs in plain text",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TEXT_MINDMAP",
+  "text": "create a mind-map outline of climate change mitigation in plain text",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TEXT_MINDMAP",
+  "text": "create a mind-map outline of CRISPR gene editing in plain text",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_TEXT_MINDMAP",
+  "text": "create a mind-map outline of cybersecurity encryption (AES/RSA) in plain text",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FEYNMAN_TECHNIQUE",
+  "text": "check my understanding of quantum computing by asking me to explain it back",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FEYNMAN_TECHNIQUE",
+  "text": "check my understanding of photosynthesis by asking me to explain it back",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FEYNMAN_TECHNIQUE",
+  "text": "check my understanding of REST vs GraphQL APIs by asking me to explain it back",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FEYNMAN_TECHNIQUE",
+  "text": "check my understanding of climate change mitigation by asking me to explain it back",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FEYNMAN_TECHNIQUE",
+  "text": "check my understanding of CRISPR gene editing by asking me to explain it back",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_FEYNMAN_TECHNIQUE",
+  "text": "check my understanding of cybersecurity encryption (AES/RSA) by asking me to explain it back",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_STUDY_CURATION",
+  "text": "compile a reading and video study list for quantum computing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_STUDY_CURATION",
+  "text": "compile a reading and video study list for photosynthesis",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_STUDY_CURATION",
+  "text": "compile a reading and video study list for REST vs GraphQL APIs",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_STUDY_CURATION",
+  "text": "compile a reading and video study list for climate change mitigation",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_STUDY_CURATION",
+  "text": "compile a reading and video study list for CRISPR gene editing",
+  "expect": "none"
+ },
+ {
+  "intent": "SMART_AI_ASSISTANT/AI_STUDY_CURATION",
+  "text": "compile a reading and video study list for cybersecurity encryption (AES/RSA)",
+  "expect": "none"
+ }
+]

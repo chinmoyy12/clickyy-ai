@@ -47,7 +47,7 @@ describe('database', () => {
     const file = tmp();
     (await Db.open(file)).close();
     const db = await Db.open(file);
-    expect(db.schemaVersion).toBe(1);
+    expect(db.schemaVersion).toBe(2);
     db.close();
     expect(existsSync(`${file}.bak1`)).toBe(true);
   });
@@ -55,7 +55,7 @@ describe('database', () => {
     const file = tmp();
     writeFileSync(file, 'this is not sqlite');
     const db = await Db.open(file);
-    expect(db.schemaVersion).toBe(1);
+    expect(db.schemaVersion).toBe(2);
     db.close();
     expect(readdirSync(join(file, '..')).some((f) => f.includes('.corrupt-'))).toBe(true);
   });

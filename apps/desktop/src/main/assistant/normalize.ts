@@ -91,10 +91,17 @@ export function parseDuration(text: string): number | null {
   return found ? Math.round(total) : null;
 }
 
-/** "tomorrow morning", "at 5 pm", "tonight at 8", "tomorrow at 7:30 am" → local Date. */
+const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+/** "tomorrow morning", "friday at 3 pm", "at 5 pm", "tonight at 8", "tomorrow at 7:30 am" → local Date. */
 export function parseClockTime(text: string, now = new Date()): Date | null {
   const d = new Date(now);
   let dayOffset = /\btomorrow\b/.test(text) ? 1 : 0;
+  const wd = text.match(/\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if (wd) {
+    dayOffset = (WEEKDAYS.indexOf(wd[1]) - now.getDay() + 7) % 7;
+    if (/\bnext (sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/.test(text) && dayOffset === 0) dayOffset = 7;
+  }
   const at = text.match(/\b(?:at )?(\d{1,2})(?::(\d{2}))?\s*(am|pm|a m|p m)?\b/);
   let hour: number | null = null;
   let minute = 0;
@@ -108,10 +115,12 @@ export function parseClockTime(text: string, now = new Date()): Date | null {
   } else if (/\bmorning\b/.test(text)) hour = 9;
   else if (/\bafternoon\b/.test(text)) hour = 14;
   else if (/\b(evening|tonight)\b/.test(text)) hour = 19;
+  else if (wd) hour = 9;
   if (hour === null || hour > 23 || minute > 59) return null;
   d.setDate(d.getDate() + dayOffset);
   d.setHours(hour, minute, 0, 0);
-  if (d.getTime() <= now.getTime() && dayOffset === 0) {
+  if (wd && d.getTime() <= now.getTime()) d.setDate(d.getDate() + 7);
+  else if (d.getTime() <= now.getTime() && dayOffset === 0) {
     if (at && !at[3] && hour < 12 && hour + 12 > now.getHours()) d.setHours(hour + 12);
     else d.setDate(d.getDate() + 1);
   }

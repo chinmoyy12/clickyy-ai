@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img alt="tests" src="https://img.shields.io/badge/tests-312%20TS%20%2B%2016%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
-  <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-35%2F35-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-1732%20TS%20%2B%2025%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-61%2F61-8fcb9b?style=flat-square&labelColor=191b20" />
   <img alt="offline" src="https://img.shields.io/badge/voice-100%25%20offline-d4a373?style=flat-square&labelColor=191b20" />
   <img alt="platform" src="https://img.shields.io/badge/platform-Windows%2011-969aa3?style=flat-square&labelColor=191b20" />
 </p>
@@ -25,6 +25,24 @@
 | **100% local**: **Ollama**, **LM Studio**, **llama.cpp**, **vLLM** | loopback only, works in Strict Offline mode |
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
+
+### 🧰 New in 0.4: the 10,000-command update
+
+We checked Clickyy against a list of 10,000 everyday laptop requests in 191 intent families. Every family now routes to the right tool, or on purpose to the language model for open-ended study questions. A sample of 1,081 of those commands runs in the test suite on every build.
+
+| | |
+|---|---|
+| 📊 **Interactive Excel builder** | "Create an Excel sheet for a monthly budget by asking me questions" → Clickyy asks for each row ("rent, fixed, 15000, 14500"), and you say "done". It writes a real `.xlsx` with formulas and totals. **30 templates**: budget, invoice, EMI and loan schedule (with prepayment), inventory, payroll, gradebook, habit tracker and more. You can also say "use columns" and name your own. |
+| 💻 **Code projects** | "Write a Python program for a REST API client", "create a modular TypeScript project with unit tests", "add docstrings to my Java code". Files are saved to Documents\Clickyy\Projects. **Clickyy never runs code**: it tells you the command to run it yourself. Needs a language model. |
+| ⚙️ **35 Windows features** | Turn on, turn off, toggle, check or reset Wi-Fi, Bluetooth, dark mode, night light, hotspot, airplane mode, power plans, file extensions and more. Turning Wi-Fi off asks you first. Privacy and security switches only open their Settings page. |
+| 🩺 **25-area diagnostics** | CPU and temperature, memory, disks, disk speed, battery health, GPU, bandwidth, IP, Wi-Fi signal, ports, USB, Bluetooth, display, updates, crashes and latency. It can check them against safe limits, sample for 10 seconds, find the app causing a spike, or save the report as text, JSON or Excel. It can also copy it, show it as a notification, pin it to notes or start an email. |
+| ⏻ **Power timers** | "Put my laptop to sleep in 30 minutes", "cancel the scheduled shutdown", "turn off the monitor without sleeping". Brightness and microphone level too. |
+| 🪟 **App and window control** | Running, memory, version and install folder for any app. Force quit (asks first; system processes are protected), restart, start with Windows, center, resize, keep on top, move to the other monitor, show only one app, screenshot one window, mute one app. |
+| 📁 **Files by type** | Find, count, sort, find the largest or the newest PDFs, images, Excel files and more in any folder. Find duplicates (read-only). Organize, date-stamp, zip or back them up. Clickyy never deletes or overwrites a file. |
+| 🎵 **Music** | Songs on Spotify or YouTube Music, artist radio and top hits, local MP3 shuffle (writes a playlist), lyrics search, "pause after this song". |
+| ✅ **Productivity** | To-dos with priority and backlog, notes (export to PDF or Markdown), checklists read aloud, a time tracker, a stopwatch, repeating, snoozed and rescheduled reminders, and alerts before events ("Friday at 3 pm" works). |
+| ✉️ **Drafts, never sends** | "Draft an email to Rahul about the report" and "send a WhatsApp message to Priya…" open a ready draft. You press Send. |
+| 🕶️ **Private search** | "Open YouTube in incognito and search for…" opens a private window in Chrome, Edge, Firefox, Brave or Opera. |
 
 ### 🚀 New in 0.3 — 1,450+ things by name, and it thinks before it opens
 
@@ -75,7 +93,7 @@ Say **"what can you do"** and Clickyy tells you its real count, measured from it
 
 | Area | Verified how |
 |---|---|
-| Desktop app launches, packaged and installed | `npm run e2e` against the dev build and the NSIS-installed v0.3.0 app: **55/55 checks each** |
+| Desktop app launches, packaged and installed | `npm run e2e` against the dev build and the NSIS-installed v0.4.0 app: **61/61 checks**, including live Windows feature status, a diagnostic report, app status, files by type, to-dos and a real `.xlsx` from the Excel builder |
 | **Live local AI** | `node scripts/live-test.mjs local` against the installed app with a real **llama3.2** on Ollama: streamed answer (about 1.2 s), contextual follow-up, a real tool call that changed the volume, and a model-proposed restart stopped at the confirmation. **6/6** |
 | Neural voice + Whisper | Kokoro synthesizes through the app's IPC (about 1–1.7 s per sentence on this CPU); Whisper refines recorded speech to "set the volume to thirty percent"; a round-trip test has Kokoro speak and Whisper understand it |
 | Offline speech recognition (Vosk) | Real Vosk engine transcribes recorded speech through the full app path (renderer IPC → main → Python service): final transcript "open notepad" |
@@ -86,7 +104,7 @@ Say **"what can you do"** and Clickyy tells you its real count, measured from it
 | Safety | Shell requests refused; power actions blocked until permitted; destructive actions require on-screen confirmation and decline cleanly; unknown names are never launched (Clickyy offers a web search instead) |
 | Strict Offline | Remote hosts are blocked at the network layer (unit-tested); with no local model the app says so honestly |
 | Bundled offline voice | The installed app runs the frozen speech engine (no Python needed): recognition and the "Jarvis" wake phrase pass end to end |
-| Automated tests | **447 TypeScript tests** (Vitest) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
+| Automated tests | **1,732 TypeScript tests** (Vitest, including 1,081 sampled commands from the 10,000-command list) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
 
 Not yet verified: a live cloud call (pending an API key; every cloud adapter is tested against mocked HTTP and SDK transports, and `node scripts/live-test.mjs cloud --provider gemini` runs the same 6 live checks once a key is saved), and a spoken command from a person into the live microphone. See [docs/TEST_PLAN.md](docs/TEST_PLAN.md) for the manual checklist.
 

@@ -5,7 +5,12 @@ export type BridgeOp =
   | 'ping' | 'volume.get' | 'volume.set' | 'volume.mute' | 'audio.devices'
   | 'media.control' | 'media.now'
   | 'window.list' | 'window.foreground' | 'window.action' | 'window.minimizeAll' | 'window.restoreAll'
-  | 'power.status' | 'session.lock' | 'keys.send' | 'keys.type' | 'clipboard.set' | 'clipboard.get' | 'process.top';
+  | 'power.status' | 'session.lock' | 'keys.send' | 'keys.type' | 'clipboard.set' | 'clipboard.get' | 'process.top'
+  | 'window.capture' | 'window.closeApp' | 'monitor.count'
+  | 'mic.get' | 'mic.set' | 'app.mute' | 'display.off' | 'brightness.get' | 'brightness.set'
+  | 'power.suspend' | 'radio.get' | 'radio.set' | 'feature.get' | 'feature.set'
+  | 'process.info' | 'process.stop' | 'file.version' | 'startup.get' | 'startup.set'
+  | 'media.timeline' | 'diag';
 
 export interface WindowInfo { hwnd: number; title: string; pid: number; process: string | null; minimized: boolean; maximized: boolean }
 export interface VolumeState { level: number; muted: boolean }

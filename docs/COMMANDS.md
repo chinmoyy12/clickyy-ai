@@ -1,8 +1,28 @@
 # Command catalog
 
-Generated from source by `npm run docs:commands`. **87 deterministic commands**, **253 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **59 registered tools**.
+Generated from source by `npm run docs:commands`. **158 deterministic commands**, **435 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **107 registered tools**.
 
 Deterministic commands work fully offline with no language model. Anything not matched here goes to the configured language model, which can only call the tools listed at the bottom.
+
+## Code
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Write code, a whole project with tests, or a documented implementation, and save it in Documents\Clickyy\Projects. Clickyy never runs code; it tells you how. Needs a language model. | “write a python program for a rest api client with retry logic”<br>“create a modular typescript project for a websocket chat server with unit tests”<br>“write and run a python script for a duplicate file finder”<br>“explain and add docstrings to a java implementation of a binary search tree” | built-in | — | — | — |
+
+## AI
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Compare a topic with its alternatives in a new Excel sheet (needs a language model). | “compare quantum computing with traditional alternatives in an excel sheet”<br>“compare react and vue in a spreadsheet” | built-in | — | — | — |
+| Flashcards for a topic saved to a text file (needs a language model). | “generate flashcards for studying quantum computing and save to a text file” | built-in | — | — | — |
+
+## Excel
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Start a habit scorecard in Excel with a habit already filled in. | “create an excel habit row for gym workout session” | built-in | — | — | — |
+| Interactive Excel builder: asks for your rows, then makes a formatted .xlsx with formulas and totals (30 templates: budget, invoice, EMI schedule, inventory, payroll and more). | “create an excel sheet for a monthly personal budget by asking me questions”<br>“build an invoice in excel”<br>“make an emi and loan amortization schedule in excel”<br>“start an interactive excel builder for a workout log” | `sheet.create` | L1 low | — | no |
 
 ## Safety
 
@@ -50,6 +70,171 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Toggle high-contrast mode. | “switch to high contrast mode”<br>“turn off high contrast” | built-in | — | — | — |
 | Change text size. | “increase the text size”<br>“make the text smaller” | built-in | — | — | — |
 
+## Media
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Next track (more ways to say it). | “skip to the next track”<br>“go to the next song” | `media.control` | L1 low | media | no |
+| Previous track (more ways to say it). | “go back to the previous song”<br>“skip back a track” | `media.control` | L1 low | media | no |
+| Pause when the current song ends, or after some minutes (music sleep timer). | “pause after this song”<br>“pause playback automatically after the current song finishes”<br>“stop the music in 30 minutes” | `media.stop_after` | L1 low | media | no |
+| Play or shuffle the music files in your Music folder, optionally by an artist. | “shuffle all local mp3 songs by arijit singh”<br>“play my downloaded songs”<br>“shuffle my local music” | `media.play_local` | L1 low | media | no |
+| Add a song to the queue (opens it; Spotify only lets you queue it yourself). | “add tum hi ho to my playback queue”<br>“queue blinding lights” | `music.play` | L1 low | media | no |
+| Play a song on repeat. | “play kesariya on single-track repeat”<br>“play believer on loop” | `music.play` | L1 low | media | no |
+| Find the lyrics of a song (opens a search; lyrics are copyrighted, so I don't save them). | “fetch and save synchronized lyrics for tum hi ho”<br>“show me the lyrics of shape of you” | `web.search` | L1 low | web | no |
+| Using a song as an alarm (explains the limit and offers a reminder). | “set kesariya as my morning wake-up alarm audio” | built-in | — | — | — |
+| Find the acoustic, live, unplugged or remix version of a song. | “find the acoustic or unplugged version of alfaaz”<br>“play the live version of yellow” | `music.play` | L1 low | media | no |
+| Play an artist: their songs, latest album, top hits or a radio station. | “play songs by arijit singh”<br>“play the latest album by coldplay”<br>“play the top 10 hits of the weeknd”<br>“start an endless radio station based on a.r. rahman” | `music.play` | L1 low | media | no |
+| Play a specific song on Spotify (or YouTube Music when Spotify isn't installed). | “play the song kesariya”<br>“play the song blinding lights on spotify” | `music.play` | L1 low | media | no |
+| What's currently playing. | “what's playing”<br>“what song is this” | `media.now_playing` | L1 low | media | no |
+| Pause playback. | “pause the music”<br>“pause” | `media.control` | L1 low | media | no |
+| Resume playback. | “resume playback”<br>“play music”<br>“continue the song” | `media.control` | L1 low | media | no |
+| Next track. | “skip this track”<br>“next song” | `media.control` | L1 low | media | no |
+| Previous track. | “play the previous track”<br>“previous song” | `media.control` | L1 low | media | no |
+| Stop playback. | “stop the music”<br>“stop playback” | `media.control` | L1 low | media | no |
+| Search Spotify for music. | “play my focus playlist”<br>“play lofi on spotify”<br>“find taylor swift on spotify” | `media.spotify_search` | L1 low | media | no |
+
+## Productivity
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Pomodoro, deep-work or countdown timer for a task. | “start a 25-minute pomodoro timer for team standup meeting”<br>“start a 45-minute deep work timer for study block”<br>“start a 60-minute countdown timer for my report” | `timers.create` | L1 low | — | no |
+| Add something to your to-do list, optionally high priority. | “add 'client project review' to my high-priority to-do list”<br>“add buy milk to my to-do list”<br>“put call the bank on my task list” | `todo.add` | L1 low | — | no |
+| Mark a to-do item done. | “mark 'team standup meeting' as completed on my to-do list”<br>“tick off buy milk”<br>“i've finished the report” | `todo.complete` | L1 low | — | no |
+| Read your to-do list. | “what's on my to-do list”<br>“read my tasks”<br>“show my todo list” | `todo.list` | L1 low | — | no |
+| Clear completed to-dos or sub-tasks. | “clear completed sub-tasks under client project review”<br>“clear my finished to-dos” | `todo.clear_done` | L1 low | — | no |
+| Move a task to next week's backlog. | “move code deployment check to next week's backlog”<br>“push the report to next week” | `todo.defer` | L1 low | — | no |
+| Create a note; Clickyy asks what to write. | “create a new note titled 'team standup meeting' and ask me what to write”<br>“take a note called ideas”<br>“new note” | `notes.create` | L1 low | — | no |
+| Add to a note (asks what to add when you don't say). | “append a voice note to my 'client project review' file”<br>“add milk to my groceries note” | `notes.append` | L1 low | — | no |
+| Find your notes about something. | “show me all notes related to client project review”<br>“find my notes about the budget”<br>“read my notes” | `notes.find` | L1 low | — | no |
+| Export notes to a PDF, Markdown or text file, or pin a checklist to the desktop. | “export my notes on client project review to a clean pdf”<br>“pin the checklist for team standup meeting to my desktop” | `notes.export` | L1 low | — | no |
+| Read out the checklist for a task. | “read out my checklist for team standup meeting” | `checklist.read` | L1 low | — | no |
+| Email the action items for a task (opens a draft with your notes and to-dos). | “email the action items from team standup meeting to my team” | `notes.email` | L1 low | web | no |
+| Log time spent on a task. | “log 1 hour spent on client project review in my time tracker sheet”<br>“log 30 minutes on emails” | `time.log` | L1 low | — | no |
+| Summarize your progress on a task this week. | “summarize my progress on client project review this week”<br>“how much time did i spend on study this week” | `time.summary` | L1 low | — | no |
+| Stopwatch for timing a task. | “set a stopwatch to measure how long team standup meeting takes”<br>“start a stopwatch”<br>“stop the stopwatch” | `stopwatch.control` | L1 low | — | no |
+| Reminder for an event at a time. | “set a reminder for my team standup meeting at 9:00 am tomorrow”<br>“set a reminder for dentist appointment on friday at 4 pm” | `reminders.create` | L1 low | — | no |
+| Put an event on your schedule (as a Clickyy reminder; Outlook and Google Calendar are not connected). | “schedule team standup meeting on my calendar for friday at 3:00 pm”<br>“add dentist appointment to my calendar tomorrow at 10 am” | `reminders.create` | L1 low | — | no |
+| Hold time for a task (asks when it starts). | “block 2 hours on my calendar for client project review” | `reminders.create` | L1 low | — | no |
+| Daily, weekday or weekly repeating reminder or alarm. | “set a recurring daily alarm for meditation at 7:30 am”<br>“set a recurring weekly reminder for laptop backup every monday”<br>“remind me to drink water every day at 11 am” | `reminders.repeat` | L1 low | — | no |
+| Snooze a reminder. | “snooze my team standup meeting alert for 10 minutes”<br>“snooze for 5 minutes”<br>“snooze” | `reminders.snooze` | L1 low | — | no |
+| Cancel a reminder by name. | “cancel the scheduled reminder for team standup meeting”<br>“delete my dentist reminder” | `reminders.cancel_named` | L1 low | — | no |
+| When is something scheduled. | “check when my next team standup meeting is scheduled”<br>“when is my dentist appointment” | `reminders.find` | L1 low | — | no |
+| Move a reminder to a new time. | “reschedule my team standup meeting to tomorrow evening at 6:00 pm”<br>“move my dentist appointment to friday at 5 pm” | `reminders.reschedule` | L1 low | — | no |
+| Early warning before an event. | “set a 15-minute warning before team standup meeting starts”<br>“warn me 10 minutes before the dentist appointment” | `reminders.before` | L1 low | — | no |
+| Desktop shortcut to a workspace (explains how routines do this instead). | “create a desktop shortcut to launch my team standup meeting workspace” | built-in | — | — | — |
+| Cancel a timer, reminder or focus session. | “cancel the timer”<br>“cancel my reminder”<br>“stop the focus session”<br>“cancel all timers” | `reminders.cancel` | L1 low | — | no |
+| List reminders and timers. | “what reminders do I have”<br>“how long is left on my timer” | `reminders.list` | L1 low | — | no |
+| Start a focus (pomodoro) session. | “start a 25 minute focus session”<br>“start a study session”<br>“begin pomodoro” | `timers.create` | L1 low | — | no |
+| Set a countdown timer. | “set a timer for 10 minutes”<br>“5 minute timer”<br>“timer for 90 seconds” | `timers.create` | L1 low | — | no |
+| Create a reminder at a time or after a delay. | “remind me in 20 minutes”<br>“remind me to call mom in 1 hour”<br>“create a reminder for tomorrow morning”<br>“remind me at 5 pm to stretch” | `reminders.create` | L1 low | — | no |
+
+## System
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Spoken warning when the battery drops below a level (5 to 50 percent). | “alert me when laptop battery drops below 20 percent”<br>“enable battery saver mode if battery is at 15 percent” | built-in | — | — | — |
+| Read or change the screen brightness. | “set laptop screen brightness to 40 percent”<br>“dim the display to 20 percent brightness”<br>“brightness up”<br>“what's my screen brightness” | `display.brightness` | L1 low | system | no |
+| Turn a Windows feature on or off, toggle it, check it, reset it or open its settings (35 features: Wi-Fi, Bluetooth, dark mode, night light, hotspot, narrator, clipboard history and more). | “turn on bluetooth”<br>“turn off wi-fi”<br>“toggle dark mode”<br>“check if bluetooth is currently enabled”<br>“open the settings page for night light”<br>“reset hidden files visibility to default configuration”<br>“turn on high performance power plan” | `system.feature` | L1 low | system | conditional |
+| Measure and explain 25 system areas (CPU and temperature, memory, disks, disk speed, battery health, GPU, bandwidth, IP, Wi-Fi signal, top processes, ports, USB, Bluetooth, display, updates, crashes, latency, folder sizes, Recycle Bin…), check them against safe limits, sample for 10 seconds, or save, copy, notify, pin or email the report. | “check my laptop's cpu usage and core temperatures”<br>“warn me if there is any issue with battery health”<br>“export my laptops disk read and write io speeds to a text log”<br>“generate an excel table of connected usb devices and external drives”<br>“run a 10-second stress and stability check on ram memory consumption and swap usage”<br>“what is my public ip address” | `system.diagnostic` | L1 low | system | no |
+| Cancel a pending shutdown or restart. | “cancel shutdown”<br>“abort the restart” | `power.abort` | L1 low | — | no |
+| Shut down, restart or sign out (always confirmed). | “shut down my computer”<br>“restart the pc”<br>“sign me out” | `power.action` | L3 destructive | power | always |
+| Lock the workstation. | “lock my pc”<br>“lock the screen” | `system.lock` | L1 low | system | no |
+| Current time and date. | “what time is it”<br>“what's the date”<br>“what day is it” | `system.time` | L1 low | — | no |
+| Battery level and charging. | “how much battery do I have”<br>“is my laptop charging” | `system.battery` | L1 low | system | no |
+| Processes using the most memory. | “what's using my memory”<br>“show running processes” | `system.processes` | L1 low | system | no |
+| CPU and RAM usage. | “how much ram is being used”<br>“show cpu usage” | `system.resources` | L1 low | system | no |
+| Free disk space. | “how much disk space is available”<br>“how much storage do I have left” | `system.disk` | L1 low | system | no |
+| Internet and Wi-Fi status. | “is the internet connected”<br>“am i online”<br>“what wifi am i on” | `system.network` | L1 low | system | no |
+| System uptime. | “what's my system uptime”<br>“how long has my pc been on” | `system.uptime` | L1 low | system | no |
+| Active audio devices. | “which audio device is active”<br>“what's my default microphone” | `system.audio_devices` | L1 low | system | no |
+| Open Task Manager. | “open task manager” | `system.task_manager` | L1 low | system | no |
+| Open a Windows Settings page. | “open windows settings”<br>“open bluetooth settings”<br>“open sound settings” | `system.open_settings` | L1 low | system | no |
+| Open a standard folder in File Explorer. | “show my downloads”<br>“open my documents”<br>“open my project folder”<br>“open the last approved workspace” | `system.open_folder` | L1 low | system | no |
+
+## Audio
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Read or set the microphone input level. | “set microphone input sensitivity to 60 percent”<br>“what's my mic level” | `audio.mic_level` | L1 low | media | no |
+| Mute or unmute one app's sound. | “mute audio coming only from google chrome”<br>“unmute audio for spotify”<br>“mute discord” | `app.audio` | L1 low | media | no |
+| Set the volume to a level. | “set volume to 30 percent”<br>“lower the volume to 30 percent”<br>“volume 50”<br>“put the volume at 20” | `audio.set_volume` | L1 low | media | no |
+| Raise or lower the volume. | “turn the volume down a little”<br>“louder”<br>“volume up”<br>“turn it up by 20” | `audio.set_volume` | L1 low | media | no |
+| Unmute the speakers. | “unmute”<br>“unmute my computer”<br>“turn the sound back on” | `audio.mute` | L1 low | media | no |
+| Mute the speakers. | “mute my computer”<br>“mute”<br>“turn the sound off” | `audio.mute` | L1 low | media | no |
+| Restore the previous volume. | “restore the previous volume”<br>“put the volume back” | `audio.restore_volume` | L1 low | media | no |
+| Read the current volume. | “what's the volume”<br>“how loud is it”<br>“is my sound muted” | `audio.get_volume` | L1 low | media | no |
+
+## Power
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Cancel a timed lock, sleep, hibernate, screen-off, restart, shutdown or sign-out. | “cancel scheduled lock my laptop screen timer for 5 minutes”<br>“cancel the sleep timer”<br>“cancel the scheduled shutdown” | `power.cancel_scheduled` | L1 low | — | no |
+| Lock, sleep, hibernate, screen off, restart, shut down or sign out after a delay. | “put my laptop to sleep in 30 minutes”<br>“shut down my laptop completely in 1 hour”<br>“lock my laptop screen in 5 minutes”<br>“turn off the laptop monitor without sleeping in 2 minutes” | `power.schedule` | L3 destructive | power | always |
+| Sleep, hibernate, lock or turn the screen off now (shutdown and restart are confirmed). | “put my laptop to sleep”<br>“hibernate my laptop now”<br>“turn off the laptop monitor without sleeping”<br>“lock my laptop screen”<br>“restart my laptop safely”<br>“sign out of my current user session” | `power.now` | L2 sensitive | power | conditional |
+
+## Apps
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Running apps as administrator (explains why Clickyy never does). | “open google chrome as administrator” | built-in | — | — | — |
+| Start an app when you sign in, or stop it starting. | “enable startup launch for spotify”<br>“disable automatic startup for microsoft teams”<br>“stop discord from starting with windows” | `apps.startup` | L2 sensitive | apps | always |
+| Clear an app's cache (opens the right place). | “clear temporary cache files for google chrome”<br>“clear the edge cache” | `apps.clear_cache` | L1 low | apps | no |
+| Is an app running, how much memory and CPU it uses, its version, or where it is installed. | “check if google chrome is currently running”<br>“check how much ram and cpu spotify is using”<br>“check the installed version of vs code”<br>“show the installation folder path of zoom” | `apps.status` | L1 low | apps | no |
+| Force quit a frozen app (confirmed). | “force quit google chrome if it is frozen”<br>“force close zoom”<br>“end task notepad” | `apps.force_quit` | L3 destructive | apps | always |
+| Close an app and open it again (confirmed). | “restart google chrome”<br>“relaunch spotify” | `apps.restart` | L2 sensitive | apps | always |
+| Open an app (longer ways to say it). | “start google chrome on my laptop”<br>“open terminal / command prompt” | `apps.open` | L1 low | apps | no |
+| Open an approved application or alias. | “open chrome”<br>“launch spotify”<br>“open vs code”<br>“start notepad”<br>“open it again” | `apps.open` | L1 low | apps | no |
+
+## Windows
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Close an app (every window; confirmed). | “close all google chrome windows”<br>“close all background instances of microsoft teams”<br>“quit spotify” | `windows.close_app` | L2 sensitive | windows | always |
+| Center, resize, keep on top, move to another monitor, show only one app, or open a new window. | “center the google chrome window on my screen”<br>“resize spotify window to 1280x720”<br>“pin notepad to the always-on-top layer”<br>“unpin notepad from always-on-top”<br>“move vs code to my second monitor”<br>“hide all windows except google chrome”<br>“open a new window in microsoft edge” | `windows.manage` | L1 low | windows | no |
+| Snap or maximize a named app window. | “snap google chrome to the left half of my screen”<br>“maximize spotify to full screen” | `windows.arrange` | L1 low | windows | no |
+| Switch between an app and the last window. | “switch focus between google chrome and my last active window” | `windows.focus` | L1 low | windows | no |
+| List open apps. | “show me my open applications”<br>“what apps are open” | `windows.list` | L1 low | windows | no |
+| Minimize everything / restore everything. | “minimize everything”<br>“show the desktop”<br>“restore all windows” | `windows.show_desktop` | L1 low | windows | no |
+| Switch to the previous window. | “switch to the previous window”<br>“go back to the last window” | `windows.previous` | L1 low | windows | no |
+| Minimize, maximize, restore or snap windows. | “minimize the current window”<br>“maximize this window”<br>“put the browser on the left”<br>“move the editor to the right” | `windows.arrange` | L1 low | windows | no |
+| Close a window (confirmed; the app may ask to save). | “close this window”<br>“close it”<br>“close notepad” | `windows.close` | L2 sensitive | windows | always |
+| Bring an app window to the front. | “switch to the browser”<br>“bring my code editor to the front”<br>“go to spotify” | `windows.focus` | L1 low | windows | no |
+
+## Screen
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Save a screenshot of one app window. | “take a screenshot of just the google chrome window”<br>“screenshot the spotify window” | `windows.screenshot` | L1 low | screen | no |
+
+## Files
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Find, count, sort, or find the largest or newest files of one type in a folder. | “find all pdf documents in my desktop folder”<br>“count how many excel spreadsheets are inside my downloads folder”<br>“list the 5 largest png and jpg images in my pictures folder”<br>“find word documents in documents modified today”<br>“sort all csv data files in downloads by newest date” | `files.by_type` | L1 low | files | no |
+| Find duplicate files of a type in a folder (read-only). | “check for duplicate pdf documents inside downloads”<br>“find duplicate photos in my pictures folder” | `files.duplicates` | L1 low | files | no |
+| Organize files of a type into a subfolder, date-stamp their names, zip them, or back them up (never deletes or overwrites). | “move all pdf documents from desktop into an organized subfolder”<br>“compress all excel spreadsheets in documents into a zip archive”<br>“back up all python scripts from projects to my backups folder”<br>“rename all csv data files in downloads with today's date prefix” | `files.bulk` | L2 sensitive | files | conditional |
+
+## Web
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Search in a private (incognito) window. | “open google in incognito mode and search for cheap flights to delhi”<br>“search youtube privately for lofi music” | `web.search_site` | L1 low | web | no |
+| Open a site in a new tab and search it. | “open google in a new tab and look up python openpyxl tutorial”<br>“open youtube in a new tab and search for docker compose tutorial” | `web.search_site` | L1 low | web | no |
+| Overview of a topic from the language model, with the live search opened next to it. | “summarize the top results on google about machine learning roadmap” | built-in | — | — | — |
+| Save search links for a topic to a text file. | “save the best links from github on react hooks documentation to a text file” | `document.save` | L1 low | — | no |
+| Choose which browser opens websites, or have Clickyy ask each time. | “always use chrome”<br>“use edge as my browser”<br>“set my browser to firefox”<br>“ask me which browser”<br>“use the default browser” | built-in | — | — | — |
+| Open a website in a specific browser. | “open yt music in chrome”<br>“open youtube in edge”<br>“open github.com in firefox” | `web.open` | L1 low | web | no |
+| Search inside a website: YouTube, YouTube Music, Amazon, Wikipedia, GitHub, Reddit and 60 more. | “play lofi beats on youtube”<br>“search amazon for wireless earbuds”<br>“look up black holes on wikipedia”<br>“search arijit singh on yt music”<br>“find react hooks on stack overflow” | `web.search_site` | L1 low | web | no |
+| Open a website. | “open youtube.com”<br>“go to github.com”<br>“open the official website of python.org” | `web.open` | L1 low | web | no |
+| Search the web in your browser. | “search for the latest node documentation”<br>“look up electron security checklist”<br>“google best pizza near me” | `web.search` | L1 low | web | no |
+
+## Communication
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Draft an email (opens your mail app; you press Send). | “draft an email to rahul about the updated excel report”<br>“write an email to my manager about tomorrows leave” | `message.email` | L1 low | web | no |
+| Prepare a WhatsApp message (you choose the chat and press Send). | “send a whatsapp message to priya about the project deadline extension”<br>“whatsapp amit that i am running late” | `message.whatsapp` | L1 low | web | no |
+
 ## Skills
 
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
@@ -74,16 +259,6 @@ Deterministic commands work fully offline with no language model. Anything not m
 |---|---|---|---|---|---|
 | Turn always-on listening (wake word) on or off. | “turn on always listening”<br>“enable wake word”<br>“listen all the time”<br>“turn off always listening”<br>“disable hands free mode” | built-in | — | — | — |
 
-## Web
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Choose which browser opens websites, or have Clickyy ask each time. | “always use chrome”<br>“use edge as my browser”<br>“set my browser to firefox”<br>“ask me which browser”<br>“use the default browser” | built-in | — | — | — |
-| Open a website in a specific browser. | “open yt music in chrome”<br>“open youtube in edge”<br>“open github.com in firefox” | `web.open` | L1 low | web | no |
-| Search inside a website: YouTube, YouTube Music, Amazon, Wikipedia, GitHub, Reddit and 60 more. | “play lofi beats on youtube”<br>“search amazon for wireless earbuds”<br>“look up black holes on wikipedia”<br>“search arijit singh on yt music”<br>“find react hooks on stack overflow” | `web.search_site` | L1 low | web | no |
-| Open a website. | “open youtube.com”<br>“go to github.com”<br>“open the official website of python.org” | `web.open` | L1 low | web | no |
-| Search the web in your browser. | “search for the latest node documentation”<br>“look up electron security checklist”<br>“google best pizza near me” | `web.search` | L1 low | web | no |
-
 ## Memory
 
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
@@ -91,75 +266,6 @@ Deterministic commands work fully offline with no language model. Anything not m
 | List what Clickyy has been asked to remember. | “what do you remember about me”<br>“what do you know about me” | `memory.list` | L1 low | — | no |
 | Explicitly save a preference or fact. | “remember that I prefer dark roast coffee”<br>“remember my project is called Atlas” | `memory.save` | L1 low | — | no |
 | Delete saved memories matching words. | “forget about my coffee preference” | `memory.forget` | L1 low | — | no |
-
-## Productivity
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Cancel a timer, reminder or focus session. | “cancel the timer”<br>“cancel my reminder”<br>“stop the focus session”<br>“cancel all timers” | `reminders.cancel` | L1 low | — | no |
-| List reminders and timers. | “what reminders do I have”<br>“how long is left on my timer” | `reminders.list` | L1 low | — | no |
-| Start a focus (pomodoro) session. | “start a 25 minute focus session”<br>“start a study session”<br>“begin pomodoro” | `timers.create` | L1 low | — | no |
-| Set a countdown timer. | “set a timer for 10 minutes”<br>“5 minute timer”<br>“timer for 90 seconds” | `timers.create` | L1 low | — | no |
-| Create a reminder at a time or after a delay. | “remind me in 20 minutes”<br>“remind me to call mom in 1 hour”<br>“create a reminder for tomorrow morning”<br>“remind me at 5 pm to stretch” | `reminders.create` | L1 low | — | no |
-
-## System
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Cancel a pending shutdown or restart. | “cancel shutdown”<br>“abort the restart” | `power.abort` | L1 low | — | no |
-| Shut down, restart or sign out (always confirmed). | “shut down my computer”<br>“restart the pc”<br>“sign me out” | `power.action` | L3 destructive | power | always |
-| Lock the workstation. | “lock my pc”<br>“lock the screen” | `system.lock` | L1 low | system | no |
-| Current time and date. | “what time is it”<br>“what's the date”<br>“what day is it” | `system.time` | L1 low | — | no |
-| Battery level and charging. | “how much battery do I have”<br>“is my laptop charging” | `system.battery` | L1 low | system | no |
-| Processes using the most memory. | “what's using my memory”<br>“show running processes” | `system.processes` | L1 low | system | no |
-| CPU and RAM usage. | “how much ram is being used”<br>“show cpu usage” | `system.resources` | L1 low | system | no |
-| Free disk space. | “how much disk space is available”<br>“how much storage do I have left” | `system.disk` | L1 low | system | no |
-| Internet and Wi-Fi status. | “is the internet connected”<br>“am i online”<br>“what wifi am i on” | `system.network` | L1 low | system | no |
-| System uptime. | “what's my system uptime”<br>“how long has my pc been on” | `system.uptime` | L1 low | system | no |
-| Active audio devices. | “which audio device is active”<br>“what's my default microphone” | `system.audio_devices` | L1 low | system | no |
-| Open Task Manager. | “open task manager” | `system.task_manager` | L1 low | system | no |
-| Open a Windows Settings page. | “open windows settings”<br>“open bluetooth settings”<br>“open sound settings” | `system.open_settings` | L1 low | system | no |
-| Open a standard folder in File Explorer. | “show my downloads”<br>“open my documents”<br>“open my project folder”<br>“open the last approved workspace” | `system.open_folder` | L1 low | system | no |
-
-## Audio
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Set the volume to a level. | “set volume to 30 percent”<br>“lower the volume to 30 percent”<br>“volume 50”<br>“put the volume at 20” | `audio.set_volume` | L1 low | media | no |
-| Raise or lower the volume. | “turn the volume down a little”<br>“louder”<br>“volume up”<br>“turn it up by 20” | `audio.set_volume` | L1 low | media | no |
-| Unmute the speakers. | “unmute”<br>“unmute my computer”<br>“turn the sound back on” | `audio.mute` | L1 low | media | no |
-| Mute the speakers. | “mute my computer”<br>“mute”<br>“turn the sound off” | `audio.mute` | L1 low | media | no |
-| Restore the previous volume. | “restore the previous volume”<br>“put the volume back” | `audio.restore_volume` | L1 low | media | no |
-| Read the current volume. | “what's the volume”<br>“how loud is it”<br>“is my sound muted” | `audio.get_volume` | L1 low | media | no |
-
-## Media
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| What's currently playing. | “what's playing”<br>“what song is this” | `media.now_playing` | L1 low | media | no |
-| Pause playback. | “pause the music”<br>“pause” | `media.control` | L1 low | media | no |
-| Resume playback. | “resume playback”<br>“play music”<br>“continue the song” | `media.control` | L1 low | media | no |
-| Next track. | “skip this track”<br>“next song” | `media.control` | L1 low | media | no |
-| Previous track. | “play the previous track”<br>“previous song” | `media.control` | L1 low | media | no |
-| Stop playback. | “stop the music”<br>“stop playback” | `media.control` | L1 low | media | no |
-| Search Spotify for music. | “play my focus playlist”<br>“play lofi on spotify”<br>“find taylor swift on spotify” | `media.spotify_search` | L1 low | media | no |
-
-## Windows
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| List open apps. | “show me my open applications”<br>“what apps are open” | `windows.list` | L1 low | windows | no |
-| Minimize everything / restore everything. | “minimize everything”<br>“show the desktop”<br>“restore all windows” | `windows.show_desktop` | L1 low | windows | no |
-| Switch to the previous window. | “switch to the previous window”<br>“go back to the last window” | `windows.previous` | L1 low | windows | no |
-| Minimize, maximize, restore or snap windows. | “minimize the current window”<br>“maximize this window”<br>“put the browser on the left”<br>“move the editor to the right” | `windows.arrange` | L1 low | windows | no |
-| Close a window (confirmed; the app may ask to save). | “close this window”<br>“close it”<br>“close notepad” | `windows.close` | L2 sensitive | windows | always |
-| Bring an app window to the front. | “switch to the browser”<br>“bring my code editor to the front”<br>“go to spotify” | `windows.focus` | L1 low | windows | no |
-
-## Apps
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Open an approved application or alias. | “open chrome”<br>“launch spotify”<br>“open vs code”<br>“start notepad”<br>“open it again” | `apps.open` | L1 low | apps | no |
 
 ## Tool registry
 
@@ -226,3 +332,51 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `fun.random` | Flip a coin, roll dice, or pick a random number in a range (cryptographically random). | L1 low | — | 1s | yes |
 | `date.until` | Count days until (or since) a date or a holiday like Christmas, Easter, Thanksgiving, New Year. | L1 low | — | 1s | yes |
 | `currency.convert` | Convert money between currencies using the European Central Bank daily reference rates (Frankfurter, no key). Use ISO codes like USD, EUR, INR, GBP, JPY. | L1 low | web | 10s | no |
+| `sheet.create` | Create a formatted .xlsx spreadsheet in Documents\Clickyy\Sheets: bold frozen header, fitted columns, formulas that refer to columns as {Header} (SUM, AVERAGE, IF, ROUND, MIN, MAX, IFERROR), and a totals row. rows hold values for the non-formula columns in order. Opens it when done. Never overwrites. | L1 low | — | 20s | yes |
+| `document.save` | Save text you wrote (code, notes, flashcards, a script, a cheat sheet) as a new file in Documents\Clickyy (Projects for code, Notes otherwise) and open it in VS Code or Notepad. It never runs the file and never overwrites. | L1 low | — | 10s | yes |
+| `project.save` | Save several files you wrote as a new project folder in Documents\Clickyy\Projects (relative paths like "src/app.py", "tests/test_app.py") and open it in VS Code (or File Explorer). Never runs anything and never overwrites. | L1 low | — | 15s | yes |
+| `system.feature` | Turn a Windows feature on or off, toggle it, check it, reset it to the Windows default, or open its settings page. Switches directly where Windows allows it (Wi-Fi, Bluetooth, dark/light mode, taskbar auto-hide, file extensions, hidden files, clipboard history, sticky keys, filter keys, Narrator, Magnifier, live captions, high-performance power plan, Storage Sense); otherwise opens the right Settings page. Features: wifi, bluetooth, airplane, dark_mode, light_mode, night_light, dnd, battery_saver, high_performance, tap_to_click, keyboard_backlight, location, hotspot, mic_access, camera_access, clipboard_history, autohide_taskbar, file_extensions, hidden_files, startup_boost, spatial_audio, mono_audio, live_captions, magnifier, high_contrast_theme, sticky_keys, filter_keys, narrator, firewall, antivirus, auto_timezone, storage_sense, gpu_scheduling, vrr, hdr. | L1 low | system | 15s | yes |
+| `display.brightness` | Read the built-in screen brightness, or set it to a percentage (or change it by a relative amount). External monitors usually need their own buttons. | L1 low | system | 8s | yes |
+| `audio.mic_level` | Read or set the default microphone input level (sensitivity) as a percentage. | L1 low | media | 5s | yes |
+| `power.now` | Put the PC to sleep, hibernate it, or turn the screen off without sleeping. Open apps stay as they are. | L2 sensitive | power | 15s | yes |
+| `power.schedule` | Lock, sleep, hibernate, turn the screen off, shut down, restart or sign out after a number of minutes. Shutdown and restart are handed to Windows; the others run while Clickyy is open. | L3 destructive | power | 8s | yes |
+| `power.cancel_scheduled` | Cancel a scheduled lock, sleep, hibernate, screen-off, shutdown, restart or sign-out. | L1 low | — | 5s | yes |
+| `system.diagnostic` | Measure a part of the system and explain it in plain words, optionally checking it against safe limits, sampling it for 10 seconds, or saving it (text, JSON or Excel in Documents\Clickyy\Reports), copying it, showing a notification, pinning it to notes, or drafting an email. Metrics: cpu, ram, disk, diskio, battery, gpu, netio, ips, wifi, cpu_top, ram_top, ports, uptime, usb, bluetooth, display, audio, os, updates, env, tasks, crashes, dns, folders, recycle. | L1 low | system | 70s | yes |
+| `apps.status` | Tell whether an app is running and how much CPU time and memory it uses, which version is installed, or where it is installed. | L1 low | apps | 8s | yes |
+| `apps.force_quit` | End a frozen app immediately. Unsaved work in that app is lost. Windows system processes and Clickyy itself are protected. | L3 destructive | apps | 15s | yes |
+| `windows.close_app` | Politely ask every window of an app to close (the app may ask to save). | L2 sensitive | windows | 15s | yes |
+| `apps.restart` | Close an app and open it again. It may ask to save first. | L2 sensitive | apps | 40s | yes |
+| `apps.startup` | Make an installed desktop app start when you sign in, or stop it from starting. Store apps and apps with their own setting open the Startup apps page instead. | L2 sensitive | apps | 8s | yes |
+| `apps.clear_cache` | Open the place where an app's cache can be cleared: the browser's clear-data page, or Windows storage settings for other apps. Nothing is deleted without you choosing it. | L1 low | apps | 8s | yes |
+| `windows.manage` | Center a window, resize it, keep it on top (or stop), move it to the next monitor, minimize every other window, or open a new window of the app. Omit query for the current window. | L1 low | windows | 10s | yes |
+| `windows.screenshot` | Save a screenshot of one app window as a PNG in Documents\Clickyy\Screenshots. | L1 low | screen | 12s | yes |
+| `app.audio` | Mute or unmute just one app's sound in the Windows volume mixer. | L1 low | media | 8s | yes |
+| `files.by_type` | List, count, sort by date, find the largest, or find today's files of one type in a personal folder (Desktop, Documents, Downloads, Pictures, Music, Videos, or a named subfolder like Projects or Invoices). Searches subfolders too. Types: pdf, excel, csv, word, powerpoint, text, markdown, python, zip, images, videos, audio, all. | L1 low | files | 30s | yes |
+| `files.bulk` | Do one thing to every file of a type in a personal folder: move them into a tidy subfolder (organize), add today's date to the front of their names (rename_date), compress them into a ZIP in Documents\Clickyy\Archives, or copy them to Documents\Clickyy\Backups. Nothing is ever deleted or overwritten. | L2 sensitive | files | 300s | yes |
+| `files.duplicates` | Find files of a type in a personal folder that have exactly the same content. Read-only: nothing is deleted. | L1 low | files | 120s | yes |
+| `todo.add` | Add an item to the local to-do list, optionally high or low priority. | L1 low | — | 2s | yes |
+| `todo.complete` | Mark a to-do item as done (matched by its words). | L1 low | — | 2s | yes |
+| `todo.list` | Read the open to-do items, high priority first. | L1 low | — | 2s | yes |
+| `todo.clear_done` | Remove completed items from the to-do list (optionally only those matching some words). | L1 low | — | 2s | yes |
+| `todo.defer` | Move a to-do item to next week's backlog (due next Monday). Adds it if it isn't on the list yet. | L1 low | — | 2s | yes |
+| `notes.create` | Create a note with a title and optional text. Notes stay on this PC. | L1 low | — | 2s | yes |
+| `notes.append` | Add text to the end of a note (creates the note if it does not exist). | L1 low | — | 2s | yes |
+| `notes.find` | Find notes whose title or text mention some words, and read the best one. | L1 low | — | 2s | yes |
+| `notes.export` | Export notes about a topic to a PDF, Markdown or text file in Documents\Clickyy\Notes, or pin them to the desktop as a text file. | L1 low | — | 8s | yes |
+| `notes.email` | Open an email draft with the open to-dos and notes about a task. You add the recipients and press Send. | L1 low | web | 8s | yes |
+| `checklist.read` | Read out the checklist for a task: matching open to-dos plus checklist lines in a matching note. | L1 low | — | 2s | yes |
+| `time.log` | Log time spent on a task in the local time tracker. | L1 low | — | 2s | yes |
+| `time.summary` | Summarize time logged, to-dos finished and notes for a task over the last 7 days, or export the time log to Excel. | L1 low | — | 3s | yes |
+| `stopwatch.control` | Start or stop a stopwatch for a task. Stopping logs the time in the tracker. | L1 low | — | 2s | yes |
+| `reminders.repeat` | Create a reminder that repeats daily, on weekdays, or weekly, starting at an ISO-8601 local time. | L1 low | — | 2s | yes |
+| `reminders.find` | Find when a reminder or scheduled item is due, by its words. | L1 low | — | 2s | yes |
+| `reminders.cancel_named` | Cancel the reminder whose words match. | L1 low | — | 2s | yes |
+| `reminders.snooze` | Push a reminder (the one matching, or the most recent) later by some minutes. Also re-adds a reminder that just rang. | L1 low | — | 2s | yes |
+| `reminders.reschedule` | Move a reminder to a new ISO-8601 local time (creates it if none matches). | L1 low | — | 2s | yes |
+| `reminders.before` | Add an early warning a number of minutes before a scheduled reminder. | L1 low | — | 2s | yes |
+| `message.email` | Open a new email draft in your mail app with the subject and text filled in. You review it and press Send yourself. | L1 low | web | 8s | yes |
+| `message.whatsapp` | Open WhatsApp (the app if installed, otherwise WhatsApp Web) with a message ready. You choose the contact if no phone number is given, and press Send yourself. | L1 low | web | 8s | no |
+| `music.play` | Find a song, artist, album, radio station or version on Spotify (if installed) or YouTube Music. | L1 low | media | 8s | no |
+| `media.play_local` | Make a playlist of the music files in your Music folder (optionally only those whose file or folder name mentions an artist or words), shuffled if asked, and play it in your default music player. | L1 low | media | 30s | yes |
+| `media.stop_after` | Pause playback when the current track finishes (needs a player that shares its progress with Windows, like Spotify or a browser). | L1 low | media | 8s | yes |
+| `media.pause_in` | Pause playback after a number of minutes (a sleep timer for music). | L1 low | media | 3s | yes |

@@ -180,7 +180,7 @@ async function waitForWindow(ctx: ToolContext, processName: string | undefined, 
   return null;
 }
 
-async function targetWindow(ctx: ToolContext, query: string | undefined): Promise<WindowInfo> {
+export async function targetWindow(ctx: ToolContext, query: string | undefined): Promise<WindowInfo> {
   if (!query || /^(this|current|it|that)( window)?$/i.test(query.trim())) {
     if (query && /^(it|that)$/i.test(query.trim()) && ctx.session.lastWindow) return { ...ctx.session.lastWindow, pid: 0, process: null, minimized: false, maximized: false };
     const fg = await ctx.bridge.call<WindowInfo | null>('window.foreground');

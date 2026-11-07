@@ -16,6 +16,12 @@ const MIGRATIONS: string[] = [
    CREATE TABLE reminders (id TEXT PRIMARY KEY, text TEXT NOT NULL, due_at INTEGER NOT NULL, kind TEXT NOT NULL, status TEXT NOT NULL, created_at INTEGER NOT NULL);
    CREATE TABLE audit (id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, tool TEXT NOT NULL, risk INTEGER NOT NULL,
      outcome TEXT NOT NULL, summary TEXT NOT NULL, duration_ms INTEGER NOT NULL);`,
+  // 2 — to-do list, notes, time log, repeating reminders
+  `CREATE TABLE todos (id TEXT PRIMARY KEY, text TEXT NOT NULL, priority TEXT NOT NULL DEFAULT 'normal', done INTEGER NOT NULL DEFAULT 0,
+     due_at INTEGER, created_at INTEGER NOT NULL, done_at INTEGER);
+   CREATE TABLE notes (id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+   CREATE TABLE time_log (id TEXT PRIMARY KEY, task TEXT NOT NULL, minutes REAL NOT NULL, at INTEGER NOT NULL);
+   ALTER TABLE reminders ADD COLUMN repeat TEXT;`,
 ];
 
 export type Row = Record<string, SqlValue>;

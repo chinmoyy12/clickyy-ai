@@ -250,6 +250,10 @@ const platform: Platform = {
 async function main() {
   await app.whenReady();
   const dataDir = app.getPath('userData');
+  // Real user folders (OneDrive may redirect Desktop/Documents) for the file and output tools.
+  for (const f of ['desktop', 'documents', 'downloads', 'pictures', 'music', 'videos'] as const) {
+    try { process.env[`CLICKYY_DIR_${f.toUpperCase()}`] = app.getPath(f); } catch { /* fall back to the home folder */ }
+  }
   const wasm = join(__dirname, 'sql-wasm.wasm');
   const db = await Db.open(join(dataDir, 'clickyy.db'), wasm);
   repos = createRepos(db);

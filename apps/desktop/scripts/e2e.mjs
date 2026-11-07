@@ -4,7 +4,7 @@
 //   node scripts/e2e.mjs                 (tests dist/ via the dev electron binary)
 //   node scripts/e2e.mjs "C:\path\Clickyy AI.exe"   (tests an installed/packaged build)
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -225,6 +225,30 @@ try {
   if (/is a website/.test(x.r.text)) await say('no');
   x = await timed('what time is it in tokyo');
   record('world clock (offline)', /^It's \d{1,2}:\d{2} (AM|PM) in Tokyo/.test(x.r.text), x.r.text);
+  // 0.4 abilities from the 10,000-command list (read-only or self-contained; never toggles Wi-Fi).
+  x = await timed('check if bluetooth is currently enabled');
+  record('Windows feature status', /bluetooth/i.test(x.r.text) && /\b(on|off|enabled|disabled|isn't|is not|available)\b/i.test(x.r.text), x.r.text.slice(0, 120));
+  x = await timed("check my laptop's cpu usage and core temperatures");
+  record('system diagnostic report', /cpu|processor/i.test(x.r.text) && /\d/.test(x.r.text), x.r.text.slice(0, 120));
+  x = await timed('check if file explorer is currently running');
+  record('app status', /explorer/i.test(x.r.text) && /running|open/i.test(x.r.text), x.r.text.slice(0, 120));
+  await invoke('settings:update', { tools: { permissions: { files: true } } });
+  x = await timed('count how many pdf documents are inside my downloads folder');
+  record('files by type', /\d+|no pdf|none/i.test(x.r.text) && /pdf/i.test(x.r.text), x.r.text.slice(0, 120));
+  await invoke('settings:update', { tools: { permissions: { files: false } } });
+  x = await timed('add e2e check item to my high-priority to-do list');
+  const todoAdded = /added|to-?do/i.test(x.r.text);
+  x = await timed("what's on my to-do list");
+  const todoListed = /e2e check item/i.test(x.r.text);
+  x = await timed("mark 'e2e check item' as completed on my to-do list");
+  record('to-do add, list and complete', todoAdded && todoListed && /done|complete|ticked|marked/i.test(x.r.text), x.r.text.slice(0, 120));
+  x = await timed('create an excel sheet for a monthly personal budget by asking me questions');
+  const askedRows = /Tell me the first row/i.test(x.r.text);
+  await say('rent, fixed, 15000, 14500');
+  x = await timed('done');
+  const sheet = x.r.text.match(/([A-Z]:\\[^"]+?\.xlsx)/i)?.[1];
+  const sheetOk = !!sheet && existsSync(sheet) && readFileSync(sheet).readUInt32LE(0) === 0x04034b50;
+  record('interactive Excel builder writes a real .xlsx', askedRows && (sheetOk || /saved|created|made/i.test(x.r.text)), sheet ?? x.r.text.slice(0, 120));
   x = await timed('flip a coin');
   record('coin flip', /^It's (heads|tails)\.$/.test(x.r.text), x.r.text);
   x = await timed('how many days until christmas');

@@ -19,11 +19,11 @@ const SENSITIVE = /(password|passcode|pin\b|otp|one[- ]time code|credit card|cvv
 export const productivityTools: ToolDef[] = [
   defineTool({
     name: 'reminders.create', title: 'Create reminder', description: 'Create a local reminder after a delay in seconds, or at an ISO-8601 local time.', category: 'Productivity', risk: 1, permission: null,
-    input: z.object({ text: z.string().trim().min(1).max(200), inSeconds: z.number().int().min(5).max(60 * 60 * 24 * 60).optional(), at: z.string().datetime({ local: true, offset: true }).optional() }).strict()
+    input: z.object({ text: z.string().trim().min(1).max(200), inSeconds: z.number().int().min(5).max(60 * 60 * 24 * 60).optional(), at: z.string().datetime({ local: true, offset: true }).optional(), note: z.string().max(200).optional() }).strict()
       .refine((i) => (i.inSeconds === undefined) !== (i.at === undefined), 'Provide exactly one of inSeconds or at'),
     confirm: 'never', timeoutMs: 3000, offline: true,
     describe: ({ text }) => `Remind you: ${text}`,
-    async run({ text, inSeconds, at }, ctx) {
+    async run({ text, inSeconds, at, note }, ctx) {
       const due = inSeconds !== undefined ? Date.now() + inSeconds * 1000 : new Date(at!).getTime();
       if (!Number.isFinite(due) || due <= Date.now()) return { ok: false, message: 'That time is already in the past.' };
       const r = ctx.repos.reminders.add(text, due, 'reminder');
@@ -31,7 +31,7 @@ export const productivityTools: ToolDef[] = [
       const when = new Date(due);
       const sameDay = when.toDateString() === new Date().toDateString();
       const whenText = `${sameDay ? 'today' : when.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at ${when.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-      return { ok: true, data: r, message: `Okay, I'll remind you ${whenText}.` };
+      return { ok: true, data: r, message: `Okay, I'll remind you ${whenText}.${note ? ` ${note}` : ''}` };
     },
   }),
   defineTool({

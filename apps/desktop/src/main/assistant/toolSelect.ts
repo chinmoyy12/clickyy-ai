@@ -27,6 +27,18 @@ const TOPICS: Array<{ words: RegExp; tools: string[] }> = [
   { words: /\b(clipboard|copy|copied|paste)\b/, tools: ['clipboard__copy', 'clipboard__read'] },
   { words: /\b(type|press|shortcut|keyboard)\b/, tools: ['keyboard__shortcut', 'keyboard__type'] },
   { words: /\b(shut ?down|restart|reboot|sign out|log off)\b/, tools: ['power__action', 'power__abort'] },
+  // 0.4 tools
+  { words: /\b(sleep|hibernate|in \d+ minutes?|scheduled|monitor off|screen off)\b/, tools: ['power__now', 'power__schedule', 'power__cancel_scheduled'] },
+  { words: /\b(brightness|dim|brighter|microphone level|mic level|mic sensitivity)\b/, tools: ['display__brightness', 'audio__mic_level'] },
+  { words: /\b(wi-?fi|bluetooth|dark mode|night light|hotspot|airplane|flight mode|power plan|file extensions|hidden files|narrator|magnifier|captions)\b/, tools: ['system__feature'] },
+  { words: /\b(temperature|temperatures|gpu|vram|battery health|bandwidth|ip address|signal|ports?|usb|crash(es)?|latency|ping|diagnos\w*|health check|bottleneck)\b/, tools: ['system__diagnostic'] },
+  { words: /\b(force quit|frozen|not responding|running|version|installed|startup|cache|always on top|second monitor|center|resize)\b/, tools: ['apps__status', 'apps__force_quit', 'apps__restart', 'apps__startup', 'windows__manage'] },
+  { words: /\b(pdfs?|images|photos|spreadsheets|duplicates?|largest|zip|back ?up|organi[sz]e)\b/, tools: ['files__by_type', 'files__duplicates', 'files__bulk'] },
+  { words: /\b(to-?do|tasks?|backlog|checklist|stopwatch|time tracker|logged)\b/, tools: ['todo__add', 'todo__complete', 'todo__list', 'checklist__read', 'time__log', 'stopwatch__control'] },
+  { words: /\b(note|notes)\b/, tools: ['notes__create', 'notes__append', 'notes__find', 'notes__export'] },
+  { words: /\b(excel|spreadsheet|xlsx|sheet)\b/, tools: ['sheet__create'] },
+  { words: /\b(email|e-mail|whatsapp)\b/, tools: ['message__email', 'message__whatsapp'] },
+  { words: /\b(song|artist|album|youtube music|lyrics)\b/, tools: ['music__play', 'media__play_local', 'media__stop_after'] },
 ];
 
 const QUESTION = /^(why|what is|what are|what's a|who|when did|where is|how (do|does|did|can|is|are)|explain|tell me|describe|define|write|compose|summari[sz]e|translate|give me (an?|some) (idea|example|joke|fact)|can you (explain|tell))\b/i;

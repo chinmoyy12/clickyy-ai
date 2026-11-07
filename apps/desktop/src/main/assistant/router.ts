@@ -34,13 +34,13 @@ export function route(raw: string, ctx: RouteCtx, routines: Routine[] = [], pend
   if (pending) {
     const def = CATALOG_BY_ID.get(pending.commandId);
     if (def?.fillFirst) {
-      const filled = def.fill?.(text, pending.partial, ctx);
+      const filled = def.fill?.(text, pending.partial, ctx, raw);
       if (filled) return { kind: 'commands', steps: [{ commandId: pending.commandId, resolution: filled, text }], normalized: text };
     }
     const direct = matchOne(text, ctx);
     // A complete new command takes precedence over answering the question.
     if (direct && direct.resolution.kind !== 'clarify' && direct.commandId !== 'conv.greeting') return { kind: 'commands', steps: [direct], normalized: text };
-    const filled = def?.fill?.(text, pending.partial, ctx);
+    const filled = def?.fill?.(text, pending.partial, ctx, raw);
     if (filled) return { kind: 'commands', steps: [{ commandId: pending.commandId, resolution: filled, text }], normalized: text };
   }
 
@@ -50,9 +50,17 @@ export function route(raw: string, ctx: RouteCtx, routines: Routine[] = [], pend
   const whole = matchOne(text, ctx);
   // Safety refusals are judged on the whole utterance, never on fragments.
   if (whole?.commandId.startsWith('safety.')) return { kind: 'commands', steps: [whole], normalized: text };
+  // Some commands are one request even when they contain "and" ("check how much RAM and CPU Chrome is using").
+  // The split still wins when one of its parts is that same command ("check my battery health and open spotify").
   const parts = text.split(SPLIT).map((p) => p.trim()).filter(Boolean);
   if (parts.length > 1) {
     const steps = parts.map((p) => matchOne(p, ctx));
+    const def = whole ? CATALOG_BY_ID.get(whole.commandId) : undefined;
+    if (whole && def?.atomic) {
+      const allReal = steps.every((s) => !!s && s.commandId !== 'conv.greeting' && s.resolution.kind !== 'clarify');
+      const absorbed = def.absorbs === '*' || (!!def.absorbs && steps.every((s) => !s || (def.absorbs as string[]).includes(s.commandId)));
+      if (!allReal || absorbed || !steps.some((s) => s?.commandId === whole.commandId)) return { kind: 'commands', steps: [whole], normalized: text };
+    }
     // Prefer the split when every clause is a real command and the whole wasn't a better single match.
     if (steps.every((s): s is RoutedStep => !!s && s.commandId !== 'conv.greeting') && (!whole || steps.length > 1)) {
       // Resolve "it" in later clauses to the app opened in an earlier clause ("open spotify and maximize it").

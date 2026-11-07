@@ -131,16 +131,73 @@ export class RoutineRepo {
 
 export class ReminderRepo {
   constructor(private db: Db) {}
-  add(text: string, dueAt: number, kind: Reminder['kind']): Reminder {
-    const r: Reminder = { id: newId(), text, dueAt, kind, status: 'pending', createdAt: Date.now() };
-    this.db.run('INSERT INTO reminders (id, text, due_at, kind, status, created_at) VALUES (?, ?, ?, ?, ?, ?)', [r.id, text, dueAt, kind, r.status, r.createdAt]);
+  add(text: string, dueAt: number, kind: Reminder['kind'], repeat?: Reminder['repeat']): Reminder {
+    const r: Reminder = { id: newId(), text, dueAt, kind, status: 'pending', createdAt: Date.now(), ...(repeat ? { repeat } : {}) };
+    this.db.run('INSERT INTO reminders (id, text, due_at, kind, status, created_at, repeat) VALUES (?, ?, ?, ?, ?, ?, ?)', [r.id, text, dueAt, kind, r.status, r.createdAt, repeat ?? null]);
     return r;
   }
   pending(): Reminder[] { return this.db.all("SELECT * FROM reminders WHERE status = 'pending' ORDER BY due_at").map(toReminder); }
   setStatus(id: string, status: Reminder['status']) { return this.db.run('UPDATE reminders SET status = ? WHERE id = ?', [status, id]) > 0; }
+  setDue(id: string, dueAt: number) { return this.db.run("UPDATE reminders SET due_at = ? WHERE id = ? AND status = 'pending'", [dueAt, id]) > 0; }
   clear() { this.db.run('DELETE FROM reminders'); }
 }
-const toReminder = (r: Row): Reminder => ({ id: String(r.id), text: String(r.text), dueAt: Number(r.due_at), kind: r.kind as Reminder['kind'], status: r.status as Reminder['status'], createdAt: Number(r.created_at) });
+const toReminder = (r: Row): Reminder => ({
+  id: String(r.id), text: String(r.text), dueAt: Number(r.due_at), kind: r.kind as Reminder['kind'], status: r.status as Reminder['status'], createdAt: Number(r.created_at),
+  ...(r.repeat ? { repeat: r.repeat as NonNullable<Reminder['repeat']> } : {}),
+});
+
+export interface Todo { id: string; text: string; priority: 'high' | 'normal' | 'low'; done: boolean; dueAt?: number; createdAt: number; doneAt?: number }
+export class TodoRepo {
+  constructor(private db: Db) {}
+  add(text: string, priority: Todo['priority'] = 'normal', dueAt?: number): Todo {
+    const t: Todo = { id: newId(), text, priority, done: false, createdAt: Date.now(), ...(dueAt ? { dueAt } : {}) };
+    this.db.run('INSERT INTO todos (id, text, priority, done, due_at, created_at) VALUES (?, ?, ?, 0, ?, ?)', [t.id, text, priority, dueAt ?? null, t.createdAt]);
+    return t;
+  }
+  list(opts: { open?: boolean } = {}): Todo[] {
+    return this.db.all(`SELECT * FROM todos ${opts.open ? 'WHERE done = 0' : ''} ORDER BY done, CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END, created_at`).map((r) => ({
+      id: String(r.id), text: String(r.text), priority: r.priority as Todo['priority'], done: Boolean(r.done), createdAt: Number(r.created_at),
+      ...(r.due_at ? { dueAt: Number(r.due_at) } : {}), ...(r.done_at ? { doneAt: Number(r.done_at) } : {}),
+    }));
+  }
+  setDone(id: string, done = true) { return this.db.run('UPDATE todos SET done = ?, done_at = ? WHERE id = ?', [done ? 1 : 0, done ? Date.now() : null, id]) > 0; }
+  setDue(id: string, dueAt: number | null) { return this.db.run('UPDATE todos SET due_at = ? WHERE id = ?', [dueAt, id]) > 0; }
+  delete(id: string) { return this.db.run('DELETE FROM todos WHERE id = ?', [id]) > 0; }
+  clear() { this.db.run('DELETE FROM todos'); }
+}
+
+export interface Note { id: string; title: string; body: string; createdAt: number; updatedAt: number }
+export class NoteRepo {
+  constructor(private db: Db) {}
+  private map = (r: Row): Note => ({ id: String(r.id), title: String(r.title), body: String(r.body), createdAt: Number(r.created_at), updatedAt: Number(r.updated_at) });
+  create(title: string, body = ''): Note {
+    const now = Date.now();
+    const n: Note = { id: newId(), title, body, createdAt: now, updatedAt: now };
+    this.db.run('INSERT INTO notes (id, title, body, created_at, updated_at) VALUES (?, ?, ?, ?, ?)', [n.id, title, body, now, now]);
+    return n;
+  }
+  list(): Note[] { return this.db.all('SELECT * FROM notes ORDER BY updated_at DESC').map(this.map); }
+  append(id: string, text: string) {
+    const n = this.db.get('SELECT * FROM notes WHERE id = ?', [id]);
+    if (!n) return false;
+    const body = String(n.body) ? `${String(n.body)}\n${text}` : text;
+    return this.db.run('UPDATE notes SET body = ?, updated_at = ? WHERE id = ?', [body, Date.now(), id]) > 0;
+  }
+  delete(id: string) { return this.db.run('DELETE FROM notes WHERE id = ?', [id]) > 0; }
+  clear() { this.db.run('DELETE FROM notes'); }
+}
+
+export interface TimeEntry { id: string; task: string; minutes: number; at: number }
+export class TimeLogRepo {
+  constructor(private db: Db) {}
+  add(task: string, minutes: number): TimeEntry {
+    const e: TimeEntry = { id: newId(), task, minutes, at: Date.now() };
+    this.db.run('INSERT INTO time_log (id, task, minutes, at) VALUES (?, ?, ?, ?)', [e.id, task, minutes, e.at]);
+    return e;
+  }
+  list(since = 0): TimeEntry[] { return this.db.all('SELECT * FROM time_log WHERE at >= ? ORDER BY at DESC', [since]).map((r) => ({ id: String(r.id), task: String(r.task), minutes: Number(r.minutes), at: Number(r.at) })); }
+  clear() { this.db.run('DELETE FROM time_log'); }
+}
 
 export class AuditRepo {
   constructor(private db: Db, private enabled: () => boolean) {}
@@ -166,6 +223,9 @@ export interface Repos {
   routines: RoutineRepo;
   reminders: ReminderRepo;
   audit: AuditRepo;
+  todos: TodoRepo;
+  notes: NoteRepo;
+  timeLog: TimeLogRepo;
 }
 
 export function createRepos(db: Db): Repos {
@@ -179,5 +239,8 @@ export function createRepos(db: Db): Repos {
     routines: new RoutineRepo(db),
     reminders: new ReminderRepo(db),
     audit: new AuditRepo(db, () => settings.get().privacy.auditLog),
+    todos: new TodoRepo(db),
+    notes: new NoteRepo(db),
+    timeLog: new TimeLogRepo(db),
   };
 }

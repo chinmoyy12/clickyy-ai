@@ -8,7 +8,9 @@ All results below were **executed** on 2026-11-03 on Windows 11 Home 10.0.26300,
 |---|---|---|---|
 | TypeScript typecheck | `npm run typecheck` | ✅ clean | static |
 | Security lint | `npm run lint` | ✅ 60 files clean | static |
-| Vitest (9 files) | `npm test` | ✅ **447/447** | unit/integration, mocks for hardware and network |
+| Vitest (10 files) | `npm test` | ✅ **1,732/1,732** (2026-11-07) | unit/integration, mocks for hardware and network; `commands10k.test.ts` routes 1,081 commands sampled evenly from all 191 intent families of the 10,000-command list, plus the Excel, PDF and ZIP writers, loan, row and code parsers, and repeating reminders |
+| End to end, **installed via NSIS** (v0.4.0, 2026-11-07) | `node scripts/e2e.mjs "%LOCALAPPDATA%\Programs\Clickyy AI\Clickyy AI.exe"` | ✅ **61/61** | same checks against the silently installed app (product version 0.4.0.0) |
+| End to end, dev build (v0.4.0, 2026-11-07) | `npm run e2e` | ✅ **61/61** | adds live Bluetooth status, a CPU diagnostic, app status (File Explorer), files by type, to-do add/list/complete and a real `.xlsx` from the interactive Excel builder; self-test understands all 435 example commands |
 | pytest | `services/assistant/.venv/Scripts/python -m pytest tests` | ✅ **25/25** (incl. real Whisper + Kokoro) | real Vosk engine on SAPI-synthesized speech |
 | End to end, dev build (v0.3.0, 2026-11-06) | `npm run e2e` | ✅ **55/55** | real app, real Windows APIs; includes the browser question for YT Music, world clock, 1,451 named capabilities, 119 Start-menu apps, the always-listening switch and the in-app self-test (7/7) |
 | In-app self-test | say "run a self test" | ✅ **7/7** | understanding of all 253 example commands, Windows bridge, speech engine, a real llama3.2 reply, tools, network, storage |

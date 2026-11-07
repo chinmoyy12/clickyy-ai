@@ -1,5 +1,23 @@
 # Capability matrices
 
+## Laptop control added in 0.4 (from the 10,000-command analysis)
+
+| Area | Tools | Safety |
+|---|---|---|
+| Interactive Excel builder | `sheet.create` with 30 templates (budget, invoice, EMI/loan with prepayment, inventory, payroll, gradebook, habit tracker…) or your own columns | writes new files only, in Documents\Clickyy\Sheets |
+| Code projects | `document.save`, `project.save` (write, scaffold with tests, document, debug) | code is **never run**; Clickyy names the command to run it yourself; destructive requests are refused |
+| Windows features (35) | `system.feature`: on, off, toggle, status, reset, settings | Wi-Fi off asks first; privacy and security switches only open Settings |
+| Diagnostics (25 areas) | `system.diagnostic`: brief, assess against safe limits, 10-second sample; speak, file, JSON, Excel, clipboard, notification, note, email draft, snapshot | read-only; clipboard and screenshots need their permissions |
+| Power | `power.now`, `power.schedule`, `power.cancel_scheduled`, `display.brightness`, `audio.mic_level` | sleep, hibernate, shutdown, restart and sign-out ask first; needs the power permission |
+| Apps and windows | `apps.status`, `apps.force_quit`, `apps.restart`, `apps.startup`, `apps.clear_cache`, `windows.close_app`, `windows.manage`, `windows.screenshot`, `app.audio` | force quit asks first and protects Windows processes and Clickyy; never runs as administrator |
+| Files by type | `files.by_type`, `files.duplicates`, `files.bulk` (organize, date-stamp, zip, back up) | home folder and approved folders only; never deletes or overwrites; organize and rename ask first |
+| Music | `music.play` (Spotify or YouTube Music), `media.play_local`, `media.stop_after`, `media.pause_in` | lyrics are searched, not saved |
+| Productivity | `todo.*`, `notes.*`, `checklist.read`, `time.log`, `time.summary`, `stopwatch.control`, repeating, snoozed and rescheduled reminders | stored locally |
+| Messages | `message.email`, `message.whatsapp` | drafts only; you press Send |
+| Web | private-window search in Chrome, Edge, Firefox, Brave and Opera | validated https URLs only |
+
+Open-ended study requests (explain, quiz, roadmap, mock interview and similar) go to the language model on purpose.
+
 ## Offline vs online
 
 "Offline" means it works with the network disabled once the listed local components are installed. A ✅ in the last column means it was verified on the development PC (Windows 11 26300, i5-11400H).

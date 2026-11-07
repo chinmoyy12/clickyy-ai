@@ -19,6 +19,9 @@ import { BROWSER_LABEL, installedBrowsers, type BrowserId } from '../tools/web';
 import { CATALOG } from './catalog';
 import { capabilityCounts } from './knowledge';
 import { WAKE_PHRASE_LABELS, type WakePhraseId } from '@shared/settings';
+import { codePrompt, comparisonPrompt, flashcardPrompt, LANGS, messagePrompt, parseCodeFiles, parseComparison, parseEmail, taskSlug, type CodeMode } from './codegen';
+
+const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 export interface AssistantDeps {
   repos: Repos;
@@ -261,9 +264,119 @@ export class Assistant {
       }
       case 'self_test':
         return this.selfTest(ctx, turnId);
+      case 'say':
+        return { text: String(p.text ?? ''), situation: 'info' };
+      case 'battery_alert': {
+        const asked = Math.round(Number(p.threshold) || 20);
+        const threshold = Math.max(5, Math.min(50, asked));
+        this.d.updateSettings({ proactive: { batteryAlert: true, batteryThreshold: threshold } });
+        let text = `Okay, I'll warn you out loud when the battery drops below ${threshold} percent${threshold !== asked ? ' (I can warn anywhere from 5 to 50 percent)' : ''}.`;
+        if (p.saver) {
+          const out = await this.runTool('system.open_settings', { page: 'battery' }, ctx, turnId, 'user_command');
+          text += out.result?.ok ? ` Windows only lets you choose when Battery saver switches on in Settings, so I opened that page. Set "Turn battery saver on automatically at" to ${threshold} percent.` : ` To have Battery saver switch on by itself, open Settings, System, Power and battery.`;
+        }
+        return { text, situation: 'success' };
+      }
+      case 'code_task':
+        return this.codeTask(p, ctx, turnId);
+      case 'ai_task':
+        return this.aiTask(p, ctx, turnId);
+      case 'draft_message':
+        return this.draftMessage(p, ctx, turnId);
       default:
         return null;
     }
+  }
+
+  /** One-shot generation without streaming into the chat (the result is parsed, not shown as-is). */
+  private async generate(prompt: string, ctx: ToolContext, turnId: string, system = 'You are a precise assistant. Follow the requested output format exactly.'): Promise<{ text: string; label: string } | { error: string }> {
+    const providers = await this.usableProviders();
+    if (!providers.length) return { error: 'none' };
+    this.d.emit({ type: 'progress', turnId, text: phrase('working', this.d.settings()) });
+    let last = '';
+    for (const provider of providers) {
+      try {
+        if (provider.kind === 'cloud') this.d.emit({ type: 'notice', level: 'info', text: `Sending this request to ${provider.label}.` });
+        const turn = await provider.chat({ system, items: [{ role: 'user', text: prompt }], tools: [], signal: ctx.signal });
+        this.d.providers.reportSuccess(provider.id);
+        if (turn.text.trim()) return { text: turn.text, label: provider.label };
+      } catch (e) {
+        if (ctx.signal.aborted) throw e;
+        last = (e as Error).message;
+      }
+    }
+    return { error: last || 'the model returned nothing' };
+  }
+
+  private needsModel(error: string, what: string): Outcome {
+    return error === 'none'
+      ? { text: `${what} needs a language model. Set up a local model or a cloud provider in Settings, AI and routing.`, situation: 'info' }
+      : { text: `I couldn't do that: ${error}`, situation: 'failure' };
+  }
+
+  /** Writes code with the model and saves it. Never runs it. */
+  private async codeTask(p: Record<string, unknown>, ctx: ToolContext, turnId: string): Promise<Outcome> {
+    const lang = LANGS.find((l) => l.id === p.language) ?? LANGS[0];
+    const task = String(p.task ?? '').slice(0, 300);
+    if (p.mode === 'debug') return { text: `To debug or optimize your ${lang.label} code I need to see it. Copy the code, then say "fix what I copied" or "explain what I copied". I only read the clipboard when you ask.`, situation: 'info', expectFollowUp: true };
+    const mode = (p.mode === 'scaffold' || p.mode === 'document' ? p.mode : 'write') as CodeMode;
+    const g = await this.generate(codePrompt(mode, lang, task), ctx, turnId, 'You are a senior software engineer. Write correct, safe, well-structured code and follow the output format exactly.');
+    if ('error' in g) return this.needsModel(g.error, 'Writing code');
+    const slug = taskSlug(task);
+    const { summary, files } = parseCodeFiles(g.text, lang, slug);
+    if (!files.length) return { text: g.text.slice(0, 6000), speech: toSpeech(g.text, 600), situation: 'explain' };
+    const ext = (f: string) => f.split('.').pop()?.toLowerCase() ?? lang.ext;
+    const single = files.length === 1 && mode !== 'scaffold';
+    const out = single
+      ? await this.runTool('document.save', { name: files[0].path.split('/').pop()!.replace(/\.[^.]+$/, '') || slug, extension: ext(files[0].path), content: files[0].content }, ctx, turnId, 'user_command')
+      : await this.runTool('project.save', { name: slug, files: files.slice(0, 30) }, ctx, turnId, 'user_command');
+    if (!out.result?.ok) return out;
+    const main = files.find((f) => f.path.endsWith(`.${lang.ext}`) && !/test/i.test(f.path)) ?? files[0];
+    const runLine = `To run it, open a terminal in that folder and use: ${lang.run(main.path.split('/').pop()!)}.`;
+    const lead = summary || `I wrote the ${lang.label} ${single ? 'program' : 'project'} for ${task}.`;
+    const text = `${lead} ${out.result.message}${p.run ? ' You asked me to run it, but I never run code myself, so nothing can happen to your PC without you seeing it first.' : ''} ${runLine}`;
+    return { text: `${text}\n\n${files.map((f) => `• ${f.path}`).join('\n')}`, speech: toSpeech(`${lead} I saved it and opened it for you.${p.run ? " I don't run code myself; the run command is on screen." : ''}`), situation: 'success' };
+  }
+
+  /** Study and research helpers that produce files. */
+  private async aiTask(p: Record<string, unknown>, ctx: ToolContext, turnId: string): Promise<Outcome> {
+    const topic = String(p.topic ?? '').slice(0, 200);
+    if (p.kind === 'web_summary') {
+      const site = String(p.site ?? 'Google');
+      await this.runTool(site === 'Google' ? 'web.search' : 'web.search_site', site === 'Google' ? { query: topic } : { site, query: topic }, ctx, turnId, 'user_command').catch(() => null);
+      return this.askWithContent(`Give a short spoken overview (4 to 6 sentences) of: ${topic}. Begin by saying this comes from your general knowledge, not from reading the live ${site} results I just opened, and mention if things may have changed recently.`, ctx, turnId);
+    }
+    if (p.kind === 'flashcards') {
+      const g = await this.generate(flashcardPrompt(topic), ctx, turnId);
+      if ('error' in g) return this.needsModel(g.error, 'Making flashcards');
+      const cards = (g.text.match(/^Q:/gm) ?? []).length;
+      const out = await this.runTool('document.save', { name: `Flashcards ${topic}`.slice(0, 70), extension: 'txt', content: `Flashcards: ${topic}\n\n${g.text.trim()}\n` }, ctx, turnId, 'user_command');
+      return out.result?.ok ? { text: `I made ${cards || 'a set of'} flashcards on ${topic}. ${out.result.message}`, situation: 'success' } : out;
+    }
+    if (p.kind === 'excel_compare') {
+      const g = await this.generate(comparisonPrompt(topic), ctx, turnId, 'You compare technologies and ideas fairly. Reply with valid JSON only.');
+      if ('error' in g) return this.needsModel(g.error, 'Building the comparison');
+      const table = parseComparison(g.text);
+      if (!table) return { text: "The model's comparison didn't come back in a format I could put in a spreadsheet. Try again, or ask for the comparison in chat.", situation: 'failure' };
+      const out = await this.runTool('sheet.create', { title: `${cap(topic)} comparison`.slice(0, 80), columns: table.columns.map((h) => ({ header: h.replace(/^[=+@-]+/, '') || 'Option', type: 'text' })), rows: table.rows, totals: false }, ctx, turnId, 'user_command');
+      return out.result?.ok ? { text: `I compared ${topic} with ${table.columns.length - 2} alternative${table.columns.length > 3 ? 's' : ''} across ${table.rows.length} criteria. ${out.result.message} Double-check the facts; they come from the language model.`, situation: 'success' } : out;
+    }
+    return { text: "I can't do that kind of task yet.", situation: 'info' };
+  }
+
+  /** Drafts an email or WhatsApp message with the model (or a template) and opens it for the user to send. */
+  private async draftMessage(p: Record<string, unknown>, ctx: ToolContext, turnId: string): Promise<Outcome> {
+    const channel = p.channel === 'whatsapp' ? 'whatsapp' : 'email';
+    const name = String(p.name ?? '').trim().slice(0, 60);
+    const topic = String(p.topic ?? '').trim().slice(0, 200);
+    const greet = /^(my|the) /.test(name) ? 'Hi' : `Hi ${cap(name)}`;
+    const g = await this.generate(messagePrompt(channel, name, topic, this.d.settings().userAddress || undefined), ctx, turnId);
+    if (channel === 'email') {
+      const { subject, body } = 'error' in g ? { subject: cap(topic), body: `${greet},\n\nI wanted to get in touch about ${topic}.\n\n[add details]\n\nThanks,\n` } : parseEmail(g.text, cap(topic));
+      return this.runTool('message.email', { to: name, subject, body }, ctx, turnId, 'user_command');
+    }
+    const text = 'error' in g ? `${greet}, about ${topic}: ` : g.text.trim().replace(/^["']|["']$/g, '').slice(0, 1500);
+    return this.runTool('message.whatsapp', { text, name }, ctx, turnId, 'user_command');
   }
 
   /**

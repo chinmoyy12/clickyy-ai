@@ -112,7 +112,7 @@ export interface AppEntry {
 }
 export interface RoutineStep { tool: string; args: Record<string, unknown>; label?: string }
 export interface Routine { id: string; name: string; phrases: string[]; steps: RoutineStep[]; enabled: boolean; updatedAt: number }
-export interface Reminder { id: string; text: string; dueAt: number; kind: 'reminder' | 'timer' | 'focus'; status: 'pending' | 'done' | 'cancelled'; createdAt: number }
+export interface Reminder { id: string; text: string; dueAt: number; kind: 'reminder' | 'timer' | 'focus'; status: 'pending' | 'done' | 'cancelled'; createdAt: number; repeat?: 'daily' | 'weekly' | 'weekdays' }
 export interface AuditEntry { id: number; at: number; tool: string; risk: RiskLevel; outcome: string; summary: string; durationMs: number }
 
 export interface CatalogEntry {
