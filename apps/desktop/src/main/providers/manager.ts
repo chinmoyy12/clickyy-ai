@@ -125,22 +125,28 @@ export class ProviderManager {
   }
 
   async refreshLocal(): Promise<void> {
-    this.localOverride = '';
-    const p = this.local();
+    // Check the configured model (not the override) without touching shared state until the
+    // result is in, so a request running meanwhile keeps a valid model.
+    const s = this.settings().ai.local;
+    const p = s.runtime === 'openai_local' ? this.local() : new OllamaProvider(s.baseUrl, s.model, s.timeoutMs, this.guard.fetchFor('local-model'), s.device);
     const r = await p.check();
-    this.localReachable = r.models !== undefined;
-    this.localReady = r.ok;
-    this.localModels = r.models ?? [];
-    this.localMessage = this.starting && !this.localReachable ? 'Starting Ollama…' : r.message;
+    let override = '';
+    let ready = r.ok;
+    let message = this.starting && r.models === undefined ? 'Starting Ollama…' : r.message;
     // Configured model missing but others are installed: use one instead of refusing to answer.
-    if (!r.ok && this.localModels.length && this.settings().ai.local.runtime === 'ollama') {
-      const pick = this.localModels.find((m) => !/embed/i.test(m));
+    if (!r.ok && r.models?.length && s.runtime === 'ollama') {
+      const pick = r.models.find((m) => !/embed/i.test(m));
       if (pick) {
-        this.localOverride = pick;
-        this.localReady = true;
-        this.localMessage = this.settings().ai.local.model ? `Using ${pick} because ${this.settings().ai.local.model} isn't installed.` : `Using ${pick}.`;
+        override = pick;
+        ready = true;
+        message = s.model ? `Using ${pick} because ${s.model} isn't installed.` : `Using ${pick}.`;
       }
     }
+    this.localReachable = r.models !== undefined;
+    this.localModels = r.models ?? [];
+    this.localOverride = override;
+    this.localReady = ready;
+    this.localMessage = message;
     // Preload the model once so the first spoken question isn't delayed by model loading.
     const active = this.local();
     const key = `${this.settings().ai.local.baseUrl}|${active.model}`;

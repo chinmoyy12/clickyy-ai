@@ -108,7 +108,8 @@ try {
   x = await timed('shut down my computer');
   record('power actions blocked while permission is off', /power permission is turned off/.test(x.r.text));
   x = await timed('open totally-unknown-app');
-  record('unknown apps are not launched', /isn't in my approved apps/.test(x.r.text));
+  record('unknown apps are not launched (offers a web search instead)', /couldn't find an app or website called totally-unknown-app.*search the web/.test(x.r.text), x.r.text);
+  await say('no');
 
   // Confirmation flow: a destructive (level 3) request needs an on-screen approval; we decline it.
   // Runs in the isolated test profile; the request is never approved.
@@ -127,7 +128,7 @@ try {
   // Strict offline: no model → honest answer, no remote calls.
   await invoke('settings:update', { ai: { policy: 'strict_offline' } });
   x = await timed('tell me something interesting about space');
-  record('strict offline without a local model is honest', /no local language model/.test(x.r.text), x.r.text.slice(0, 90));
+  record('strict offline answers locally, or honestly says no local model', (x.r.source === 'local_llm' && x.r.text.length > 20) || /no local language model/.test(x.r.text), `${x.r.providerLabel ?? x.r.source} · ${x.ms} ms · ${x.r.text.slice(0, 90)}`);
   const status = await invoke('providers:status');
   record('provider status reports local model state', typeof status.local.ready === 'boolean', status.local.message ?? 'ready');
 
@@ -157,7 +158,8 @@ try {
       for (let i = 0; i < 10; i++) { window.clickyy.sendAudio(new Uint8Array(3200).buffer); await new Promise((r) => setTimeout(r, 100)); }
     })()`);
     await invoke('speech:stop');
-    await sleep(800);
+    // The Whisper second pass can take a few seconds on a busy CPU.
+    for (let i = 0; i < 30 && !(await evaluate(`window.__speech.some((e) => e.type === 'final')`)); i++) await sleep(250);
     const evs = await evaluate('window.__speech');
     const final = evs.filter((e) => e.type === 'final').map((e) => e.text).join(' ');
     record('offline speech recognition end-to-end', /notepad|note pad/.test(final), `final="${final}" · partials=${evs.filter((e) => e.type === 'partial').length} · ${Math.round(performance.now() - s)} ms for ~2.5 s of streamed audio`);
@@ -216,6 +218,34 @@ try {
   await invoke('settings:update', { personality: { profile: 'butler' } });
   x = await timed('thank you');
   record('butler persona phrasing', /A pleasure\.|Of course\.|Think nothing of it\./.test(x.r.text), x.r.text);
+
+  // 0.3 abilities: websites with browser choice, world clock, dice, dates, capabilities, always-listening, self-test.
+  x = await timed('open yt music');
+  record('knows YT Music is a website and asks which browser', /YouTube Music is a website\. Should I open it in .+\?|Opening YouTube Music/.test(x.r.text), x.r.text);
+  if (/is a website/.test(x.r.text)) await say('no');
+  x = await timed('what time is it in tokyo');
+  record('world clock (offline)', /^It's \d{1,2}:\d{2} (AM|PM) in Tokyo/.test(x.r.text), x.r.text);
+  x = await timed('flip a coin');
+  record('coin flip', /^It's (heads|tails)\.$/.test(x.r.text), x.r.text);
+  x = await timed('how many days until christmas');
+  record('days until a holiday', /days? until christmas|today/.test(x.r.text), x.r.text);
+  x = await timed('what can you do');
+  const known = Number(x.r.text.match(/I know (\d+) things by name/)?.[1] ?? 0);
+  record('over 1000 named capabilities', known > 1000, `${known} · ${x.r.text.match(/any of the \d+ apps in your Start menu/)?.[0] ?? 'Start menu apps not loaded yet'}`);
+  record('Start menu apps discovered', /any of the \d+ apps in your Start menu/.test(x.r.text));
+  await evaluate(`document.querySelector('[role="switch"][aria-checked]') !== null`);
+  x = await timed('turn on always listening');
+  let st = await invoke('settings:get');
+  await sleep(300);
+  const switchOn = await evaluate(`document.querySelector('[role="switch"]')?.getAttribute('aria-checked')`);
+  record('always-listening by voice turns on wake mode and the toggle', st.listening.mode === 'wake_word' && st.wake.enabled && switchOn === 'true', x.r.text);
+  await evaluate(`document.querySelector('[role="switch"]').click()`);
+  await sleep(500);
+  st = await invoke('settings:get');
+  record('always-listening toggle button turns it off', st.listening.mode === 'push_to_talk' && !st.wake.enabled);
+  x = await timed('run a self test');
+  const core = ['Understanding', 'Windows bridge', 'Speech engine', 'System tools', 'Storage'].every((n) => x.r.text.includes(`✓ ${n}`));
+  record('self-test passes on the real app', core, x.r.text.split('\n').filter(Boolean).join(' | ').slice(0, 400));
 
   // Windows voices available to speechSynthesis (offline TTS).
   const voices = await evaluate(`new Promise((r) => { const v = speechSynthesis.getVoices(); if (v.length) return r(v.map((x) => x.name + (x.localService ? ' [local]' : ''))); speechSynthesis.onvoiceschanged = () => r(speechSynthesis.getVoices().map((x) => x.name + (x.localService ? ' [local]' : ''))); setTimeout(() => r([]), 3000); })`);

@@ -61,7 +61,7 @@ const TRAILING = /\s+(?:please|for me|thanks|thank you|now|right now)$/;
 
 export function normalize(raw: string): string {
   let t = raw.toLowerCase().normalize('NFKC');
-  t = t.replace(/[’‘]/g, "'").replace(/[^a-z0-9'%:.\-/ ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  t = t.replace(/[’‘]/g, "'").replace(/[^a-z0-9'%:.\-/+ ]+/g, ' ').replace(/\s+/g, ' ').trim();
   t = t.replace(/[.]+$/, '').replace(/(?<![a-z0-9])[.](?![a-z0-9])/g, ' ').replace(/\s+/g, ' ').trim();
   // Canonical contractions: "what's" -> "whats", "that's" -> "thats" (patterns accept both spellings).
   t = t.replace(/'/g, '');

@@ -4,6 +4,7 @@ import { statfs } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { defineTool, type ToolDef } from './types';
 import { settingsUri, SETTINGS_PAGE_IDS } from '../security/url';
+import { SETTINGS_BY_ID, SHELL_FOLDERS, SHELL_FOLDERS_BY_ID, WIN_TOOLS, WIN_TOOLS_BY_ID } from '../assistant/knowledge/windows';
 
 const none = z.object({}).strict();
 const SYSTEM32 = `${process.env.SystemRoot ?? 'C:\\Windows'}\\System32`;
@@ -127,12 +128,34 @@ export const systemTools: ToolDef[] = [
     },
   }),
   defineTool({
-    name: 'system.open_settings', title: 'Open Windows Settings', description: `Open a Windows Settings page. Pages: ${SETTINGS_PAGE_IDS.join(', ')}.`, category: 'System', risk: 1, permission: 'system',
+    name: 'system.open_settings', title: 'Open Windows Settings', description: `Open a Windows Settings page by id. Pages: ${SETTINGS_PAGE_IDS.join(', ')}.`, category: 'System', risk: 1, permission: 'system',
     input: z.object({ page: z.enum(SETTINGS_PAGE_IDS as [string, ...string[]]).default('home') }).strict(), confirm: 'never', timeoutMs: 5000, offline: true,
     describe: ({ page }) => `Open Settings (${page})`,
     async run({ page }, ctx) {
       await ctx.platform.openExternal(settingsUri(page));
-      return { ok: true, message: page === 'home' ? 'Opening Settings.' : `Opening ${page} settings.` };
+      return { ok: true, message: page === 'home' ? 'Opening Settings.' : `Opening ${SETTINGS_BY_ID.get(page)?.names[0] ?? page} settings.` };
+    },
+  }),
+  defineTool({
+    name: 'system.open_tool', title: 'Open Windows tool', description: `Open a built-in Windows tool or control panel by id: ${WIN_TOOLS.map((t) => t.id).join(', ')}.`, category: 'System', risk: 1, permission: 'system',
+    input: z.object({ tool: z.enum(WIN_TOOLS.map((t) => t.id) as [string, ...string[]]) }).strict(), confirm: 'never', timeoutMs: 5000, offline: true,
+    describe: ({ tool }) => `Open ${WIN_TOOLS_BY_ID.get(tool)?.names[0] ?? tool}`,
+    async run({ tool }, ctx) {
+      const t = WIN_TOOLS_BY_ID.get(tool)!;
+      const exe = t.exe.startsWith('%windir%') ? t.exe.replace('%windir%', process.env.SystemRoot ?? 'C:\\Windows') : `${SYSTEM32}\\${t.exe}`;
+      if (!ctx.platform.fileExists(exe)) return { ok: false, message: `${t.names[0]} isn't available on this PC.` };
+      await ctx.platform.spawnDetached(exe, t.args);
+      return { ok: true, message: `Opening ${t.names[0]}.` };
+    },
+  }),
+  defineTool({
+    name: 'system.open_special_folder', title: 'Open special folder', description: `Open a special Windows folder: ${SHELL_FOLDERS.map((f) => f.id).join(', ')}.`, category: 'System', risk: 1, permission: 'system',
+    input: z.object({ folder: z.enum(SHELL_FOLDERS.map((f) => f.id) as [string, ...string[]]) }).strict(), confirm: 'never', timeoutMs: 5000, offline: true,
+    describe: ({ folder }) => `Open ${SHELL_FOLDERS_BY_ID.get(folder)?.names[0] ?? folder}`,
+    async run({ folder }, ctx) {
+      const f = SHELL_FOLDERS_BY_ID.get(folder)!;
+      await ctx.platform.spawnDetached(`${process.env.SystemRoot ?? 'C:\\Windows'}\\explorer.exe`, [f.shell]);
+      return { ok: true, message: `Opening ${f.names[0]}.` };
     },
   }),
   defineTool({

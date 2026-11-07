@@ -67,9 +67,16 @@ export function ActivityPanel({ reducedMotion }: { reducedMotion: boolean }) {
             <dt className="text-muted">Network</dt><dd>{providers?.online ? 'online' : 'offline'}</dd>
             <dt className="text-muted">Speech engine</dt><dd>{speech.state === 'ready' ? <Badge tone="ok">Vosk ready</Badge> : <span className={speech.state === 'failed' ? 'text-danger' : 'text-muted'}>{speech.state}{speech.message ? `: ${speech.message}` : ''}</span>}</dd>
             <dt className="text-muted">Microphone</dt><dd>{micMuted ? 'muted' : micError ? <span className="text-danger">{micError}</span> : 'available'}</dd>
-            <dt className="text-muted">Voice output</dt><dd>{settings?.speech.ttsEngine === 'system' ? `Windows voice${settings.speech.voiceName ? ` · ${settings.speech.voiceName}` : ''} (offline)` : settings?.speech.ttsEngine === 'cloud' ? 'Cloud voice' : 'Off (text only)'}</dd>
+            <dt className="text-muted">Voice output</dt><dd>{settings?.speech.ttsEngine === 'neural' ? `Neural voice${speech.neural ? '' : ' (loading)'} · offline` : settings?.speech.ttsEngine === 'system' ? `Windows voice${settings.speech.voiceName ? ` · ${settings.speech.voiceName}` : ''} (offline)` : settings?.speech.ttsEngine === 'cloud' ? 'Cloud voice' : 'Off (text only)'}</dd>
+            <dt className="text-muted">Listening</dt><dd>{settings?.listening.mode === 'wake_word' && settings.wake.enabled ? 'always listening for the wake phrase' : settings?.listening.mode === 'conversation' ? 'conversation' : 'push to talk'}</dd>
             <dt className="text-muted">Pending</dt><dd>{confirmations.length ? `${confirmations.length} confirmation(s)` : 'none'}</dd>
           </dl>
+        )}
+        {tab === 'status' && (
+          <button onClick={() => window.dispatchEvent(new CustomEvent('clickyy:submit-text', { detail: 'run a self test' }))}
+            className="mt-3 rounded-lg border border-gold/40 px-3 py-1.5 text-[0.85em] text-gold hover:bg-gold/10">
+            Run self-test
+          </button>
         )}
       </div>
     </motion.div>

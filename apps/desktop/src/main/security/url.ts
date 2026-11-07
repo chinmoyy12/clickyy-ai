@@ -1,4 +1,5 @@
 /** URL validation for anything Clickyy opens or fetches. */
+import { SETTINGS_BY_ID, SETTINGS_PAGES } from '../assistant/knowledge/windows';
 
 export class UrlRejected extends Error {}
 
@@ -30,38 +31,12 @@ export function isLoopbackHost(hostname: string): boolean {
   return h === 'localhost' || h === '::1' || /^127(?:\.\d{1,3}){3}$/.test(h);
 }
 
-const SETTINGS_PAGES: Record<string, string> = {
-  home: 'ms-settings:',
-  display: 'ms-settings:display',
-  sound: 'ms-settings:sound',
-  bluetooth: 'ms-settings:bluetooth',
-  wifi: 'ms-settings:network-wifi',
-  network: 'ms-settings:network-status',
-  battery: 'ms-settings:batterysaver',
-  power: 'ms-settings:powersleep',
-  notifications: 'ms-settings:notifications',
-  apps: 'ms-settings:appsfeatures',
-  startup: 'ms-settings:startupapps',
-  privacy: 'ms-settings:privacy',
-  microphone: 'ms-settings:privacy-microphone',
-  updates: 'ms-settings:windowsupdate',
-  accessibility: 'ms-settings:easeofaccess',
-  personalization: 'ms-settings:personalization',
-  storage: 'ms-settings:storagesense',
-  mouse: 'ms-settings:mousetouchpad',
-  keyboard: 'ms-settings:keyboard',
-  date: 'ms-settings:dateandtime',
-  language: 'ms-settings:regionlanguage',
-  defaultapps: 'ms-settings:defaultapps',
-  focus: 'ms-settings:quiethours',
-};
-
-export const SETTINGS_PAGE_IDS = Object.keys(SETTINGS_PAGES);
+export const SETTINGS_PAGE_IDS = SETTINGS_PAGES.map((p) => p.id);
 
 /** Maps an allowlisted page id to its documented ms-settings: URI. */
 export function settingsUri(page: string): string {
-  const uri = SETTINGS_PAGES[page];
-  if (!uri) throw new UrlRejected(`Unknown settings page ${page}`);
+  const uri = SETTINGS_BY_ID.get(page)?.uri;
+  if (!uri || !/^ms-settings:[a-z0-9-]*$/.test(uri)) throw new UrlRejected(`Unknown settings page ${page}`);
   return uri;
 }
 

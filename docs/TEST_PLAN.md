@@ -8,9 +8,10 @@ All results below were **executed** on 2026-11-03 on Windows 11 Home 10.0.26300,
 |---|---|---|---|
 | TypeScript typecheck | `npm run typecheck` | ✅ clean | static |
 | Security lint | `npm run lint` | ✅ 60 files clean | static |
-| Vitest (8 files) | `npm test` | ✅ **384/384** | unit/integration, mocks for hardware and network |
+| Vitest (9 files) | `npm test` | ✅ **447/447** | unit/integration, mocks for hardware and network |
 | pytest | `services/assistant/.venv/Scripts/python -m pytest tests` | ✅ **25/25** (incl. real Whisper + Kokoro) | real Vosk engine on SAPI-synthesized speech |
-| End to end, dev build | `npm run e2e` | ✅ **46/46** | real app, real Windows APIs |
+| End to end, dev build (v0.3.0, 2026-11-06) | `npm run e2e` | ✅ **55/55** | real app, real Windows APIs; includes the browser question for YT Music, world clock, 1,451 named capabilities, 119 Start-menu apps, the always-listening switch and the in-app self-test (7/7) |
+| In-app self-test | say "run a self test" | ✅ **7/7** | understanding of all 253 example commands, Windows bridge, speech engine, a real llama3.2 reply, tools, network, storage |
 | **Live local LLM** (installed app) | `node scripts/live-test.mjs local --exe "%LOCALAPPDATA%\Programs\Clickyy AI\Clickyy AI.exe"` | ✅ **6/6** | real llama3.2 via Ollama: streamed answer, follow-up, real tool call, confirmed restart |
 | **Live local LLM, Ollama stopped first** (installed v0.2.1, 2026-11-06) | same command, after killing every `ollama` process | ✅ **6/6** | Clickyy started Ollama itself: ready after 6.7 s; first answer 17 s (one-time cold model load from disk, inference 1.5 s), later answers 0.6–1.6 s |
 | End to end, packaged `win-unpacked` | `node scripts/e2e.mjs "release\win-unpacked\Clickyy AI.exe"` | ✅ **35/35** | real app |

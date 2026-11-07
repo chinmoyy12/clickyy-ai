@@ -167,6 +167,7 @@ export function App() {
       bridge.on('ui:command', (raw) => {
         const { cmd } = raw as { cmd: string };
         if (cmd === 'mic_mute') { store.set({ micMuted: true }); void controller.setMuted(true); }
+        if (cmd === 'mic_unmute' && store.get().micMuted) { store.set({ micMuted: false }); void controller.setMuted(false); }
         if (cmd === 'mic_toggle') { const m = !store.get().micMuted; store.set({ micMuted: m }); void controller.setMuted(m); notify('info', m ? 'Microphone muted' : 'Microphone on'); }
       }),
     ];

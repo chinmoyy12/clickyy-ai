@@ -1,6 +1,6 @@
 import { app, BrowserWindow, desktopCapturer, dialog, globalShortcut, ipcMain, Menu, nativeImage, net, Notification, protocol, safeStorage, screen, session, shell, Tray, type WebContents } from 'electron';
 import os from 'node:os';
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { extname, join, normalize, relative, sep } from 'node:path';
 import { z } from 'zod';
@@ -17,7 +17,7 @@ import { PowerShellBridge } from './windows/bridge';
 import { createRegistry } from './tools';
 import { ToolExecutor } from './tools/executor';
 import { ConfirmationBroker } from './tools/confirmations';
-import { detectApps, validateAppTarget } from './tools/apps';
+import { detectApps, setStartApps, startAppCount, validateAppTarget } from './tools/apps';
 import type { Platform } from './tools/types';
 import { ProviderManager } from './providers/manager';
 import { cloudSpeech } from './providers/tts';
@@ -38,6 +38,22 @@ const log = (m: string) => {
   if (!app.isPackaged) console.log(line);
 };
 let secretsForRedaction: () => string[] = () => [];
+
+/** Reads the Start menu's app list (Get-StartApps) so any installed app can be opened by name. */
+function loadStartApps() {
+  const ps = `${process.env.SystemRoot ?? 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`;
+  execFile(ps, ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', '[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-StartApps | Select-Object Name, AppID | ConvertTo-Json -Compress'],
+    { windowsHide: true, timeout: 20000, maxBuffer: 8 * 1024 * 1024 }, (err, stdout) => {
+      if (err) { log(`Start menu apps unavailable: ${err.message}`); return; }
+      try {
+        const parsed = JSON.parse(stdout || '[]') as unknown;
+        setStartApps((Array.isArray(parsed) ? parsed : [parsed]) as Array<{ Name: string; AppID: string }>);
+        log(`Found ${startAppCount()} Start menu apps.`);
+      } catch (e) {
+        log(`Could not read Start menu apps: ${(e as Error).message}`);
+      }
+    });
+}
 
 /** Finds the installed Ollama (per-user install, machine install, or PATH). */
 function findOllama(): string | null {
@@ -480,6 +496,7 @@ async function main() {
   buildTray(assistant);
   scheduler.restore();
   void providers.ensureLocal();
+  loadStartApps();
   // Keep checking in the background so the local model shows up as soon as it's available.
   setInterval(() => void providers.refreshLocal(), 30_000);
   void speech.start();

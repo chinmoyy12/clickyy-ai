@@ -6,6 +6,7 @@ import type { ProviderManager } from '../src/main/providers/manager';
 import { ProviderError, type ChatRequest, type LlmProvider, type LlmTurn } from '../src/main/providers/types';
 import type { AssistantEvent } from '../src/shared/types';
 import type { DeepPartial, Settings } from '../src/shared/settings';
+import { detectApps } from '../src/main/tools/apps';
 
 class MockProvider implements LlmProvider {
   calls: ChatRequest[] = [];
@@ -45,6 +46,47 @@ async function make(providers: LlmProvider[], patch: DeepPartial<Settings> = {},
   });
   return { ...s, assistant, events, ui, manager: manager as unknown as { ensured: number } };
 }
+
+describe('self-test, browser memory and always-listening', () => {
+  it('runs a real self-test across every subsystem', async () => {
+    const local = new MockProvider('ollama', 'local', [{ text: 'OK', toolCalls: [], stop: 'end' }]);
+    const t = await make([local]);
+    const r = await t.assistant.submit('run a self test', 'text');
+    expect(r.text).toMatch(/^Self-test (passed|finished)/);
+    for (const name of ['Understanding', 'Windows bridge', 'Speech engine', 'Language model', 'System tools', 'Network', 'Storage']) expect(r.text).toContain(name);
+    expect(r.text).toMatch(/✓ Understanding: all \d+ example commands understood/);
+    expect(r.text).toMatch(/✓ Language model: ollama mock answered "OK"/);
+  });
+  it('asks Chrome or Edge, opens in the answer, and "always" saves the preference', async () => {
+    const t = await make([]);
+    t.platform.existing.add('*');
+    for (const a of detectApps(() => true)) t.repos.apps.upsert(a);
+    const q = await t.assistant.submit('open yt music', 'voice');
+    expect(q.text).toMatch(/YouTube Music is a website\. Should I open it in (Chrome|Edge|Firefox|Brave|Opera)/);
+    const a = await t.assistant.submit('always edge', 'voice');
+    expect(a.text).toBe("Opening YouTube Music in Edge. I'll use Edge from now on.");
+    expect(t.platform.spawned.at(-1)?.args).toEqual(['https://music.youtube.com/']);
+    expect(t.repos.settings.get().tools.browser).toBe('edge');
+    const again = await t.assistant.submit('open netflix', 'voice');
+    expect(again.text).toBe('Opening Netflix in Edge.');
+  });
+  it('turns always-listening on and off by voice', async () => {
+    const t = await make([]);
+    const on = await t.assistant.submit('turn on always listening', 'voice');
+    expect(on.text).toMatch(/^Always listening is on\. Say Hey Clickyy, Clickyy, Jarvis any time/);
+    expect(t.repos.settings.get().listening.mode).toBe('wake_word');
+    expect(t.repos.settings.get().wake.enabled).toBe(true);
+    expect(t.ui).toContain('mic_unmute');
+    await t.assistant.submit('turn off always listening', 'voice');
+    expect(t.repos.settings.get().listening.mode).toBe('push_to_talk');
+  });
+  it('states its real capability count', async () => {
+    const t = await make([]);
+    const r = await t.assistant.submit('what can you do', 'text');
+    const n = Number(r.text.match(/I know (\d+) things by name/)?.[1]);
+    expect(n).toBeGreaterThan(1000);
+  });
+});
 
 describe('assistant orchestration', () => {
   it('starts the local model on demand instead of saying no model is available', async () => {

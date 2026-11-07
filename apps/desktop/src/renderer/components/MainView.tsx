@@ -142,12 +142,40 @@ export function Composer({ onTalk, onTalkEnd, onStop, onToggleMute, onConversati
         <div className="flex items-center gap-1">
           <button onClick={onToggleMute} className={`rounded-md px-2 py-1 hover:bg-surface2 ${muted ? 'text-danger' : ''}`}>{muted ? 'Mic muted' : 'Mute mic'}</button>
           <button onClick={onConversation} className="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-surface2" title="Hands-free conversation until you say that's all"><MessageCircle size={12} /> Conversation</button>
+          <AlwaysListeningToggle onUnmute={muted ? onToggleMute : undefined} />
         </div>
         <button onClick={() => store.set((s) => ({ panelOpen: !s.panelOpen }))} className="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-surface2" aria-expanded={store.get().panelOpen}>
           <PanelBottomOpen size={12} /> Activity
         </button>
       </div>
     </div>
+  );
+}
+
+/**
+ * One-click always-on voice: switches to wake-word mode (the mic stays open and listens only for
+ * "Jarvis", "Clickyy" or "Hey Clickyy") or back to push-to-talk. The choice is saved.
+ */
+export function AlwaysListeningToggle({ onUnmute }: { onUnmute?: () => void }) {
+  const settings = useStore((s) => s.settings);
+  const speech = useStore((s) => s.speech);
+  const on = settings?.listening.mode === 'wake_word' && settings.wake.enabled;
+  const toggle = async () => {
+    const next = !on;
+    const patch = { listening: { mode: next ? 'wake_word' : 'push_to_talk' }, wake: { enabled: next } };
+    store.set({ settings: await call('settings:update', patch) });
+    if (next && onUnmute) onUnmute();
+  };
+  const notReady = on && speech && speech.state !== 'ready';
+  return (
+    <button role="switch" aria-checked={on} onClick={() => void toggle()}
+      title={on ? 'Always listening for your wake phrase. Click to switch to push-to-talk.' : 'Turn on always-on listening: just say Jarvis or Clickyy'}
+      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors ${on ? 'bg-cyan/10 text-cyan hover:bg-cyan/20' : 'hover:bg-surface2'}`}>
+      <span className={`relative inline-block h-3 w-6 rounded-full transition-colors ${on ? 'bg-cyan/70' : 'bg-line'}`}>
+        <span className={`absolute top-0.5 h-2 w-2 rounded-full bg-ink transition-all ${on ? 'left-3.5' : 'left-0.5'}`} />
+      </span>
+      <Radio size={12} /> Always listening{notReady ? ' (starting…)' : ''}
+    </button>
   );
 }
 

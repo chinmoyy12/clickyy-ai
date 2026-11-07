@@ -49,6 +49,7 @@ export function PermissionsSection({ s, update }: { s: Settings; update: Update 
       <Section title="Weather & web" description="Weather comes from Open-Meteo (free, no account). Unavailable in Strict Offline mode.">
         <Row label="Home city"><WeatherCity value={s.tools.weatherLocation} onSave={(v) => void update({ tools: { weatherLocation: v } })} /></Row>
         <Row label="Units"><Select label="Units" value={s.tools.units} onChange={(v) => void update({ tools: { units: v } })} options={[{ value: 'metric', label: 'Metric (°C, km/h)' }, { value: 'imperial', label: 'Imperial (°F, mph)' }]} /></Row>
+        <Row label="Browser for websites" hint="Ask: when more than one browser is installed, Clickyy asks which one to use (say “always Chrome” to remember)."><Select label="Browser for websites" value={s.tools.browser} onChange={(v) => void update({ tools: { browser: v } })} options={[{ value: 'ask', label: 'Ask me' }, { value: 'default', label: 'Windows default browser' }, { value: 'chrome', label: 'Google Chrome' }, { value: 'edge', label: 'Microsoft Edge' }, { value: 'firefox', label: 'Firefox' }, { value: 'brave', label: 'Brave' }, { value: 'opera', label: 'Opera' }]} /></Row>
         <Row label="Search engine"><Select label="Search engine" value={s.tools.searchEngine} onChange={(v) => void update({ tools: { searchEngine: v } })} options={[{ value: 'duckduckgo', label: 'DuckDuckGo' }, { value: 'bing', label: 'Bing' }, { value: 'google', label: 'Google' }]} /></Row>
       </Section>
     </>

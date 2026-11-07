@@ -65,7 +65,7 @@ describe('command catalog', () => {
     expect(toolOf('louder')).toEqual({ tool: 'audio.set_volume', args: { delta: 10 } });
     expect(toolOf('open bluetooth settings')).toEqual({ tool: 'system.open_settings', args: { page: 'bluetooth' } });
     expect(toolOf('open vs code')).toEqual({ tool: 'apps.open', args: { app: 'Visual Studio Code' } });
-    expect(toolOf('open youtube')).toEqual({ tool: 'web.open', args: { url: 'https://www.youtube.com' } });
+    expect(toolOf('open youtube')).toEqual({ tool: 'web.open', args: { url: 'https://www.youtube.com', label: 'YouTube' } });
     expect(toolOf('show my downloads')).toEqual({ tool: 'system.open_folder', args: { folder: 'downloads' } });
     expect(toolOf('put the browser on the left')).toEqual({ tool: 'windows.arrange', args: { action: 'snap_left', query: 'browser' } });
     expect(toolOf('minimize the current window')).toEqual({ tool: 'windows.arrange', args: { action: 'minimize' } });

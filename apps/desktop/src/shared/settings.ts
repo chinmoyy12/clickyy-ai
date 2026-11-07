@@ -110,6 +110,8 @@ export const SettingsSchema = z.object({
     approvedFolders: z.array(z.string().max(400)).max(32).default([]),
     workspaceFolder: z.string().max(400).default(''),
     searchEngine: z.enum(['duckduckgo', 'bing', 'google']).default('duckduckgo'),
+    /** Browser for websites. 'ask' asks once per site when more than one browser is installed. */
+    browser: z.enum(['ask', 'default', 'chrome', 'edge', 'firefox', 'brave', 'opera']).default('ask'),
   }).prefault({}),
   proactive: z.object({
     /** Speak up on its own when something needs attention. */

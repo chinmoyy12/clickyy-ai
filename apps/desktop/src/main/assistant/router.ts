@@ -33,6 +33,10 @@ export function route(raw: string, ctx: RouteCtx, routines: Routine[] = [], pend
 
   if (pending) {
     const def = CATALOG_BY_ID.get(pending.commandId);
+    if (def?.fillFirst) {
+      const filled = def.fill?.(text, pending.partial, ctx);
+      if (filled) return { kind: 'commands', steps: [{ commandId: pending.commandId, resolution: filled, text }], normalized: text };
+    }
     const direct = matchOne(text, ctx);
     // A complete new command takes precedence over answering the question.
     if (direct && direct.resolution.kind !== 'clarify' && direct.commandId !== 'conv.greeting') return { kind: 'commands', steps: [direct], normalized: text };

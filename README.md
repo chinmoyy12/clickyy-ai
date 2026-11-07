@@ -26,6 +26,22 @@
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
 
+### 🚀 New in 0.3 — 1,450+ things by name, and it thinks before it opens
+
+| | |
+|---|---|
+| 🌐 **Knows websites from apps** | "Open YT Music" → *"YouTube Music is a website. Should I open it in Chrome or Edge?"* Answer "Chrome", or "always Chrome" and it remembers. Or say "open YT Music in Edge". **760 websites and web apps** by name, from Gmail and Notion to IRCTC and Zerodha. |
+| 🔎 **Search inside sites** | "Play lofi on YouTube", "search Amazon for earbuds", "look up black holes on Wikipedia": **68 sites**. |
+| 🗂️ **Every app you have** | Reads your Start menu at launch, so any installed app opens by name ("open Obsidian", "open Notepad++"). |
+| ⚙️ **All of Windows** | **118 Settings pages** ("open dark mode settings", "Windows Update"), **52 Windows tools** (Device Manager, Event Viewer, Disk Cleanup, environment variables…) and **31 special folders** (Recycle Bin, Screenshots, AppData…). |
+| 🎙️ **Always-listening switch** | One click on the main screen (or say "turn on always listening") and just say "Jarvis" any time. |
+| 🩺 **Self-test** | "Run a self test" (or the button in Activity → Status) checks understanding of all 253 example commands, the Windows bridge, the speech engine, a real reply from the language model, tools, network and storage. |
+| 🌍 **Quick knowledge** | World clock for **307 places**, currency in **28 currencies** (ECB rates), "how many days until Christmas", coin flips, dice and random numbers. |
+| 🤔 **Asks instead of failing** | An unknown name gets "I couldn't find that. Should I search the web for it?" |
+| 🦙 **Ollama starts itself** | No need to keep Ollama running; Clickyy starts it and uses any installed model. |
+
+Say **"what can you do"** and Clickyy tells you its real count, measured from its own catalogs.
+
 ### ✨ New in 0.2 — the "Jarvis" update
 
 | | |
@@ -59,7 +75,7 @@ Set a primary provider, a fallback provider and a local fallback. If one fails, 
 
 | Area | Verified how |
 |---|---|
-| Desktop app launches, packaged and installed | `npm run e2e` against the dev build and the NSIS-installed v0.2.0 app: **46/46 checks each** |
+| Desktop app launches, packaged and installed | `npm run e2e` against the dev build and the NSIS-installed v0.3.0 app: **55/55 checks each** |
 | **Live local AI** | `node scripts/live-test.mjs local` against the installed app with a real **llama3.2** on Ollama: streamed answer (about 1.2 s), contextual follow-up, a real tool call that changed the volume, and a model-proposed restart stopped at the confirmation. **6/6** |
 | Neural voice + Whisper | Kokoro synthesizes through the app's IPC (about 1–1.7 s per sentence on this CPU); Whisper refines recorded speech to "set the volume to thirty percent"; a round-trip test has Kokoro speak and Whisper understand it |
 | Offline speech recognition (Vosk) | Real Vosk engine transcribes recorded speech through the full app path (renderer IPC → main → Python service): final transcript "open notepad" |
@@ -67,10 +83,10 @@ Set a primary provider, a fallback provider and a local fallback. If one fails, 
 | Offline speech output | Windows voices Zira, David and Mark are available to the app, and an utterance played to completion |
 | Microphone capture | Real Realtek microphone array opened and measured from the app (peak level reported) |
 | Windows control | Real volume read, set and restore via Core Audio; battery, CPU, RAM, disk, Wi-Fi, audio devices, window list, media session, app launch with window verification |
-| Safety | Shell requests refused; power actions blocked until permitted; destructive actions require on-screen confirmation and decline cleanly; unknown apps never launched |
+| Safety | Shell requests refused; power actions blocked until permitted; destructive actions require on-screen confirmation and decline cleanly; unknown names are never launched (Clickyy offers a web search instead) |
 | Strict Offline | Remote hosts are blocked at the network layer (unit-tested); with no local model the app says so honestly |
 | Bundled offline voice | The installed app runs the frozen speech engine (no Python needed): recognition and the "Jarvis" wake phrase pass end to end |
-| Automated tests | **384 TypeScript tests** (Vitest) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
+| Automated tests | **447 TypeScript tests** (Vitest) + **25 Python tests** (pytest, real Vosk, Whisper and Kokoro engines), typecheck, security lint — all passing |
 
 Not yet verified: a live cloud call (pending an API key; every cloud adapter is tested against mocked HTTP and SDK transports, and `node scripts/live-test.mjs cloud --provider gemini` runs the same 6 live checks once a key is saved), and a spoken command from a person into the live microphone. See [docs/TEST_PLAN.md](docs/TEST_PLAN.md) for the manual checklist.
 

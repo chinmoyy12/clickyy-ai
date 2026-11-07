@@ -16,6 +16,12 @@ export const KNOWN_APPS: Array<{ name: string; aliases: string[]; process: strin
     { kind: 'exe', target: `${env('ProgramFiles(x86)')}\\Microsoft\\Edge\\Application\\msedge.exe` },
     { kind: 'exe', target: `${env('ProgramFiles')}\\Microsoft\\Edge\\Application\\msedge.exe` } ] },
   { name: 'Firefox', aliases: ['firefox', 'mozilla'], process: 'firefox', candidates: [{ kind: 'exe', target: `${env('ProgramFiles')}\\Mozilla Firefox\\firefox.exe` }] },
+  { name: 'Brave', aliases: ['brave', 'brave browser'], process: 'brave', candidates: [
+    { kind: 'exe', target: `${env('ProgramFiles')}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe` },
+    { kind: 'exe', target: `${env('LOCALAPPDATA')}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe` } ] },
+  { name: 'Opera', aliases: ['opera', 'opera browser', 'opera gx'], process: 'opera', candidates: [
+    { kind: 'exe', target: `${env('LOCALAPPDATA')}\\Programs\\Opera\\opera.exe` },
+    { kind: 'exe', target: `${env('LOCALAPPDATA')}\\Programs\\Opera GX\\opera.exe` } ] },
   { name: 'Visual Studio Code', aliases: ['vs code', 'vscode', 'visual studio code', 'code editor', 'my editor', 'editor'], process: 'Code', candidates: [
     { kind: 'exe', target: `${env('LOCALAPPDATA')}\\Programs\\Microsoft VS Code\\Code.exe` },
     { kind: 'exe', target: `${env('ProgramFiles')}\\Microsoft VS Code\\Code.exe` } ] },
@@ -48,8 +54,44 @@ export function validateAppTarget(kind: AppEntry['kind'], target: string): strin
     return null;
   }
   if (kind === 'uri') return URI_SCHEME.test(target) ? null : 'Only known application URI schemes are allowed';
-  if (kind === 'appx') return /^[A-Za-z0-9._-]+![A-Za-z0-9._-]+$/.test(target) ? null : 'Invalid AppUserModelID';
+  if (kind === 'appx') return isStartAppId(target) ? null : 'Invalid AppUserModelID';
   return 'Unknown kind';
+}
+
+/**
+ * Start-menu app ids (AppUserModelIDs) as returned by Get-StartApps: packaged ids
+ * ("Microsoft.WindowsCalculator_8wekyb3d8bbwe!App") and desktop ids ("{GUID}\\App\\app.exe", "Chrome").
+ * They are only ever launched through explorer's shell:AppsFolder, which opens registered apps only.
+ */
+export function isStartAppId(id: string): boolean {
+  if (!id || id.length > 300 || id.includes('..') || /:\/\//.test(id) || /^[-/]/.test(id)) return false;
+  return /^(?:[A-Za-z]:\\)?[A-Za-z0-9 ._{}\\()+&!,'#@~-]+$/.test(id);
+}
+
+/** Apps found in the Start menu at launch (not stored; refreshed every run). */
+let startApps: AppEntry[] = [];
+
+const JUNK_START = /\b(uninstall|uninstaller|readme|read me|release notes|license|documentation|help|manual|website|web site|changelog|what'?s new|support)\b/i;
+
+export function setStartApps(list: Array<{ Name: string; AppID: string }>) {
+  const seen = new Set<string>();
+  startApps = list
+    .filter((a) => a && typeof a.Name === 'string' && typeof a.AppID === 'string' && !JUNK_START.test(a.Name) && isStartAppId(a.AppID))
+    .filter((a) => { const k = a.Name.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; })
+    .slice(0, 800)
+    .map((a) => {
+      const exe = a.AppID.match(/([^\\]+)\.exe$/i)?.[1];
+      const short = a.Name.toLowerCase().replace(/\(.*?\)/g, '').replace(/\b(microsoft|app|desktop)\b/g, '').replace(/\s+/g, ' ').trim();
+      return { id: `start:${a.AppID}`, name: a.Name.trim(), aliases: short && short !== a.Name.toLowerCase() ? [short] : [], kind: 'appx' as const, target: a.AppID, processName: exe, detected: true, enabled: true };
+    });
+}
+
+export function startAppCount() { return startApps.length; }
+
+/** The user's registry first, then Start-menu apps whose names aren't already registered. */
+export function allApps(registry: AppEntry[]): AppEntry[] {
+  const names = new Set(registry.map((a) => a.name.toLowerCase()));
+  return [...registry, ...startApps.filter((a) => !names.has(a.name.toLowerCase()))];
 }
 
 export function detectApps(exists: (p: string) => boolean): Array<Omit<AppEntry, 'id'>> {
@@ -61,14 +103,18 @@ export function detectApps(exists: (p: string) => boolean): Array<Omit<AppEntry,
   return out;
 }
 
-const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9+ ]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-export function findApp(apps: AppEntry[], query: string): { match?: AppEntry; candidates: AppEntry[] } {
+export function findApp(apps: AppEntry[], query: string, opts: { exactOnly?: boolean } = {}): { match?: AppEntry; candidates: AppEntry[] } {
   const q = norm(query).replace(/^(the|my) /, '');
   const enabled = apps.filter((a) => a.enabled);
   const exact = enabled.filter((a) => norm(a.name) === q || a.aliases.some((al) => norm(al) === q));
+  // The user's own registry wins over Start-menu duplicates ("Spotify" vs "Spotify (Start)").
+  const registered = exact.filter((a) => !a.id.startsWith('start:'));
+  if (registered.length === 1) return { match: registered[0], candidates: registered };
   if (exact.length === 1) return { match: exact[0], candidates: exact };
   if (exact.length > 1) return { candidates: exact };
+  if (opts.exactOnly) return { candidates: [] };
   const partial = enabled.filter((a) => norm(a.name).includes(q) || a.aliases.some((al) => norm(al).includes(q) || (q.length >= 4 && q.includes(norm(al)))));
   if (partial.length) return partial.length === 1 ? { match: partial[0], candidates: partial } : { candidates: partial };
   // Fuzzy fallback for mishearings ("spotfy", "crome", "note pat"): closest name within a small edit distance.
@@ -143,7 +189,7 @@ async function targetWindow(ctx: ToolContext, query: string | undefined): Promis
     return fg;
   }
   const wins = await ctx.bridge.call<WindowInfo[]>('window.list');
-  const matches = matchWindow(wins, query, ctx.repos.apps.list());
+  const matches = matchWindow(wins, query, allApps(ctx.repos.apps.list()));
   if (matches.length === 0) throw new Error(`I don't see an open window for ${query}.`);
   return matches[0];
 }
@@ -156,7 +202,7 @@ export const appTools: ToolDef[] = [
     input: z.object({ app: z.string().trim().min(1).max(80) }).strict(), confirm: 'never', timeoutMs: 12000, offline: true,
     describe: ({ app }) => `Open ${app}`,
     async run({ app }, ctx) {
-      const { match, candidates } = findApp(ctx.repos.apps.list(), app);
+      const { match, candidates } = findApp(allApps(ctx.repos.apps.list()), app);
       if (!match) {
         if (candidates.length > 1) return { ok: false, message: `Did you mean ${candidates.slice(0, 3).map((c) => c.name).join(' or ')}?` };
         return { ok: false, message: `${app} isn't in my approved apps list. You can add it in Settings, Apps.` };

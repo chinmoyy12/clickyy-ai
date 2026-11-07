@@ -1,15 +1,29 @@
 import type { AppEntry } from '@shared/types';
+import type { Settings } from '@shared/settings';
 import type { SessionState } from '../tools/types';
 import { findApp } from '../tools/apps';
+import { BROWSER_LABEL, type BrowserId } from '../tools/web';
+import { CURRENCY_WORDS } from '../tools/extras';
 import { parseClockTime, parseDuration } from './normalize';
+import { findSearchSite, findSite } from './knowledge/sites';
+import { findSettingsPage, findShellFolder, findWinTool } from './knowledge/windows';
+import { findZone } from './knowledge/cities';
 
 export type Builtin =
   | 'greeting' | 'presence' | 'capabilities' | 'repeat' | 'slower' | 'faster' | 'stop_speaking' | 'cancel'
   | 'new_session' | 'end_conversation' | 'mode' | 'verbosity' | 'status_model' | 'status_offline' | 'status_mic'
   | 'identity' | 'thanks' | 'shortcuts' | 'ui' | 'mic_pause' | 'refuse_shell' | 'how_are_you' | 'continue'
-  | 'briefing' | 'system_report' | 'screen' | 'clipboard_ai' | 'clipboard_read';
+  | 'briefing' | 'system_report' | 'screen' | 'clipboard_ai' | 'clipboard_read'
+  | 'open_with_browser' | 'set_browser' | 'always_listen' | 'self_test';
 
-export interface RouteCtx { session: SessionState; apps: AppEntry[] }
+export interface RouteCtx {
+  session: SessionState;
+  apps: AppEntry[];
+  /** Browser preference from settings ('ask' asks when several are installed). */
+  browser?: Settings['tools']['browser'];
+  /** Installed browsers, e.g. ['chrome', 'edge']. */
+  browsers?: Array<Exclude<BrowserId, 'default'>>;
+}
 
 export interface PendingSlot { commandId: string; slot: string; partial: Record<string, unknown> }
 
@@ -28,6 +42,8 @@ export interface CommandDef {
   resolve(m: RegExpMatchArray, text: string, ctx: RouteCtx): Resolution | null;
   /** Fills a pending slot from a follow-up answer. */
   fill?(answer: string, partial: Record<string, unknown>, ctx: RouteCtx): Resolution | null;
+  /** Try fill() before treating the answer as a new command (short answers like "chrome"). */
+  fillFirst?: boolean;
 }
 
 const tool = (t: string, args: Record<string, unknown> = {}): Resolution => ({ kind: 'tool', tool: t, args });
@@ -35,24 +51,35 @@ const builtin = (b: Builtin, params?: Record<string, unknown>): Resolution => ({
 const clarify = (question: string, pending?: PendingSlot): Resolution => ({ kind: 'clarify', question, pending });
 const cmd = (def: CommandDef) => def;
 
-const SETTINGS_WORDS: Record<string, string> = {
-  wifi: 'wifi', bluetooth: 'bluetooth', sound: 'sound', audio: 'sound', display: 'display', screen: 'display', brightness: 'display',
-  network: 'network', internet: 'network', battery: 'battery', power: 'power', sleep: 'power', notification: 'notifications', notifications: 'notifications',
-  app: 'apps', apps: 'apps', startup: 'startup', privacy: 'privacy', microphone: 'microphone', mic: 'microphone', update: 'updates', updates: 'updates',
-  'windows update': 'updates', accessibility: 'accessibility', 'ease of access': 'accessibility', personalization: 'personalization', wallpaper: 'personalization',
-  background: 'personalization', theme: 'personalization', storage: 'storage', mouse: 'mouse', touchpad: 'mouse', keyboard: 'keyboard', date: 'date', time: 'date',
-  language: 'language', region: 'language', 'default apps': 'defaultapps', focus: 'focus', 'do not disturb': 'focus',
-};
-
-const SITES: Record<string, string> = {
-  youtube: 'https://www.youtube.com', gmail: 'https://mail.google.com', google: 'https://www.google.com', github: 'https://github.com', netflix: 'https://www.netflix.com',
-  wikipedia: 'https://www.wikipedia.org', reddit: 'https://www.reddit.com', linkedin: 'https://www.linkedin.com', amazon: 'https://www.amazon.com',
-  outlook: 'https://outlook.live.com', 'stack overflow': 'https://stackoverflow.com', stackoverflow: 'https://stackoverflow.com', 'chat gpt': 'https://chatgpt.com',
-  claude: 'https://claude.ai', whatsapp: 'https://web.whatsapp.com', 'google maps': 'https://maps.google.com', maps: 'https://maps.google.com',
-  'google drive': 'https://drive.google.com', 'google calendar': 'https://calendar.google.com', twitch: 'https://www.twitch.tv',
-};
-
 const FOLDERS = ['desktop', 'documents', 'downloads', 'pictures', 'music', 'videos', 'workspace'];
+
+const BROWSER_WORD = /\b(google chrome|chrome|microsoft edge|edge|firefox|mozilla|brave|opera)\b/;
+const browserId = (word: string): Exclude<BrowserId, 'default'> =>
+  /chrome/.test(word) ? 'chrome' : /edge/.test(word) ? 'edge' : /firefox|mozilla/.test(word) ? 'firefox' : /brave/.test(word) ? 'brave' : 'opera';
+
+const orList = (xs: string[]) => (xs.length <= 2 ? xs.join(' or ') : `${xs.slice(0, -1).join(', ')} or ${xs[xs.length - 1]}`);
+
+/**
+ * Opens something in a browser. With the preference set to 'ask' and more than one browser
+ * installed, it asks which one ("YouTube Music is a website. Chrome or Edge?").
+ */
+function inBrowser(toolName: 'web.open' | 'web.search_site', args: Record<string, unknown>, label: string, ctx: RouteCtx, browser?: BrowserId): Resolution {
+  if (browser) return tool(toolName, { ...args, browser });
+  const pref = ctx.browser ?? 'ask';
+  if (pref !== 'ask') return tool(toolName, pref === 'default' ? args : { ...args, browser: pref });
+  const list = ctx.browsers ?? [];
+  if (list.length < 2) return tool(toolName, args);
+  const names = list.map((b) => BROWSER_LABEL[b]);
+  const what = toolName === 'web.open' ? `${label} is a website. Should I open it in ${orList(names)}?` : `I'll search ${label} in your browser. ${orList(names)}?`;
+  return clarify(`${what} Say "always ${names[0]}" and I'll stop asking.`, { commandId: 'web.browser', slot: 'browser', partial: { tool: toolName, args } });
+}
+
+function openSite(url: string, label: string, ctx: RouteCtx, browser?: BrowserId): Resolution {
+  return inBrowser('web.open', { url, label }, label, ctx, browser);
+}
+
+const YES = /^(yes|yeah|yep|yup|sure|ok|okay|please|do it|go ahead|search( it| for it)?|sounds good)\b/;
+const NO = /^(no|nope|nah|don'?t|never ?mind|cancel)\b/;
 
 function openTarget(target: string, ctx: RouteCtx): Resolution {
   const t = target.replace(/^(up |the |my |a )+/, '').replace(/\s+(app|application|program)$/, '').trim();
@@ -61,18 +88,29 @@ function openTarget(target: string, ctx: RouteCtx): Resolution {
     return ctx.session.lastApp ? tool('apps.open', { app: ctx.session.lastApp.name }) : clarify('Which app do you mean?', { commandId: 'apps.open', slot: 'app', partial: {} });
   }
   if (/^(windows )?settings$/.test(t)) return tool('system.open_settings', { page: 'home' });
-  const settings = t.match(/^(?:the )?(.+?) settings$/);
-  if (settings && SETTINGS_WORDS[settings[1]]) return tool('system.open_settings', { page: SETTINGS_WORDS[settings[1]] });
+  const settings = t.match(/^(?:the )?(.+?) (?:settings?|options)$/);
+  const settingsPage = settings && findSettingsPage(settings[1]);
+  if (settingsPage) return tool('system.open_settings', { page: settingsPage.id });
   if (/^task manager$/.test(t)) return tool('system.task_manager');
   const folder = t.match(/^(?:(?:my|the) )?(desktop|documents|downloads|pictures|music|videos|workspace|home)(?: folder)?$/);
-  if (folder && FOLDERS.concat('home').includes(folder[1]) && !(folder[1] === 'music' && findApp(ctx.apps, 'music').match)) return tool('system.open_folder', { folder: folder[1] });
+  if (folder && FOLDERS.concat('home').includes(folder[1]) && !(folder[1] === 'music' && findApp(ctx.apps, 'music', { exactOnly: true }).match)) return tool('system.open_folder', { folder: folder[1] });
   if (/^(my )?project( folder)?$|^(the )?last approved workspace$/.test(t)) return tool('system.open_folder', { folder: 'workspace' });
-  if (/^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/.test(t)) return tool('web.open', { url: t });
+  if (/^(?:https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/.test(t)) return openSite(t, t.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0], ctx);
+  // 1. An installed app with exactly this name. 2. A known website. 3. Windows tools and folders. 4. Close app names.
+  const exact = findApp(ctx.apps, t, { exactOnly: true });
+  if (exact.match) return tool('apps.open', { app: exact.match.name });
+  const site = findSite(t);
+  if (site) return openSite(site.url, site.name, ctx);
+  const winTool = findWinTool(t);
+  if (winTool) return tool('system.open_tool', { tool: winTool.id });
+  const shell = findShellFolder(t);
+  if (shell) return tool('system.open_special_folder', { folder: shell.id });
   const app = findApp(ctx.apps, t);
   if (app.match) return tool('apps.open', { app: app.match.name });
-  if (app.candidates.length > 1) return clarify(`Do you mean ${app.candidates.slice(0, 3).map((a) => a.name).join(' or ')}?`, { commandId: 'apps.open', slot: 'app', partial: {} });
-  if (SITES[t]) return tool('web.open', { url: SITES[t] });
-  return tool('apps.open', { app: t }); // the tool explains that the app isn't approved
+  if (app.candidates.length > 1) return clarify(`Do you mean ${orList(app.candidates.slice(0, 3).map((a) => a.name))}?`, { commandId: 'apps.open', slot: 'app', partial: {} });
+  const page = findSettingsPage(t);
+  if (page && page.id !== 'home') return tool('system.open_settings', { page: page.id });
+  return clarify(`I couldn't find an app or website called ${t} on this PC. Should I search the web for it?`, { commandId: 'apps.open', slot: 'search', partial: { query: t } });
 }
 
 const pct = (s: string | undefined) => (s ? Math.max(0, Math.min(100, parseInt(s, 10))) : undefined);
@@ -103,7 +141,7 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'conv.end', category: 'Conversation', description: 'End the conversation and stop follow-up listening.', examples: ["that's all", 'goodbye', 'stop listening'],
     patterns: [/^(that'?s all|that will be all|that'?s it|goodbye|bye( bye)?|we'?re done|go to sleep|stop listening|thanks that'?s all|thank you that'?s all|good night)$/], resolve: () => builtin('end_conversation') }),
   cmd({ id: 'conv.capabilities', category: 'Conversation', description: 'Describe what Clickyy can do.', examples: ['what can you do', 'help', 'what are your commands'],
-    patterns: [/what can you (do|help( me)? with)|^help( me)?$|what are your (skills|abilities|commands|features)|what commands/], resolve: () => builtin('capabilities') }),
+    patterns: [/what can you (do|help( me)? with)|^help( me)?$|what are your (skills|abilities|commands|features|capabilities)|what commands|how many (things|commands|skills|capabilities|features) (can you|do you)/], resolve: () => builtin('capabilities') }),
   cmd({ id: 'conv.identity', category: 'Conversation', description: 'Who the assistant is (always honest that it is an AI).', examples: ['who are you', 'are you human', "what's your name"],
     patterns: [/^who are you$|what(s| is) your name|are you (a )?(human|real|person|robot|ai|bot)/], resolve: () => builtin('identity') }),
   cmd({ id: 'conv.repeat', category: 'Conversation', description: 'Repeat the last response.', examples: ['can you repeat that', 'say that again', 'what did you say'],
@@ -145,6 +183,84 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'ui.text_size', category: 'Accessibility', description: 'Change text size.', examples: ['increase the text size', 'make the text smaller'],
     patterns: [/(increase|bigger|larger|enlarge|decrease|smaller|reduce) (the )?(text|font)( size)?|(make )?(the )?(text|font) (bigger|larger|smaller)/],
     resolve: (_m, text) => builtin('ui', { setting: 'textScale', delta: /(increase|bigger|larger|enlarge)/.test(text) ? 0.1 : -0.1 }) }),
+
+  // ---------- self, voice, browser ----------
+  cmd({ id: 'skill.self_test', category: 'Skills', description: 'Self-test: checks the speech engine, microphone path, language model, Windows bridge, tools, network and command understanding.', examples: ['run a self test', 'test yourself', 'are you working properly', 'run a self check'],
+    patterns: [/\bself[- ]?(test|check|diagnostics?)\b|test yourself|(check|diagnose|test) (your ?self|all (your )?systems)|run (all )?(your )?(own )?tests|are you (working|functioning) (properly|correctly|ok|okay)/], resolve: () => builtin('self_test') }),
+  cmd({ id: 'voice.always_listen', category: 'Voice', description: 'Turn always-on listening (wake word) on or off.', examples: ['turn on always listening', 'enable wake word', 'listen all the time', 'turn off always listening', 'disable hands free mode'],
+    patterns: [
+      /^(turn on|enable|start|activate|switch on) (the )?(always[- ]?on |always |hands[- ]?free |continuous )?(listening|wake ?words?|voice activation|hands[- ]?free)( mode)?$/,
+      /^(always listen|listen all the time|keep listening( all the time)?|be always listening|listen always|always be listening)$/,
+      /^(turn off|disable|stop|deactivate|switch off) (the )?(always[- ]?on |always |hands[- ]?free |continuous )(listening|mode)( mode)?$/,
+      /^(turn off|disable|deactivate|switch off) (the )?(wake ?words?|voice activation|hands[- ]?free)( mode)?$/,
+    ],
+    resolve: (_m, text) => builtin('always_listen', { on: !/^(turn off|disable|stop|deactivate|switch off)/.test(text) }) }),
+  cmd({ id: 'web.set_browser', category: 'Web', description: 'Choose which browser opens websites, or have Clickyy ask each time.', examples: ['always use chrome', 'use edge as my browser', 'set my browser to firefox', 'ask me which browser', 'use the default browser'],
+    patterns: [
+      /^(?:always )?use (google chrome|chrome|microsoft edge|edge|firefox|brave|opera)(?: browser)?(?: as (?:my|the) (?:default )?browser| for (?:websites|links|everything|the web|web))?(?: from now on| always| by default)?$/,
+      /^(?:set|change|make|switch) (?:my |the )?(?:default )?browser (?:to|as) (google chrome|chrome|microsoft edge|edge|firefox|brave|opera)$/,
+      /^(?:always )?ask (?:me )?(?:which|what) browser(?: to use)?(?: every time)?$/,
+      /^use (?:my |the )?(?:default|normal|system) browser(?: from now on| always)?$/,
+    ],
+    resolve: (m, text) => builtin('set_browser', { browser: /ask/.test(text) ? 'ask' : /default|normal|system/.test(text) ? 'default' : browserId(m[1] ?? '') }) }),
+  cmd({ id: 'web.in_browser', category: 'Web', tool: 'web.open', description: 'Open a website in a specific browser.', examples: ['open yt music in chrome', 'open youtube in edge', 'open github.com in firefox'],
+    patterns: [/^(?:open|launch|go to|visit|start|show me|pull up|bring up)(?: up)? (.+?) (?:in|on|with|using|via) (google chrome|chrome|microsoft edge|edge|firefox|brave|opera)(?: browser)?$/],
+    resolve: (m, _t, ctx) => {
+      const target = m[1].replace(/^(the|my) /, '').trim();
+      const b = browserId(m[2]);
+      if (/^(?:https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/.test(target)) return openSite(target, target.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0], ctx, b);
+      const site = findSite(target);
+      if (site) return openSite(site.url, site.name, ctx, b);
+      if (/^(a )?(new )?(tab|window|browser)$/.test(target)) return tool('apps.open', { app: { chrome: 'Google Chrome', edge: 'Microsoft Edge', firefox: 'Firefox', brave: 'Brave', opera: 'Opera' }[b] });
+      return tool('web.search', { query: target, browser: b });
+    } }),
+  cmd({ id: 'web.site_search', category: 'Web', tool: 'web.search_site', description: 'Search inside a website: YouTube, YouTube Music, Amazon, Wikipedia, GitHub, Reddit and 60 more.', examples: ['play lofi beats on youtube', 'search amazon for wireless earbuds', 'look up black holes on wikipedia', 'search arijit singh on yt music', 'find react hooks on stack overflow'],
+    patterns: [
+      /^(?:search|look up|find|look for|browse)(?: on| in| inside)? (.+?) for (.+?)(?: (?:in|on|with|using) (google chrome|chrome|microsoft edge|edge|firefox|brave|opera))?$/,
+      /^(?:search(?: for)?|look up|find|look for|play|watch|show me|listen to|put on|stream) (.+?) (?:on|in|at|from|using) (.+?)(?: (?:in|on|with|using) (google chrome|chrome|microsoft edge|edge|firefox|brave|opera))?$/,
+    ],
+    resolve: (m, text, ctx) => {
+      const firstForm = /\bfor\b/.test(text) && /^(search|look up|find|look for|browse)(?: on| in| inside)? /.test(text) && findSearchSite(m[1]);
+      const [siteName, query] = firstForm ? [m[1], m[2]] : [m[2], m[1]];
+      const site = findSearchSite(siteName);
+      if (!site || !query.trim()) return null;
+      return inBrowser('web.search_site', { site: site.name, query: query.trim() }, site.name, ctx, m[3] ? browserId(m[3]) : undefined);
+    } }),
+
+  // ---------- quick knowledge ----------
+  cmd({ id: 'skill.world_clock', category: 'Skills', tool: 'clock.world', description: 'Time anywhere in the world (offline).', examples: ['what time is it in tokyo', "what's the time in new york", 'time in london'],
+    patterns: [/^(?:whats |what is )?(?:the )?(?:current |local )?time (?:is it |right now |now )?in (.+)$/, /^what time is it (?:right now |now )?in (.+)$/, /^(?:hows|what is|whats) the time (?:like )?in (.+)$/],
+    resolve: (m) => {
+      const place = m[1].replace(/\b(right now|now|currently|today|at the moment)\b/g, '').trim();
+      return place ? tool('clock.world', { place }) : null;
+    } }),
+  cmd({ id: 'skill.random', category: 'Skills', tool: 'fun.random', description: 'Flip a coin, roll dice, or pick a random number.', examples: ['flip a coin', 'roll a dice', 'roll 2 dice', 'roll a 20 sided die', 'pick a random number between 1 and 50', 'heads or tails'],
+    patterns: [/^(?:flip|toss)(?: a| the| me a)?(?: (\d+))? coins?$|^heads or tails$/, /^roll\b.*\b(dice|die|d\d+)$/, /\b(?:pick|give me|choose|generate|say|tell me)(?: me)?(?: a)? random number\b.*$|^random number\b.*$/],
+    resolve: (_m, text) => {
+      if (/coin|heads/.test(text)) return tool('fun.random', { kind: 'coin', count: Math.min(10, parseInt(text.match(/(\d+) coins/)?.[1] ?? '1', 10)) });
+      if (/^roll/.test(text)) {
+        const count = Math.min(10, parseInt(text.match(/^roll (\d+)/)?.[1] ?? '1', 10));
+        const sides = parseInt(text.match(/(\d+) sided|\bd(\d+)/)?.slice(1).find(Boolean) ?? '6', 10);
+        return tool('fun.random', { kind: 'dice', count, sides: Math.max(2, Math.min(1000, sides)) });
+      }
+      const range = text.match(/(?:between|from) (-?\d+) (?:and|to) (-?\d+)/);
+      return tool('fun.random', { kind: 'number', ...(range ? { min: parseInt(range[1], 10), max: parseInt(range[2], 10) } : {}) });
+    } }),
+  cmd({ id: 'skill.days_until', category: 'Skills', tool: 'date.until', description: 'Days until a date or holiday.', examples: ['how many days until christmas', 'days until december 25', 'how long until new year', 'when is easter', 'how many days until my birthday on june 2'],
+    patterns: [/^how many (?:days|sleeps|weeks) (?:are (?:there |left )?)?(?:until|till|til|to|before) (.+)$/, /^(?:days|how long) (?:is it )?(?:until|till|til) (.+)$/, /^when is (christmas(?: eve)?|easter|thanksgiving|halloween|new years?(?: day| eve)?|valentines(?: day)?|mothers day|fathers day|labou?r day|boxing day|earth day)(?: this year)?$/],
+    resolve: (m) => {
+      const target = m[1].replace(/\b(this year|from now|from today)\b/g, '').trim();
+      if (!target || /\b(timer|reminder|alarm|focus|pomodoro)\b/.test(target)) return null;
+      return tool('date.until', { target });
+    } }),
+  cmd({ id: 'skill.currency', category: 'Skills', tool: 'currency.convert', description: 'Convert currency with daily ECB rates (online).', examples: ['convert 100 dollars to rupees', '50 euros in usd', 'how much is 20 pounds in yen', 'exchange rate dollar to rupee'],
+    patterns: [/^(?:convert |change |exchange )?(\d+(?:\.\d+)?) ([a-z ]+?) (?:to|in|into) ([a-z ]+)$/, /^(?:how much is|whats|what is) (\d+(?:\.\d+)?) ([a-z ]+?) (?:in|to) ([a-z ]+)$/, /^(?:whats |what is )?(?:the )?(?:exchange |conversion )?rate (?:of |for |from )?([a-z ]+?) (?:to|in|into|against|vs) ([a-z ]+)$/],
+    resolve: (m, text) => {
+      const code = (w: string) => CURRENCY_WORDS[w.trim().replace(/^(the|a|an) /, '').replace(/ (today|now|right now)$/, '')] ?? null;
+      const isRate = /rate/.test(text) && !/^\d/.test(m[1]);
+      const [amount, from, to] = isRate ? [1, code(m[1]), code(m[2])] : [parseFloat(m[1]), code(m[2]), code(m[3])];
+      return from && to ? tool('currency.convert', { amount, from, to }) : null;
+    } }),
 
   // ---------- advanced skills ----------
   cmd({ id: 'skill.briefing', category: 'Skills', description: 'Spoken briefing: time, weather, battery and reminders.', examples: ['give me my morning briefing', 'brief me', 'what does my day look like', 'daily briefing'],
@@ -245,8 +361,13 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'system.task_manager', category: 'System', tool: 'system.task_manager', description: 'Open Task Manager.', examples: ['open task manager'],
     patterns: [/task manager/], resolve: () => tool('system.task_manager') }),
   cmd({ id: 'system.settings', category: 'System', tool: 'system.open_settings', description: 'Open a Windows Settings page.', examples: ['open windows settings', 'open bluetooth settings', 'open sound settings'],
-    patterns: [/^(open|show|go to|launch)( the| my)? (windows )?settings$/, /^(open|show|go to)( the| my)? (.+?) settings$/],
-    resolve: (m) => (m[3] && SETTINGS_WORDS[m[3].trim()] ? tool('system.open_settings', { page: SETTINGS_WORDS[m[3].trim()] }) : m[3] && !/windows/.test(m[3]) ? clarify(`I don't have a shortcut to ${m[3]} settings. I can open Windows Settings instead.`) : tool('system.open_settings', { page: 'home' })) }),
+    patterns: [/^(open|show|go to|launch)( the| my)? (windows )?settings$/, /^(open|show|go to|take me to)( the| my)? (.+?) (settings?|options)$/],
+    resolve: (m) => {
+      if (!m[3] || /^windows ?$/.test(m[3])) return tool('system.open_settings', { page: 'home' });
+      const page = findSettingsPage(m[3]);
+      return page ? tool('system.open_settings', { page: page.id }) : clarify(`I don't have a shortcut to ${m[3].trim()} settings. Should I open Windows Settings instead?`, { commandId: 'system.settings', slot: 'confirm', partial: {} });
+    },
+    fill: (answer) => (YES.test(answer) ? tool('system.open_settings', { page: 'home' }) : null) }),
   // ---------- audio ----------
   cmd({ id: 'audio.set', category: 'Audio', tool: 'audio.set_volume', description: 'Set the volume to a level.', examples: ['set volume to 30 percent', 'lower the volume to 30 percent', 'volume 50', 'put the volume at 20'],
     patterns: [/\bvolume (?:to |at )?(\d{1,3})(?: percent)?$/, /(?:set|change|put|turn|lower|raise|increase|decrease|reduce|bring)(?: the| my)? (?:volume|sound)(?: down| up)? (?:to|at) (\d{1,3})(?: percent)?/, /(?:set|turn) (?:it|the sound) (?:to|at) (\d{1,3}) percent/],
@@ -286,7 +407,8 @@ export const CATALOG: CommandDef[] = [
     resolve: (m) => tool('media.spotify_search', { query: `${m[1].trim()}${/playlist/.test(m[0]) ? ' playlist' : ''}` }) }),
 
   cmd({ id: 'web.open', category: 'Web', tool: 'web.open', description: 'Open a website.', examples: ['open youtube.com', 'go to github.com', 'open the official website of python.org'],
-    patterns: [/^(?:open|go to|visit|browse to|navigate to)(?: the)?(?: official)?(?: website| site| page)?(?: of| for)? ((?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/\S*)?)$/], resolve: (m) => tool('web.open', { url: m[1] }) }),
+    patterns: [/^(?:open|go to|visit|browse to|navigate to)(?: the)?(?: official)?(?: website| site| page)?(?: of| for)? ((?:https?:\/\/)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/\S*)?)$/],
+    resolve: (m, _t, ctx) => openSite(m[1], m[1].replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0], ctx) }),
 
   // ---------- windows ----------
   cmd({ id: 'windows.list', category: 'Windows', tool: 'windows.list', description: 'List open apps.', examples: ['show me my open applications', 'what apps are open'],
@@ -333,7 +455,27 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'apps.open', category: 'Apps', tool: 'apps.open', description: 'Open an approved application or alias.', examples: ['open chrome', 'launch spotify', 'open vs code', 'start notepad', 'open it again'],
     patterns: [/^(?:open|launch|start|run|fire up|load)(?: up)? (.+)$/, /^(?:open|launch|start)$/],
     resolve: (m, _t, ctx) => openTarget(m[1] ?? '', ctx),
-    fill: (answer, _p, ctx) => openTarget(answer, ctx) }),
+    fill: (answer, p, ctx) => {
+      if (typeof p.query === 'string') {
+        if (YES.test(answer)) return tool('web.search', { query: p.query });
+        if (NO.test(answer)) return builtin('cancel');
+        return null;
+      }
+      return openTarget(answer, ctx);
+    } }),
 ];
 
-export const CATALOG_BY_ID = new Map(CATALOG.map((c) => [c.id, c]));
+/** Handlers that only answer a question Clickyy asked (never matched on their own). */
+export const FOLLOW_UPS: CommandDef[] = [
+  cmd({ id: 'web.browser', category: 'Web', description: 'Answer to "Chrome or Edge?" (say "always Chrome" to remember).', examples: ['chrome', 'edge', 'always chrome', 'the default one'],
+    patterns: [], fillFirst: true, resolve: () => null,
+    fill: (answer, p) => {
+      const b = answer.match(BROWSER_WORD);
+      const remember = /\b(always|from now on|every time|remember( that)?|by default|all the time|forever)\b/.test(answer);
+      const browser: BrowserId | null = b ? browserId(b[1]) : /\b(default|any|either|whatever|you (choose|pick|decide)|doesnt matter|dont care|normal)\b/.test(answer) || YES.test(answer) ? 'default' : null;
+      if (!browser) return NO.test(answer) ? builtin('cancel') : null;
+      return builtin('open_with_browser', { tool: p.tool, args: p.args, browser, remember });
+    } }),
+];
+
+export const CATALOG_BY_ID = new Map([...CATALOG, ...FOLLOW_UPS].map((c) => [c.id, c]));

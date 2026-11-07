@@ -1,6 +1,6 @@
 # Command catalog
 
-Generated from source by `npm run docs:commands`. **78 deterministic commands**, **213 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **52 registered tools**.
+Generated from source by `npm run docs:commands`. **87 deterministic commands**, **253 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **59 registered tools**.
 
 Deterministic commands work fully offline with no language model. Anything not matched here goes to the configured language model, which can only call the tools listed at the bottom.
 
@@ -54,6 +54,11 @@ Deterministic commands work fully offline with no language model. Anything not m
 
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
 |---|---|---|---|---|---|
+| Self-test: checks the speech engine, microphone path, language model, Windows bridge, tools, network and command understanding. | “run a self test”<br>“test yourself”<br>“are you working properly”<br>“run a self check” | built-in | — | — | — |
+| Time anywhere in the world (offline). | “what time is it in tokyo”<br>“what's the time in new york”<br>“time in london” | `clock.world` | L1 low | — | no |
+| Flip a coin, roll dice, or pick a random number. | “flip a coin”<br>“roll a dice”<br>“roll 2 dice”<br>“roll a 20 sided die”<br>“pick a random number between 1 and 50”<br>“heads or tails” | `fun.random` | L1 low | — | no |
+| Days until a date or holiday. | “how many days until christmas”<br>“days until december 25”<br>“how long until new year”<br>“when is easter”<br>“how many days until my birthday on june 2” | `date.until` | L1 low | — | no |
+| Convert currency with daily ECB rates (online). | “convert 100 dollars to rupees”<br>“50 euros in usd”<br>“how much is 20 pounds in yen”<br>“exchange rate dollar to rupee” | `currency.convert` | L1 low | web | no |
 | Spoken briefing: time, weather, battery and reminders. | “give me my morning briefing”<br>“brief me”<br>“what does my day look like”<br>“daily briefing” | built-in | — | — | — |
 | Full system health report in one sentence. | “run a system check”<br>“how's my computer doing”<br>“system report”<br>“run diagnostics” | built-in | — | — | — |
 | Look at the screen and answer a question about it (vision model, always asks first). | “what's on my screen”<br>“look at my screen and explain this error”<br>“describe my screen”<br>“what am i looking at” | `screen.capture` | L2 sensitive | screen | always |
@@ -62,6 +67,22 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Current weather and today's forecast. | “what's the weather”<br>“weather in london”<br>“do i need an umbrella today”<br>“how's the weather in tokyo”<br>“what's the temperature outside” | `weather.current` | L1 low | web | no |
 | Convert units offline. | “convert 5 miles to kilometers”<br>“how many cups in a liter”<br>“100 fahrenheit in celsius”<br>“2 gigabytes in megabytes” | `units.convert` | L1 low | — | no |
 | Calculator (offline). | “what's 15 percent of 240”<br>“calculate 12 times 7”<br>“what is the square root of 144”<br>“what is 2 to the power of 10”<br>“what's 1250 divided by 5” | `math.calculate` | L1 low | — | no |
+
+## Voice
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Turn always-on listening (wake word) on or off. | “turn on always listening”<br>“enable wake word”<br>“listen all the time”<br>“turn off always listening”<br>“disable hands free mode” | built-in | — | — | — |
+
+## Web
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Choose which browser opens websites, or have Clickyy ask each time. | “always use chrome”<br>“use edge as my browser”<br>“set my browser to firefox”<br>“ask me which browser”<br>“use the default browser” | built-in | — | — | — |
+| Open a website in a specific browser. | “open yt music in chrome”<br>“open youtube in edge”<br>“open github.com in firefox” | `web.open` | L1 low | web | no |
+| Search inside a website: YouTube, YouTube Music, Amazon, Wikipedia, GitHub, Reddit and 60 more. | “play lofi beats on youtube”<br>“search amazon for wireless earbuds”<br>“look up black holes on wikipedia”<br>“search arijit singh on yt music”<br>“find react hooks on stack overflow” | `web.search_site` | L1 low | web | no |
+| Open a website. | “open youtube.com”<br>“go to github.com”<br>“open the official website of python.org” | `web.open` | L1 low | web | no |
+| Search the web in your browser. | “search for the latest node documentation”<br>“look up electron security checklist”<br>“google best pizza near me” | `web.search` | L1 low | web | no |
 
 ## Memory
 
@@ -123,13 +144,6 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Stop playback. | “stop the music”<br>“stop playback” | `media.control` | L1 low | media | no |
 | Search Spotify for music. | “play my focus playlist”<br>“play lofi on spotify”<br>“find taylor swift on spotify” | `media.spotify_search` | L1 low | media | no |
 
-## Web
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Open a website. | “open youtube.com”<br>“go to github.com”<br>“open the official website of python.org” | `web.open` | L1 low | web | no |
-| Search the web in your browser. | “search for the latest node documentation”<br>“look up electron security checklist”<br>“google best pizza near me” | `web.search` | L1 low | web | no |
-
 ## Windows
 
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
@@ -161,7 +175,9 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `system.uptime` | How long the computer has been running. | L1 low | system | 1s | yes |
 | `system.audio_devices` | Name the default speaker and microphone. | L1 low | system | 5s | yes |
 | `system.processes` | List the processes using the most memory (read-only). | L1 low | system | 8s | yes |
-| `system.open_settings` | Open a Windows Settings page. Pages: home, display, sound, bluetooth, wifi, network, battery, power, notifications, apps, startup, privacy, microphone, updates, accessibility, personalization, storage, mouse, keyboard, date, language, defaultapps, focus. | L1 low | system | 5s | yes |
+| `system.open_settings` | Open a Windows Settings page by id. Pages: home, system, display, nightlight, hdr, graphics, sound, sounddevices, volumemixer, notifications, focus, power, battery, batteryusage, storage, cleanup, nearbysharing, multitasking, activation, troubleshoot, recovery, projecting, remotedesktop, clipboard, about, bluetooth, devices, printers, phonelink, cameras, mouse, touchpad, pen, autoplay, usb, network, wifi, ethernet, vpn, mobilehotspot, airplane, proxy, dialup, advancednetwork, datausage, personalization, background, colors, themes, lockscreen, textinput, start, startfolders, taskbar, fonts, deviceusage, apps, defaultapps, optionalfeatures, offlinemaps, appsforwebsites, videoplayback, startup, advancedapps, accounts, emailaccounts, signin, family, otherusers, backup, workaccess, date, language, typing, speech, keyboard, gaming, gamebar, captures, gamemode, accessibility, textsize, visualeffects, mousepointer, textcursor, magnifier, colorfilters, contrast, narrator, audioaccess, captions, voiceaccess, keyboardaccess, mouseaccess, eyecontrol, privacy, windowssecurity, findmydevice, developers, microphone, camera, location, diagnostics, activityhistory, searchpermissions, searchindexing, generalprivacy, appdiagnostics, notificationsaccess, contactsaccess, calendaraccess, filesaccess, updates, updatehistory, updateoptions, activehours, deliveryoptimization, insider. | L1 low | system | 5s | yes |
+| `system.open_tool` | Open a built-in Windows tool or control panel by id: devicemanager, diskmanagement, computermanagement, eventviewer, services, taskscheduler, firewall, performancemonitor, resourcemonitor, systeminfo, dxdiag, controlpanel, systemproperties, envvars, performanceoptions, remotesettings, systemprotection, systemrestore, diskcleanup, defrag, memorydiagnostic, charmap, osk, magnifier, narrator, stepsrecorder, remotedesktopclient, quickassist, soundcontrol, networkconnections, poweroptions, programsfeatures, mouseproperties, internetoptions, datetimepanel, windowsfeatures, credentialmanager, useraccounts, deviceprinters, fontsfolder, colormanagement, calibratedisplay, cleartype, iscsi, odbc, reliability, securitycenter, wordpad, notepadtool, paintapp, snipping, calculatortool. | L1 low | system | 5s | yes |
+| `system.open_special_folder` | Open a special Windows folder: recyclebin, thispc, network, appsfolder, startup, appdata, localappdata, temp, programfiles, programfilesx86, windowsfolder, system32, fonts, startmenu, sendto, recent, favorites, links, contacts, savedgames, screenshots, cameraroll, onedrive, quickaccess, libraries, userprofile, public, templates, printersfolder, controlpanelfolder, godmode. | L1 low | system | 5s | yes |
 | `system.task_manager` | Open Windows Task Manager. | L1 low | system | 5s | yes |
 | `system.open_folder` | Open a standard user folder in File Explorer: home, desktop, documents, downloads, pictures, music, videos, workspace. | L1 low | system | 5s | yes |
 | `system.lock` | Lock the Windows session (documented LockWorkStation API). | L1 low | system | 5s | yes |
@@ -181,8 +197,9 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `windows.close` | Ask a window to close (the app may prompt to save). Omit query for the current window. | L2 sensitive | windows | 60s | yes |
 | `windows.previous` | Switch to the window that was in front before the current one. | L1 low | windows | 6s | yes |
 | `windows.show_desktop` | Minimize all windows, or undo it. | L1 low | windows | 5s | yes |
-| `web.open` | Open an http(s) website in the default browser. | L1 low | web | 5s | no |
-| `web.search` | Open a web search for a query in the default browser using the configured search engine. | L1 low | web | 5s | no |
+| `web.open` | Open an http(s) website, in the default browser or a specific installed one (chrome, edge, firefox, brave, opera). | L1 low | web | 8s | no |
+| `web.search` | Open a web search for a query in the browser using the configured search engine. | L1 low | web | 8s | no |
+| `web.search_site` | Search inside a specific website, e.g. YouTube, Amazon, Wikipedia, GitHub, Spotify. Sites: YouTube, YouTube Music, Google, Google Images, Google Maps, Google News, Google Scholar, Google Drive, Gmail, Bing, DuckDuckGo, Wikipedia, Amazon, Amazon India, Flipkart, eBay, Walmart, Etsy, AliExpress, Myntra, GitHub, Stack Overflow, npm, PyPI, MDN, Reddit, X, LinkedIn, Pinterest, Instagram, TikTok, Spotify Web, SoundCloud, JioSaavn, Genius, Netflix, Prime Video, IMDb, Twitch, Vimeo, Quora, Medium, Unsplash, Pexels, Giphy, Steam, Epic Games, Udemy, Coursera, Khan Academy, Wolfram Alpha, Dictionary.com, Thesaurus.com, Urban Dictionary, Google Translate, Yelp, Tripadvisor, Booking.com, Airbnb, Indeed, Naukri, Glassdoor, arXiv, PubMed, Hugging Face, Perplexity, ChatGPT, Claude. | L1 low | web | 8s | no |
 | `files.list` | List files in an approved folder (non-recursive). | L1 low | files | 8s | yes |
 | `files.search` | Search file names (case-insensitive substring) inside approved folders only. | L1 low | files | 15s | yes |
 | `files.read_text` | Read a text file inside an approved folder (max 200 KB). | L1 low | files | 8s | yes |
@@ -205,3 +222,7 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `units.convert` | Convert between units of length, mass, volume, speed, data size, time, area and temperature, offline. | L1 low | — | 1s | yes |
 | `weather.current` | Current weather and today's forecast for a place (or the location set in Settings), via Open-Meteo. | L1 low | web | 12s | no |
 | `screen.capture` | Capture one screenshot of the primary display so a vision-capable model can answer a question about it. Always asks first; the image is not stored. | L2 sensitive | screen | 60s | yes |
+| `clock.world` | Current time in a city or country (offline). | L1 low | — | 1s | yes |
+| `fun.random` | Flip a coin, roll dice, or pick a random number in a range (cryptographically random). | L1 low | — | 1s | yes |
+| `date.until` | Count days until (or since) a date or a holiday like Christmas, Easter, Thanksgiving, New Year. | L1 low | — | 1s | yes |
+| `currency.convert` | Convert money between currencies using the European Central Bank daily reference rates (Frankfurter, no key). Use ISO codes like USD, EUR, INR, GBP, JPY. | L1 low | web | 10s | no |

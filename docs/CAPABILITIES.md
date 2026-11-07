@@ -6,7 +6,15 @@
 
 | Capability | Strict Offline | Smart Hybrid | Online Preferred | Needs | Verified |
 |---|---|---|---|---|---|
-| Typed deterministic commands (70) | ✅ | ✅ | ✅ | nothing | ✅ e2e |
+| Typed deterministic commands (87) | ✅ | ✅ | ✅ | nothing | ✅ e2e |
+| Open any Start-menu app by name | ✅ | ✅ | ✅ | nothing (read at launch) | ✅ e2e (119 apps found) |
+| 760 websites by name, with "Chrome or Edge?" and a remembered choice | opens the browser* | ✅ | ✅ | a browser | ✅ unit + e2e |
+| Search inside 68 sites (YouTube, Amazon, Wikipedia…) | opens the browser* | ✅ | ✅ | a browser | ✅ unit |
+| 118 Settings pages, 52 Windows tools, 31 special folders | ✅ | ✅ | ✅ | nothing | ✅ unit (fixed targets) |
+| World clock (307 places), dice, coin, random numbers, days until | ✅ | ✅ | ✅ | nothing | ✅ unit + e2e |
+| Currency conversion (28 currencies) | ❌ blocked | ✅ | ✅ | network (ECB rates via Frankfurter) | unit (mocked HTTP) |
+| Self-test | ✅ | ✅ | ✅ | nothing | ✅ e2e (7/7) |
+| Always-listening switch | ✅ | ✅ | ✅ | speech service | ✅ e2e |
 | Wake phrases | ✅ | ✅ | ✅ | speech service + Vosk model | ✅ recorded speech |
 | Speech recognition | ✅ (Vosk) | ✅ (Vosk) | ✅ (Vosk) | speech service + model | ✅ recorded speech |
 | Speech output, Windows voice | ✅ | ✅ | ✅ | an installed Windows voice | ✅ played |
