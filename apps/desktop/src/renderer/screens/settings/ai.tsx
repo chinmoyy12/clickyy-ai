@@ -109,11 +109,11 @@ export function AiSection({ s, update }: { s: Settings; update: Update }) {
         <Row label="Base URL" hint={s.ai.cloud.provider === 'openai_compatible' ? 'Required, e.g. https://api.example.com/v1 (https only).' : `Optional override. Default: ${preset.baseUrl || 'official API'}`}>
           <div className="flex gap-1"><TextInput label="Base URL" value={baseUrl} onChange={setBaseUrl} placeholder={preset.baseUrl || 'official API'} className="w-48" /><Button onClick={() => void update({ ai: { cloud: { baseUrl } } })} disabled={baseUrl === s.ai.cloud.baseUrl}>Save</Button></div>
         </Row>
-        <Row label="Fallback provider" hint="Tried automatically if the primary fails (rate limit, outage, bad key).">
+        <Row label="Fallback provider" hint="Tried automatically if the primary fails (rate limit, outage, bad key). Can be the same provider with a lighter model, e.g. Gemini Flash-Lite.">
           <div className="flex items-center gap-2">
             {s.ai.cloud.fallbackProvider !== 'none' && keyBadge(s.ai.cloud.fallbackProvider as CloudProviderId)}
-            <Select label="Fallback provider" value={s.ai.cloud.fallbackProvider} onChange={(v) => void update({ ai: { cloud: { fallbackProvider: v, fallbackModel: v === 'none' ? '' : PROVIDER_PRESETS[v as CloudProviderId].defaultModel } } })}
-              options={[{ value: 'none', label: 'None' }, ...providerOptions.filter((o) => o.value !== s.ai.cloud.provider)]} />
+            <Select label="Fallback provider" value={s.ai.cloud.fallbackProvider} onChange={(v) => void update({ ai: { cloud: { fallbackProvider: v, fallbackModel: v === 'none' ? '' : v === 'gemini' && s.ai.cloud.provider === 'gemini' ? 'gemini-3.5-flash-lite' : PROVIDER_PRESETS[v as CloudProviderId].defaultModel } } })}
+              options={[{ value: 'none', label: 'None' }, ...providerOptions.map((o) => (o.value === s.ai.cloud.provider ? { ...o, label: `${o.label} (another model)` } : o))]} />
           </div>
         </Row>
         {s.ai.cloud.fallbackProvider !== 'none' && (
@@ -143,7 +143,9 @@ export function CredentialsSection({ s }: { s: Settings }) {
     try {
       await call('secrets:set', { provider, key: keys[provider] ?? '' });
       setKeys((k) => ({ ...k, [provider]: '' }));
-      notify('info', `${PROVIDER_PRESETS[provider].label} key saved securely.`);
+      notify(s.ai.allowCloudTranscripts ? 'info' : 'warn', s.ai.allowCloudTranscripts
+        ? `${PROVIDER_PRESETS[provider].label} key saved securely.`
+        : `${PROVIDER_PRESETS[provider].label} key saved. To use it, turn on "Allow sending conversation text to the cloud" in AI settings.`);
       await refresh();
     } catch (e) {
       notify('error', (e as Error).message);

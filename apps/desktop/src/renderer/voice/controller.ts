@@ -1,5 +1,6 @@
 import type { Settings } from '@shared/settings';
 import type { AssistantReply, SpeechEvent } from '@shared/types';
+import { isBargeIn, stripEcho } from './echo';
 
 export interface VoiceDeps {
   settings(): Settings;
@@ -33,6 +34,10 @@ export class VoiceController {
   private conversation = false;
   private busy: Promise<void> = Promise.resolve();
   private loudFrames = 0;
+  /** A recognition session is running during speech to catch interruptions (barge-in). */
+  private bargeSession = false;
+  /** What Clickyy is (or was just) saying, to filter its own echo out of what the mic hears. */
+  private echoRef = '';
 
   /** Barge-in threshold on the normalized mic level (0..1) and frames (100 ms each) of sustained voice. */
   static readonly BARGE_LEVEL = 0.32;
@@ -75,6 +80,8 @@ export class VoiceController {
   private async rest() {
     this.clearTimer();
     this.followUp = false;
+    this.echoRef = '';
+    this.bargeSession = false;
     this.d.onPartial('');
     if (this.wantsWake()) {
       await this.d.micStart();
@@ -95,6 +102,10 @@ export class VoiceController {
     await this.d.startSession('command');
     this.state = 'command';
     this.d.onListening('command');
+    this.armCommandTimer(timeoutMs);
+  }
+
+  private armCommandTimer(timeoutMs: number) {
     this.clearTimer();
     this.timer = setTimeout(() => void this.run(async () => {
       if (this.state !== 'command') return;
@@ -176,21 +187,30 @@ export class VoiceController {
           await this.listenForCommand(this.d.settings().listening.commandTimeoutMs);
         });
       case 'partial':
-        if (this.state === 'command') this.d.onPartial(ev.text);
+        if (this.state === 'command') this.d.onPartial(this.echoRef ? stripEcho(ev.text, this.echoRef) : ev.text);
+        else if (this.state === 'speaking' && this.bargeSession && isBargeIn(ev.text, this.echoRef, false)) {
+          // The user started talking over the reply: stop speaking and keep this same session
+          // running as their command, so the first words aren't lost.
+          this.interruptSpeech();
+          this.d.onPartial(stripEcho(ev.text, this.echoRef));
+        }
         return;
       case 'final':
+        if (this.state === 'speaking' && this.bargeSession) {
+          if (isBargeIn(ev.text, this.echoRef, true)) {
+            const text = stripEcho(ev.text, this.echoRef);
+            this.interruptSpeech();
+            return this.run(() => this.submitCommand(text));
+          }
+          this.restartBargeSession(); // only our own voice was heard: keep listening for the user
+          return;
+        }
         return this.run(async () => {
           if (this.state !== 'command') return;
-          this.clearTimer();
-          await this.d.cancelSession();
-          this.d.onPartial('');
-          this.state = 'submitting';
-          this.d.onListening('off');
-          if (!this.wantsWake()) this.d.micStop();
-          const reply = await this.d.submit(ev.text);
-          await this.afterReply(reply);
+          await this.submitCommand(this.echoRef ? stripEcho(ev.text, this.echoRef) : ev.text);
         });
       case 'silence':
+        if (this.state === 'speaking' && this.bargeSession) { this.restartBargeSession(); return; }
         return this.run(async () => {
           if (this.state !== 'command') return;
           // An empty follow-up window ends the conversation quietly.
@@ -199,6 +219,7 @@ export class VoiceController {
           await this.rest();
         });
       case 'error':
+        if (this.state === 'speaking' && this.bargeSession) { this.bargeSession = false; return; } // fall back to loudness barge-in
         return this.run(async () => {
           this.d.onError(ev.message);
           this.conversation = false;
@@ -209,12 +230,45 @@ export class VoiceController {
     }
   }
 
+  private async submitCommand(text: string) {
+    if (this.state !== 'command') return;
+    this.clearTimer();
+    this.echoRef = '';
+    await this.d.cancelSession();
+    this.d.onPartial('');
+    this.state = 'submitting';
+    this.d.onListening('off');
+    if (!this.wantsWake()) this.d.micStop();
+    const reply = await this.d.submit(text);
+    await this.afterReply(reply);
+  }
+
+  /**
+   * Synchronous on purpose: afterReply() is awaiting speak() inside the serialized chain, so
+   * the state must change before speech stops for it to see the interruption.
+   */
+  private interruptSpeech() {
+    this.bargeSession = false;
+    this.loudFrames = 0;
+    this.state = 'command';
+    this.d.stopSpeaking();
+    this.d.onListening('command');
+    this.armCommandTimer(this.d.settings().listening.commandTimeoutMs);
+  }
+
+  private restartBargeSession() {
+    void this.d.startSession('command').catch(() => { this.bargeSession = false; }).then(() => {
+      // Speech may have ended (or been interrupted) while the session was restarting.
+      if (this.state !== 'speaking' && this.state !== 'command') void this.d.cancelSession();
+    });
+  }
+
   /**
    * Mic level while Clickyy is speaking. Sustained voice (echo-cancelled) interrupts the
-   * reply and starts listening — natural "barge-in" without saying the wake phrase.
+   * reply and starts listening. Only used when the speech-aware barge-in session couldn't start.
    */
   voiceLevel(level: number) {
-    if (this.state !== 'speaking' || this.muted || !this.d.settings().listening.bargeIn) {
+    if (this.state !== 'speaking' || this.muted || this.bargeSession || !this.d.settings().listening.bargeIn) {
       this.loudFrames = 0;
       return;
     }
@@ -235,14 +289,26 @@ export class VoiceController {
     if (reply.speech && this.d.settings().speech.ttsEngine !== 'off') {
       this.state = 'speaking';
       this.loudFrames = 0;
-      if (this.d.settings().listening.bargeIn && !this.muted) await this.d.micStart().catch(() => {});
-      if (this.wantsWake() && this.d.settings().listening.interruption === 'stop') {
-        // Keep wake detection running during speech so "Jarvis…" can interrupt.
+      this.echoRef = reply.speech;
+      this.bargeSession = false;
+      const ls = this.d.settings().listening;
+      if (ls.bargeIn && !this.muted) {
+        await this.d.micStart().catch(() => {});
+        // Listen while speaking: the user can talk over the reply and be understood.
+        this.bargeSession = await this.d.startSession('command').then(() => true, () => false);
+        if (this.bargeSession) this.d.onListening('wake');
+      }
+      if (!this.bargeSession && this.wantsWake() && ls.interruption === 'stop') {
+        // Keep wake detection running during speech so "Clicky…" can interrupt.
         await this.d.startSession('wake');
         this.d.onListening('wake');
       }
       await this.d.speak(reply);
       if (this.state !== 'speaking') return; // interrupted
+      if (this.bargeSession) {
+        this.bargeSession = false;
+        await this.d.cancelSession();
+      }
     }
     const s = this.d.settings();
     const endConvo = /^(okay\. call me|talk soon|alright, i'll be here|okay\.$|standing by)/i.test(reply.text);

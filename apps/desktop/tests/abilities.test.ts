@@ -54,7 +54,10 @@ describe('websites and browser choice', () => {
   });
   it('searches inside sites', () => {
     const c = ctx({ browser: 'default' });
-    expect(first('play lofi beats on youtube', c)?.resolution).toEqual({ kind: 'tool', tool: 'web.search_site', args: { site: 'YouTube', query: 'lofi beats' } });
+    // "play" starts the top result rather than showing a results page.
+    expect(first('play lofi beats on youtube', c)?.resolution).toEqual({ kind: 'tool', tool: 'music.play', args: { query: 'lofi beats', service: 'youtube' } });
+    expect(first('watch cooking videos on youtube', c)?.resolution).toMatchObject({ tool: 'music.play', args: { service: 'youtube' } });
+    expect(first('search youtube for lofi beats', c)?.resolution).toMatchObject({ tool: 'web.search_site', args: { site: 'YouTube', query: 'lofi beats' } });
     expect(first('search amazon for wireless earbuds', c)?.resolution).toMatchObject({ args: { site: 'Amazon', query: 'wireless earbuds' } });
     expect(first('search arijit singh on yt music', c)?.resolution).toMatchObject({ args: { site: 'YouTube Music', query: 'arijit singh' } });
     expect(first('play lofi on spotify', c)?.commandId).toBe('media.spotify');

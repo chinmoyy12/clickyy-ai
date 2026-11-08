@@ -212,7 +212,7 @@ export function ListeningSection({ s, update }: P) {
         <Row label="Follow-up window" hint="How long to keep listening after a reply that expects an answer. 0 disables."><Slider label="Follow-up timeout" value={s.listening.followUpMs / 1000} min={0} max={30} step={1} onChange={(v) => void update({ listening: { followUpMs: v * 1000 } })} format={(v) => `${v}s`} /></Row>
         <Row label="Max command length"><Slider label="Command timeout" value={s.listening.commandTimeoutMs / 1000} min={2} max={30} step={1} onChange={(v) => void update({ listening: { commandTimeoutMs: v * 1000 } })} format={(v) => `${v}s`} /></Row>
         <Row label="Interrupt by wake phrase" hint="While speaking, saying the wake phrase stops speech and listens."><Toggle label="Interruptions" checked={s.listening.interruption === 'stop'} onChange={(v) => void update({ listening: { interruption: v ? 'stop' : 'ignore' } })} /></Row>
-        <Row label="Interrupt just by talking" hint="Keeps the microphone open while Clickyy speaks (echo-cancelled). Start talking and it stops to listen. Works best with headphones.">
+        <Row label="Interrupt just by talking" hint="Keeps listening while Clickyy speaks. Say anything (or “stop”, “wait”, “Clicky”, “ruko”) and it stops and does what you said. Its own voice is filtered out by comparing words, so it works on speakers too; headphones are most reliable.">
           <Toggle label="Barge-in" checked={s.listening.bargeIn} onChange={(v) => void update({ listening: { bargeIn: v } })} />
         </Row>
       </Section>

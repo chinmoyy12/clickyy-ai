@@ -171,7 +171,7 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Using a song as an alarm (explains the limit and offers a reminder). | “set kesariya as my morning wake-up alarm audio” | built-in | — | — | — |
 | Find the acoustic, live, unplugged or remix version of a song. | “find the acoustic or unplugged version of alfaaz”<br>“play the live version of yellow” | `music.play` | L1 low | media | no |
 | Play an artist: their songs, latest album, top hits or a radio station. | “play songs by arijit singh”<br>“play the latest album by coldplay”<br>“play the top 10 hits of the weeknd”<br>“start an endless radio station based on a.r. rahman” | `music.play` | L1 low | media | no |
-| Play a specific song on Spotify (or YouTube Music when Spotify isn't installed). | “play the song kesariya”<br>“play the song blinding lights on spotify” | `music.play` | L1 low | media | no |
+| Play a specific song right away (YouTube Music by default; Spotify opens a search). | “play the song kesariya”<br>“play the song blinding lights on spotify” | `music.play` | L1 low | media | no |
 | What's currently playing. | “what's playing”<br>“what song is this” | `media.now_playing` | L1 low | media | no |
 | Pause playback. | “pause the music”<br>“pause” | `media.control` | L1 low | media | no |
 | Resume playback. | “resume playback”<br>“play music”<br>“continue the song” | `media.control` | L1 low | media | no |
@@ -409,7 +409,7 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `reminders.before` | Add an early warning a number of minutes before a scheduled reminder. | L1 low | — | 2s | yes |
 | `message.email` | Open a new email draft in your mail app with the subject and text filled in. You review it and press Send yourself. | L1 low | web | 8s | yes |
 | `message.whatsapp` | Open WhatsApp (the app if installed, otherwise WhatsApp Web) with a message ready. You choose the contact if no phone number is given, and press Send yourself. | L1 low | web | 8s | no |
-| `music.play` | Find a song, artist, album, radio station or version on Spotify (if installed) or YouTube Music. | L1 low | media | 8s | no |
+| `music.play` | Play a song, artist, album, mood or video right away: finds the top match and starts it on YouTube Music (or YouTube for videos). Spotify opens a search, because Spotify does not let other apps start a song. | L1 low | media | 12s | no |
 | `media.play_local` | Make a playlist of the music files in your Music folder (optionally only those whose file or folder name mentions an artist or words), shuffled if asked, and play it in your default music player. | L1 low | media | 30s | yes |
 | `media.stop_after` | Pause playback when the current track finishes (needs a player that shares its progress with Windows, like Spotify or a browser). | L1 low | media | 8s | yes |
 | `media.pause_in` | Pause playback after a number of minutes (a sleep timer for music). | L1 low | media | 3s | yes |

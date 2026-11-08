@@ -146,10 +146,10 @@ describe('provider presets and fallback chain', () => {
     const secrets = new MemorySecretStore();
     secrets.set('gemini', 'g-key');
     secrets.set('groq', 'q-key');
-    let settings = mergeSettings(defaultSettings(), { ai: { policy: 'online_preferred', allowCloudTranscripts: true, cloud: { provider: 'gemini', model: 'gemini-2.5-flash', fallbackProvider: 'groq' } } });
+    let settings = mergeSettings(defaultSettings(), { ai: { policy: 'online_preferred', allowCloudTranscripts: true, cloud: { provider: 'gemini', model: 'gemini-3.5-flash', fallbackProvider: 'groq' } } });
     const pm = new ProviderManager(() => settings, secrets, new NetGuard(() => settings.ai.policy), () => true);
     expect(pm.clouds().map((p) => p.id)).toEqual(['gemini', 'groq']);
-    expect(pm.candidates().map((p) => p.label)).toEqual(['Google Gemini · gemini-2.5-flash', 'Groq · llama-3.3-70b-versatile']);
+    expect(pm.candidates().map((p) => p.label)).toEqual(['Google Gemini · gemini-3.5-flash', 'Groq · llama-3.3-70b-versatile']);
     settings = mergeSettings(settings, { ai: { cloud: { fallbackProvider: 'openai' } } });
     expect(pm.clouds().map((p) => p.id)).toEqual(['gemini']); // no OpenAI key → skipped
     settings = mergeSettings(settings, { ai: { policy: 'strict_offline' } });

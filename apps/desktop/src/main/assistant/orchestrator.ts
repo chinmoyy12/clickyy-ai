@@ -141,6 +141,12 @@ export class Assistant {
 
     if (routed.kind === 'routine') return this.runRoutine(routed.routine, ctx, turnId);
 
+    // A command keyword inside a request that needs reasoning: let a cloud model answer it with tools.
+    if (routed.kind === 'commands' && routed.preferModel && (await this.usableProviders()).some((p) => p.kind === 'cloud')) {
+      const hint = routed.steps.flatMap((st) => (st.resolution.kind === 'tool' ? [st.resolution.tool] : []));
+      return this.converse(text, source, ctx, turnId, hint);
+    }
+
     if (routed.kind === 'commands') {
       const outputs: Outcome[] = [];
       for (const step of routed.steps) {
@@ -625,7 +631,8 @@ export class Assistant {
     }
   }
 
-  private async converse(text: string, source: 'text' | 'voice', ctx: ToolContext, turnId: string): Promise<Outcome> {
+  /** @param hintTools registry tool names the router already matched; always offered to the model. */
+  private async converse(text: string, source: 'text' | 'voice', ctx: ToolContext, turnId: string, hintTools: string[] = []): Promise<Outcome> {
     const s = this.d.settings();
     const providers = await this.usableProviders();
     if (!providers.length) return this.noModel(text);
@@ -647,6 +654,8 @@ export class Assistant {
         // Tools already called earlier in the kept context must stay defined (some APIs reject the history otherwise).
         const used = new Set(this.items.flatMap((i) => (i.role === 'assistant' ? (i.toolCalls ?? []).map((c) => c.name) : [])));
         if (provider.kind === 'cloud' && used.size) offered = [...offered, ...tools.filter((t) => used.has(t.name) && !offered.includes(t))];
+        const hinted = new Set(hintTools.map((n) => n.replace('.', '__')));
+        if (hinted.size) offered = [...offered, ...tools.filter((t) => hinted.has(t.name) && !offered.includes(t))];
         const out = await this.llmLoop(provider, system, offered, ctx, turnId);
         this.d.providers.reportSuccess(provider.id);
         return out;

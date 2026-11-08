@@ -301,6 +301,18 @@ describe('advanced skills', () => {
     expect(r.text).toMatch(/CPU at \d+ percent, memory at \d+ percent\./);
     expect(r.text).toMatch(/Battery is at 81 percent/);
   });
+  it('a request that needs reasoning goes to the cloud model, which is offered the matched tool', async () => {
+    const cloud = new MockProvider('gemini', 'cloud', [{ text: 'Ninety-nine percent, nothing to worry about.', toolCalls: [], stop: 'end' }]);
+    const t = await make([cloud]);
+    const r = await t.assistant.submit('Write me a tiny haiku whose numbers come from my real battery percentage, check them first.', 'text');
+    expect(r.text).toBe('Ninety-nine percent, nothing to worry about.');
+    expect(cloud.calls[0].tools.map((x) => x.name)).toContain('system__diagnostic');
+  });
+  it('without a cloud model the same request still runs the command', async () => {
+    const t = await make([]);
+    const r = await t.assistant.submit('Write me a tiny haiku whose numbers come from my real battery percentage, check them first.', 'text');
+    expect(r.text).toMatch(/Battery is at 81 percent/);
+  });
   it('screen questions capture once (after confirmation) and send the image to the model', async () => {
     const vision = new MockProvider('anthropic', 'cloud', [{ text: 'You have a TypeScript error on line 12.', toolCalls: [], stop: 'end' }]);
     const t = await make([vision], { tools: { permissions: { screen: true } } });

@@ -5,16 +5,17 @@ import type { AssistantReply } from '../src/shared/types';
 
 const tick = () => new Promise((r) => setTimeout(r, 5));
 
-function harness(patch: DeepPartial<Settings> = {}, replyFor: (t: string) => Partial<AssistantReply> = () => ({})) {
+function harness(patch: DeepPartial<Settings> = {}, replyFor: (t: string) => Partial<AssistantReply> = () => ({}), opts: { sessionFailsWhileSpeaking?: boolean } = {}) {
   // Tests start from push-to-talk with wake off and opt in per test.
-  const settings = mergeSettings(mergeSettings(defaultSettings(), { listening: { mode: 'push_to_talk' }, wake: { enabled: false } }), patch);
+  const settings = mergeSettings(mergeSettings(defaultSettings(), { listening: { mode: 'push_to_talk', bargeIn: false }, wake: { enabled: false } }), patch);
   const log: string[] = [];
   let speaking = false;
   let micOn = false;
   let resolveSpeech: (() => void) | null = null;
+  let failed = false;
   const deps: VoiceDeps = {
     settings: () => settings,
-    startSession: async (m) => { log.push(`start:${m}`); },
+    startSession: async (m) => { if (opts.sessionFailsWhileSpeaking && m === 'command' && !failed) { failed = true; throw new Error('not ready'); } log.push(`start:${m}`); },
     stopSession: async () => { log.push('stop'); },
     cancelSession: async () => { log.push('cancel'); },
     micStart: async () => { micOn = true; },
@@ -25,7 +26,7 @@ function harness(patch: DeepPartial<Settings> = {}, replyFor: (t: string) => Par
     isSpeaking: () => speaking,
     chime: (k) => log.push(`chime:${k}`),
     onListening: (s) => log.push(`listening:${s}`),
-    onPartial: () => {},
+    onPartial: (t) => { if (t) log.push(`partial:${t}`); },
     onError: (m) => log.push(`error:${m}`),
   };
   const vc = new VoiceController(deps);
@@ -130,8 +131,8 @@ describe('voice controller', () => {
     expect(h.log).toContain('cancel');
   });
 
-  it('barge-in: sustained voice while speaking interrupts and starts listening', async () => {
-    const h = harness({ listening: { bargeIn: true } });
+  it('barge-in fallback: sustained voice interrupts when the speech session is unavailable', async () => {
+    const h = harness({ listening: { bargeIn: true } }, undefined, { sessionFailsWhileSpeaking: true });
     void h.vc.afterReply({ turnId: 't', text: 'long answer', speech: 'long answer', style: 'neutral', source: 'deterministic', expectFollowUp: false });
     await tick();
     expect(h.vc.current).toBe('speaking');
@@ -146,13 +147,90 @@ describe('voice controller', () => {
     expect(h.vc.current).toBe('command');
   });
 
-  it('barge-in is off by default and never fires when muted', async () => {
+  it('barge-in never fires when turned off', async () => {
     const h = harness();
     void h.vc.afterReply({ turnId: 't', text: 'x', speech: 'x', style: 'neutral', source: 'deterministic', expectFollowUp: false });
     await tick();
     for (let i = 0; i < 5; i++) h.vc.voiceLevel(0.9);
     expect(h.vc.current).toBe('speaking');
     expect(h.mic()).toBe(false);
+  });
+
+  describe('speech-aware barge-in', () => {
+    const reply = (speech: string): AssistantReply => ({ turnId: 't', text: speech, speech, style: 'neutral', source: 'deterministic', expectFollowUp: false });
+
+    it('is on by default', () => {
+      expect(defaultSettings().listening.bargeIn).toBe(true);
+    });
+
+    it('keeps a recognition session running while speaking', async () => {
+      const h = harness({ listening: { bargeIn: true } });
+      void h.vc.afterReply(reply('The capital of Japan is Tokyo, a city of fourteen million people.'));
+      await tick();
+      expect(h.vc.current).toBe('speaking');
+      expect(h.log).toContain('start:command');
+      expect(h.mic()).toBe(true);
+    });
+
+    it('talking over the reply stops it and the same words become the command', async () => {
+      const h = harness({ listening: { bargeIn: true } });
+      void h.vc.afterReply(reply('Here is a long story about the history of the Roman empire and its emperors.'));
+      await tick();
+      void h.vc.handleSpeech({ type: 'partial', text: 'play kesariya on youtube' });
+      expect(h.log).toContain('stopSpeaking');
+      expect(h.vc.current).toBe('command');
+      const done = h.vc.handleSpeech({ type: 'final', text: 'play kesariya on youtube', confidence: 0.9 });
+      await tick();
+      expect(h.log).toContain('submit:play kesariya on youtube');
+      h.finishSpeech();
+      await done;
+    });
+
+    it('"stop" interrupts at once', async () => {
+      const h = harness({ listening: { bargeIn: true } });
+      void h.vc.afterReply(reply('Here is a long story about the history of the Roman empire.'));
+      await tick();
+      void h.vc.handleSpeech({ type: 'partial', text: 'stop' });
+      expect(h.log).toContain('stopSpeaking');
+      expect(h.vc.current).toBe('command');
+    });
+
+    it('ignores its own voice leaking into the microphone and keeps listening', async () => {
+      const h = harness({ listening: { bargeIn: true } });
+      void h.vc.afterReply(reply('The capital of Japan is Tokyo, a city of fourteen million people.'));
+      await tick();
+      void h.vc.handleSpeech({ type: 'partial', text: 'the capital of japan is' });
+      expect(h.vc.current).toBe('speaking');
+      void h.vc.handleSpeech({ type: 'final', text: 'the capital of japan is tokyo', confidence: 0.8 });
+      await tick();
+      expect(h.vc.current).toBe('speaking');
+      expect(h.log).not.toContain('stopSpeaking');
+      expect(h.log.filter((l) => l === 'start:command').length).toBe(2); // restarted after the echo
+      void h.vc.handleSpeech({ type: 'silence' });
+      await tick();
+      expect(h.log.filter((l) => l === 'start:command').length).toBe(3);
+    });
+
+    it('a final heard during speech is submitted without its echoed lead-in', async () => {
+      const h = harness({ listening: { bargeIn: true } });
+      void h.vc.afterReply(reply('The capital of Japan is Tokyo.'));
+      await tick();
+      const done = h.vc.handleSpeech({ type: 'final', text: 'the capital of open notepad', confidence: 0.8 });
+      await tick();
+      expect(h.log).toContain('submit:open notepad');
+      h.finishSpeech();
+      await done;
+    });
+
+    it('closes the barge-in session when the reply finishes uninterrupted', async () => {
+      const h = harness({ listening: { bargeIn: true } });
+      const p = h.vc.afterReply(reply('Done.'));
+      await tick();
+      h.finishSpeech();
+      await p;
+      expect(h.log).toContain('cancel');
+      expect(h.vc.current).toBe('resting');
+    });
   });
 
   it('command timeout flushes and returns to rest', async () => {

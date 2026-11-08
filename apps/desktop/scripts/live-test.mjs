@@ -62,7 +62,7 @@ try {
     await invoke('settings:update', { ai: { policy: 'online_preferred', allowCloudTranscripts: true, cloud: { provider, baseUrl: '', fallbackProvider: 'none', fallbackToLocal: false } } });
     const models = await invoke('providers:models', { provider });
     record(`${provider}: live model list`, models.length > 0, `${models.length} models`);
-    const wanted = arg('model') ?? ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'].find((m) => models.includes(m)) ?? models.find((m) => /flash/.test(m)) ?? models[0];
+    const wanted = arg('model') ?? ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'].find((m) => models.includes(m)) ?? models.find((m) => /flash/.test(m)) ?? models[0];
     await invoke('settings:update', { ai: { cloud: { model: wanted } } });
     const test = await invoke('providers:test', { target: 'cloud' });
     record(`${provider}: key + model check (${wanted})`, test.ok, test.message ?? 'ok');

@@ -44,7 +44,7 @@ export const SettingsSchema = z.object({
     commandTimeoutMs: z.number().int().min(2000).max(30000).default(9000),
     interruption: z.enum(['stop', 'ignore']).default('stop'),
     /** Interrupt Clickyy just by starting to talk while it speaks (keeps the mic open during replies). */
-    bargeIn: z.boolean().default(false),
+    bargeIn: z.boolean().default(true),
   }).prefault({}),
   speech: z.object({
     sttEngine: z.enum(['vosk']).default('vosk'),
@@ -117,6 +117,8 @@ export const SettingsSchema = z.object({
     searchEngine: z.enum(['duckduckgo', 'bing', 'google']).default('duckduckgo'),
     /** Browser for websites. 'ask' asks once per site when more than one browser is installed. */
     browser: z.enum(['ask', 'default', 'chrome', 'edge', 'firefox', 'brave', 'opera']).default('ask'),
+    /** Where "play X" plays. YouTube Music and YouTube start the song; Spotify can only open a search. */
+    musicService: z.enum(['youtube_music', 'youtube', 'spotify']).default('youtube_music'),
   }).prefault({}),
   proactive: z.object({
     /** Speak up on its own when something needs attention. */

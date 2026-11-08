@@ -21,7 +21,7 @@ export function installedBrowsers(apps: Array<{ name: string; enabled: boolean; 
 /** Opens a validated https URL, in a specific browser when asked (and installed), else the default one. */
 const PRIVATE_FLAG: Record<Exclude<BrowserId, 'default'>, string> = { chrome: '--incognito', edge: '--inprivate', firefox: '-private-window', brave: '--incognito', opera: '--private' };
 
-async function openUrl(url: string, browser: BrowserId | undefined, ctx: ToolContext, privateWindow = false): Promise<string> {
+export async function openUrl(url: string, browser: BrowserId | undefined, ctx: ToolContext, privateWindow = false): Promise<string> {
   if (privateWindow && (!browser || browser === 'default')) browser = installedBrowsers(ctx.repos.apps.list())[0];
   if (privateWindow && !browser) throw new Error("I couldn't find an installed browser to open a private window in.");
   if (browser && browser !== 'default') {

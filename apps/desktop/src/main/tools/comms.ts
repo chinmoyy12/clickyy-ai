@@ -4,11 +4,34 @@ import { defineTool, type ToolDef } from './types';
 import { outputDir, userFolder, writeNew } from './output';
 import { scanFiles } from './filesplus';
 import { spokenDuration } from './productivity';
+import { openUrl } from './web';
 
 const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i;
 const PHONE_RE = /^\+?[0-9]{8,15}$/;
 
 let stopAfterTimer: NodeJS.Timeout | null = null;
+
+/**
+ * Finds the top YouTube video for a search by reading the public results page (no API key needed).
+ * The page is untrusted data: only an 11-character video id and a short plain-text title are taken from it.
+ */
+export async function findYouTubeVideo(query: string, net: typeof fetch, signal?: AbortSignal): Promise<{ id: string; title: string } | null> {
+  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=EgIQAQ%253D%253D`; // videos only
+  const timeout = AbortSignal.timeout(6000);
+  const r = await net(url, { headers: { 'accept-language': 'en-US,en;q=0.9', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36' }, signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
+  if (!r.ok) return null;
+  return parseYouTubeResults((await r.text()).slice(0, 3_000_000));
+}
+
+export function parseYouTubeResults(html: string): { id: string; title: string } | null {
+  const m = /"videoRenderer":\{"videoId":"([\w-]{11})"/.exec(html) ?? /"videoId":"([\w-]{11})"/.exec(html);
+  if (!m) return null;
+  const after = html.slice(m.index, m.index + 4000);
+  const t = /"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.){1,200})"/.exec(after);
+  let title = '';
+  if (t) { try { title = JSON.parse(`"${t[1]}"`) as string; } catch { title = ''; } }
+  return { id: m[1], title: title.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 120) };
+}
 
 export const commsTools: ToolDef[] = [
   defineTool({
@@ -38,18 +61,32 @@ export const commsTools: ToolDef[] = [
     },
   }),
   defineTool({
-    name: 'music.play', title: 'Play music', description: 'Find a song, artist, album, radio station or version on Spotify (if installed) or YouTube Music.', category: 'Media', risk: 1, permission: 'media',
-    input: z.object({ query: z.string().trim().min(1).max(160), service: z.enum(['auto', 'spotify', 'youtube_music']).default('auto'), hint: z.string().max(200).optional() }).strict(), confirm: 'never', timeoutMs: 8000, offline: false,
-    describe: ({ query, service }) => `Find ${query} on ${service === 'youtube_music' ? 'YouTube Music' : service === 'spotify' ? 'Spotify' : 'your music app'}`,
+    name: 'music.play', title: 'Play music', description: 'Play a song, artist, album, mood or video right away: finds the top match and starts it on YouTube Music (or YouTube for videos). Spotify opens a search, because Spotify does not let other apps start a song.', category: 'Media', risk: 1, permission: 'media',
+    input: z.object({ query: z.string().trim().min(1).max(160), service: z.enum(['auto', 'spotify', 'youtube_music', 'youtube']).default('auto'), hint: z.string().max(200).optional() }).strict(), confirm: 'never', timeoutMs: 12000, offline: false,
+    describe: ({ query, service }) => `Play ${query} on ${service === 'spotify' ? 'Spotify' : service === 'youtube' ? 'YouTube' : 'YouTube Music'}`,
     async run({ query, service, hint }, ctx) {
-      const spotify = ctx.repos.apps.list().some((a) => a.enabled && /spotify/i.test(a.name));
-      if (service === 'spotify' || (service === 'auto' && spotify)) {
-        if (!spotify) return { ok: false, message: "Spotify isn't installed or isn't in your approved apps. Say \"on YouTube Music\" to use that instead." };
-        await ctx.platform.openExternal(`spotify:search:${encodeURIComponent(query)}`);
-        return { ok: true, message: `I opened ${query} in Spotify. ${hint ?? "Press play on the top result; Spotify doesn't let other apps start a specific song."}` };
+      const pref = service === 'auto' ? ctx.settings.tools.musicService : service;
+      const browser = ctx.settings.tools.browser === 'ask' ? undefined : ctx.settings.tools.browser;
+      if (pref === 'spotify') {
+        const spotify = ctx.repos.apps.list().some((a) => a.enabled && /spotify/i.test(a.name));
+        if (spotify) {
+          await ctx.platform.openExternal(`spotify:search:${encodeURIComponent(query)}`);
+          return { ok: true, message: `I opened ${query} in Spotify. ${hint ?? "Press play on the top result; Spotify doesn't let other apps start a specific song."}` };
+        }
+        if (service === 'spotify') return { ok: false, message: "Spotify isn't installed or isn't in your approved apps. Say \"on YouTube Music\" to use that instead." };
       }
-      await ctx.platform.openExternal(`https://music.youtube.com/search?q=${encodeURIComponent(query)}`);
-      return { ok: true, message: `I opened ${query} on YouTube Music. ${hint ?? 'Pick the top result to play it.'}` };
+      const video = await findYouTubeVideo(query, ctx.net, ctx.signal).catch(() => null);
+      const site = pref === 'youtube' ? 'YouTube' : 'YouTube Music';
+      if (video) {
+        const url = pref === 'youtube' ? `https://www.youtube.com/watch?v=${video.id}` : `https://music.youtube.com/watch?v=${video.id}`;
+        const where = await openUrl(url, browser, ctx);
+        const spoken = video.title.split(/\s+[|•]\s*|\s+\(|\s+\[/)[0].trim() || query;
+        return { ok: true, data: { url, title: video.title }, message: `Playing ${spoken} on ${site}${where}.${hint ? ` ${hint}` : ''}`, detail: `${video.title}\n${url}` };
+      }
+      // Lookup failed (offline, blocked, page changed): open the search so one click still plays it.
+      const url = pref === 'youtube' ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}` : `https://music.youtube.com/search?q=${encodeURIComponent(query)}`;
+      const where = await openUrl(url, browser, ctx);
+      return { ok: true, data: { url }, message: `I couldn't start it directly, so I opened ${query} on ${site}${where}. ${hint ?? 'Pick the top result to play it.'}` };
     },
   }),
   defineTool({

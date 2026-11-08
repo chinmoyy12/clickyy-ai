@@ -319,7 +319,7 @@ export const EXTENDED: CommandDef[] = [
       const what = /album/.test(text) ? 'latest album' : /\b(top|best|greatest)\b/.test(text) ? 'top hits' : /radio|station|mix/.test(text) ? 'radio' : 'songs';
       return tool('music.play', { query: `${artist} ${what}`, ...(svc ? { service: /spotify/.test(svc[1]) ? 'spotify' : 'youtube_music' } : {}) });
     } }),
-  cmd({ id: 'music.song', category: 'Media', tool: 'music.play', description: 'Play a specific song on Spotify (or YouTube Music when Spotify isn\'t installed).', examples: ['play the song kesariya', 'play the song blinding lights on spotify'],
+  cmd({ id: 'music.song', category: 'Media', tool: 'music.play', description: 'Play a specific song right away (YouTube Music by default; Spotify opens a search).', examples: ['play the song kesariya', 'play the song blinding lights on spotify'],
     patterns: [/^play (?:the )?(?:song|track) (.+?)(?:\s+on (spotify|youtube music|yt music))?$/, /^play (.+?) on (youtube music|yt music)$/],
     resolve: (m) => tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), ...(m[2] ? { service: m[2] === 'spotify' ? 'spotify' : 'youtube_music' } : {}) }) }),
 

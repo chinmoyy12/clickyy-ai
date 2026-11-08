@@ -226,6 +226,11 @@ export const CATALOG: CommandDef[] = [
       const [siteName, query] = firstForm ? [m[1], m[2]] : [m[2], m[1]];
       const site = findSearchSite(siteName);
       if (!site || !query.trim()) return null;
+      // "play X on youtube" starts the top result instead of showing a results page.
+      if (!firstForm && /^(?:play|watch|listen to|put on|stream) /.test(text)) {
+        const svc = /^youtube music$/i.test(site.name) ? 'youtube_music' : /^youtube$/i.test(site.name) ? 'youtube' : /^spotify( web)?$/i.test(site.name) ? 'spotify' : null;
+        if (svc) return tool('music.play', { query: query.trim().slice(0, 160), service: svc });
+      }
       return inBrowser('web.search_site', { site: site.name, query: query.trim() }, site.name, ctx, m[3] ? browserId(m[3]) : undefined);
     } }),
 

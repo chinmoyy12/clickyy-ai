@@ -1,5 +1,5 @@
 import type { Settings } from '@shared/settings';
-import { PROVIDER_PRESETS, resolveBaseUrl, type CloudProviderId } from '@shared/providers';
+import { CLOUD_PROVIDERS, PROVIDER_PRESETS, resolveBaseUrl, type CloudProviderId } from '@shared/providers';
 import type { ProviderStatus } from '@shared/types';
 import type { SecretStore } from '../security/secrets';
 import type { NetGuard } from '../security/netGuard';
@@ -24,6 +24,11 @@ export function orderProviders(settings: Settings, local: LlmProvider | null, cl
     case 'smart_hybrid': return [local, ...clouds].filter((p): p is LlmProvider => !!p);
     case 'online_preferred': return [...clouds, settings.ai.cloud.fallbackToLocal ? local : null].filter((p): p is LlmProvider => !!p);
   }
+}
+
+/** Same provider under a separate id, so the circuit breaker treats a same-provider fallback model on its own. */
+function withId(p: LlmProvider, id: string): LlmProvider {
+  return { id, kind: p.kind, label: p.label, model: p.model, check: (s) => p.check(s), chat: (r) => p.chat(r) };
 }
 
 function isLoopback(url: string): boolean {
@@ -60,7 +65,9 @@ export class ProviderManager {
     const key = this.secrets.get(provider);
     if (!key) return null;
     const isPrimary = provider === c.provider;
-    const chosenModel = model || (isPrimary ? c.model : '') || PROVIDER_PRESETS[provider].defaultModel;
+    let chosenModel = model || (isPrimary ? c.model : '') || PROVIDER_PRESETS[provider].defaultModel;
+    // Google retired Gemini 1.x/2.x for new keys ("no longer available to new users"); use the current default.
+    if (provider === 'gemini' && /^gemini-[12]\./.test(chosenModel)) chosenModel = PROVIDER_PRESETS.gemini.defaultModel;
     const fetchImpl = this.guard.fetchFor(`cloud:${provider}`);
     if (provider === 'anthropic') return new AnthropicProvider({ apiKey: key, model: chosenModel, baseUrl: isPrimary ? c.baseUrl : '', timeoutMs: c.timeoutMs, maxTokens: c.maxTokens, effort: c.effort, fetch: fetchImpl });
     const baseUrl = resolveBaseUrl(provider, isPrimary ? c.baseUrl : '');
@@ -72,14 +79,30 @@ export class ProviderManager {
     });
   }
 
+  /**
+   * The cloud provider actually used: the selected one, or — when it has no key — the first
+   * provider that does (a key saved for Gemini works even if Claude is still selected).
+   */
+  cloudId(): CloudProviderId {
+    const c = this.settings().ai.cloud;
+    if (this.secrets.has(c.provider)) return c.provider;
+    return CLOUD_PROVIDERS.find((p) => p !== 'openai_compatible' && this.secrets.has(p)) ?? c.provider;
+  }
+
   cloud(): LlmProvider | null {
-    return this.build(this.settings().ai.cloud.provider);
+    return this.build(this.cloudId());
   }
 
   clouds(): LlmProvider[] {
     const c = this.settings().ai.cloud;
-    const list = [this.cloud()];
-    if (c.fallbackProvider !== 'none' && c.fallbackProvider !== c.provider) list.push(this.build(c.fallbackProvider as CloudProviderId, c.fallbackModel));
+    const primary = this.cloudId();
+    const first = this.cloud();
+    const list = [first];
+    // The fallback may be another provider, or the same one with a different model (Gemini Flash → Flash-Lite).
+    if (c.fallbackProvider !== 'none' && (c.fallbackProvider !== primary || (c.fallbackModel && c.fallbackModel !== first?.model))) {
+      const fb = this.build(c.fallbackProvider as CloudProviderId, c.fallbackModel);
+      list.push(fb && fb.id === first?.id ? withId(fb, `${fb.id}:fallback`) : fb);
+    }
     return list.filter((p): p is LlmProvider => !!p);
   }
 
@@ -182,13 +205,16 @@ export class ProviderManager {
   status(): ProviderStatus {
     const s = this.settings();
     const cands = this.candidates();
+    const cid = this.cloudId();
+    const viaOther = cid !== s.ai.cloud.provider;
     return {
       policy: s.ai.policy,
       online: this.isOnline(),
       local: { configured: !!s.ai.local.model, ready: this.localReady, model: s.ai.local.model, models: this.localModels, message: this.localMessage },
       cloud: {
-        provider: PROVIDER_PRESETS[s.ai.cloud.provider].label, model: s.ai.cloud.model, hasKey: this.secrets.has(s.ai.cloud.provider),
-        allowed: s.ai.policy !== 'strict_offline' && s.ai.allowCloudTranscripts, message: this.cloudMessage,
+        provider: PROVIDER_PRESETS[cid].label, model: viaOther ? PROVIDER_PRESETS[cid].defaultModel : s.ai.cloud.model, hasKey: this.secrets.has(cid),
+        allowed: s.ai.policy !== 'strict_offline' && s.ai.allowCloudTranscripts,
+        message: this.cloudMessage ?? (viaOther ? `${PROVIDER_PRESETS[s.ai.cloud.provider].label} has no key, so ${PROVIDER_PRESETS[cid].label} is used.` : undefined),
       },
       keys: Object.fromEntries((Object.keys(PROVIDER_PRESETS) as CloudProviderId[]).map((p) => [p, this.secrets.has(p)])),
       active: cands[0]?.kind ?? 'none',

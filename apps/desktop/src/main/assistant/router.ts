@@ -6,7 +6,8 @@ import { hasDevanagari, understandHindi } from './hindi';
 export interface RoutedStep { commandId: string; resolution: Resolution; text: string }
 
 export type RouteResult =
-  | { kind: 'commands'; steps: RoutedStep[]; normalized: string }
+  /** `preferModel`: the request needs reasoning on top of a command; use the language model (with tools) when a capable one is available. */
+  | { kind: 'commands'; steps: RoutedStep[]; normalized: string; preferModel?: boolean }
   | { kind: 'routine'; routine: Routine; normalized: string }
   | { kind: 'none'; normalized: string };
 
@@ -67,14 +68,26 @@ export function route(raw: string, ctx: RouteCtx, routines: Routine[] = [], pend
     if (whole && def?.atomic) {
       const allReal = steps.every((s) => !!s && s.commandId !== 'conv.greeting' && s.resolution.kind !== 'clarify');
       const absorbed = def.absorbs === '*' || (!!def.absorbs && steps.every((s) => !s || (def.absorbs as string[]).includes(s.commandId)));
-      if (!allReal || absorbed || !steps.some((s) => s?.commandId === whole.commandId)) return { kind: 'commands', steps: [whole], normalized: text };
+      if (!allReal || absorbed || !steps.some((s) => s?.commandId === whole.commandId)) return { kind: 'commands', steps: [whole], normalized: text, ...(needsReasoning(text, whole) ? { preferModel: true } : {}) };
     }
     // Prefer the split when every clause is a real command and the whole wasn't a better single match.
     if (steps.every((s): s is RoutedStep => !!s && s.commandId !== 'conv.greeting') && (!whole || steps.length > 1)) {
       // Resolve "it" in later clauses to the app opened in an earlier clause ("open spotify and maximize it").
-      return { kind: 'commands', steps, normalized: text };
+      return { kind: 'commands', steps, normalized: text, ...(steps.every((s) => needsReasoning(text, s)) ? { preferModel: true } : {}) };
     }
   }
-  if (whole) return { kind: 'commands', steps: [whole], normalized: text };
+  if (whole) return { kind: 'commands', steps: [whole], normalized: text, ...(needsReasoning(text, whole) ? { preferModel: true } : {}) };
   return { kind: 'none', normalized: text };
+}
+
+/**
+ * A keyword matched a command, but the sentence asks for more than that command does: comparing,
+ * writing, explaining, judging ("compare my battery with my free memory", "write a haiku from my
+ * battery level"). Such requests are better answered by the model, which can still call the tool.
+ */
+const REASONING = /\b(?:compare|comparing|comparison|versus|which (?:one|1|is|looks)|write|haiku|poem|story|limerick|explain|why|summari[sz]e|analy[sz]e|advice|advise|should i|worr(?:y|ying|ied)|recommend|suggest|based on|then tell|and tell me|plan|after checking|check (?:them|both|it|those) first|in the style of|as a)\b/;
+export function needsReasoning(text: string, step: RoutedStep): boolean {
+  // Only plain tool calls: built-ins such as screen questions already involve the model in their own way.
+  if (step.resolution.kind !== 'tool' || /^(?:safety|conv|smarthome|email|calendar)\./.test(step.commandId)) return false;
+  return text.split(/\s+/).length >= 8 && REASONING.test(text);
 }

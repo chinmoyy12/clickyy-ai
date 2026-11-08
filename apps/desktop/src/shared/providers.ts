@@ -19,7 +19,7 @@ export interface ProviderPreset {
 export const PROVIDER_PRESETS: Record<CloudProviderId, ProviderPreset> = {
   anthropic: { label: 'Anthropic (Claude)', baseUrl: '', defaultModel: 'claude-opus-5-5', keyHint: 'sk-ant-…', docs: 'console.anthropic.com' },
   openai: { label: 'OpenAI (ChatGPT models)', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o-mini', keyHint: 'sk-…', docs: 'platform.openai.com', supportsTts: true },
-  gemini: { label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', defaultModel: 'gemini-2.5-flash', keyHint: 'AIza…', docs: 'aistudio.google.com' },
+  gemini: { label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', defaultModel: 'gemini-3.5-flash', keyHint: 'AIza…', docs: 'aistudio.google.com' },
   groq: { label: 'Groq (fast open models)', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile', keyHint: 'gsk_…', docs: 'console.groq.com' },
   openrouter: { label: 'OpenRouter (hundreds of models)', baseUrl: 'https://openrouter.ai/api/v1', defaultModel: 'openrouter/auto', keyHint: 'sk-or-…', docs: 'openrouter.ai' },
   mistral: { label: 'Mistral', baseUrl: 'https://api.mistral.ai/v1', defaultModel: 'mistral-small-latest', keyHint: 'key', docs: 'console.mistral.ai' },

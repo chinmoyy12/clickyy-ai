@@ -1,5 +1,6 @@
 export interface ToolSpec { name: string; description: string; parameters: Record<string, unknown> }
-export interface ToolCall { id: string; name: string; input: unknown }
+/** `extra`: provider-native data that must be echoed back with the call (Gemini 3 thought signatures). */
+export interface ToolCall { id: string; name: string; input: unknown; extra?: unknown }
 
 export type ConversationItem =
   /** `images`: base64 PNGs for vision-capable models (only sent when the user explicitly asked about the screen). */

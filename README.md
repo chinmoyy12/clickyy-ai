@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="tests" src="https://img.shields.io/badge/tests-1887%20TS%20%2B%2057%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-1936%20TS%20%2B%2057%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
   <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-72%2F72-8fcb9b?style=flat-square&labelColor=191b20" />
   <img alt="offline" src="https://img.shields.io/badge/voice-100%25%20offline-d4a373?style=flat-square&labelColor=191b20" />
   <img alt="platform" src="https://img.shields.io/badge/platform-Windows%2011-969aa3?style=flat-square&labelColor=191b20" />
@@ -25,6 +25,13 @@
 | **100% local**: **Ollama**, **LM Studio**, **llama.cpp**, **vLLM** | loopback only, works in Strict Offline mode |
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
+
+### ⚡ New in 0.6.0: it just does it
+
+- **Songs start playing.** "Play Kesariya" finds the top match and starts it on YouTube Music. You no longer land on a search page.
+- **Talk over it.** While Clickyy speaks, just start talking, or say "stop", "wait" or "ruko". It stops and does what you said. Its own voice is filtered out by comparing words, so this works on speakers too.
+- **Acts instead of describing.** The AI now follows a written workflow, documented in [docs/ASSISTANT_RULES.md](docs/ASSISTANT_RULES.md): decide, act, chain steps, check, then report in a sentence.
+- **Gemini works out of the box.** It uses current Gemini 3.5 models. A key for any provider is used even when another provider is selected, and Gemini 3 multi-step tool calls work.
 
 ### 🔍 New in 0.5.1: engineering audit
 

@@ -26,6 +26,8 @@ export class OpenAICompatProvider implements LlmProvider {
   readonly kind: 'cloud' | 'local';
   readonly label: string;
   readonly model: string;
+  /** Pause before retrying an overloaded service once. */
+  retryDelayMs = 900;
 
   constructor(private o: OpenAICompatOptions) {
     this.id = o.id;
@@ -73,7 +75,7 @@ export class OpenAICompatProvider implements LlmProvider {
           ? { role: 'user', content: [{ type: 'text', text: it.text }, ...it.images.map((b64) => ({ type: 'image_url', image_url: { url: `data:image/png;base64,${b64}` } }))] }
           : { role: 'user', content: it.text });
       }
-      else if (it.role === 'assistant') messages.push({ role: 'assistant', content: it.text || null, ...(it.toolCalls?.length ? { tool_calls: it.toolCalls.map((c) => ({ id: c.id, type: 'function', function: { name: c.name, arguments: JSON.stringify(c.input) } })) } : {}) });
+      else if (it.role === 'assistant') messages.push({ role: 'assistant', content: it.text || null, ...(it.toolCalls?.length ? { tool_calls: it.toolCalls.map((c) => ({ id: c.id, type: 'function', function: { name: c.name, arguments: JSON.stringify(c.input) }, ...(c.extra ? { extra_content: c.extra } : {}) })) } : {}) });
       else for (const r of it.results) messages.push({ role: 'tool', tool_call_id: r.id, content: r.content });
     }
     return messages;
@@ -81,21 +83,26 @@ export class OpenAICompatProvider implements LlmProvider {
 
   async chat(req: ChatRequest): Promise<LlmTurn> {
     const endpoint = this.url('/chat/completions');
-    let res: Response;
-    try {
-      res = await this.o.fetch(endpoint, {
-        method: 'POST',
-        headers: { ...this.headers(true), accept: 'text/event-stream' },
-        body: JSON.stringify({
-          model: this.model, messages: this.messages(req), max_tokens: this.o.maxTokens, stream: true,
-          ...(req.tools.length ? { tools: req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })) } : {}),
-        }),
-        signal: withTimeout(req.signal, this.o.timeoutMs),
-      });
-    } catch (e) {
-      if (req.signal.aborted) throw new ProviderError('Cancelled', 'cancelled');
-      if (e instanceof OfflinePolicyError) throw new ProviderError(e.message, 'offline_policy');
-      throw new ProviderError(`I couldn't reach ${this.o.label}.`, (e as Error).name === 'TimeoutError' ? 'timeout' : this.kind === 'local' ? 'unavailable' : 'network');
+    let res!: Response;
+    const body = JSON.stringify({
+      model: this.model, messages: this.messages(req), max_tokens: this.o.maxTokens, stream: true,
+      ...(req.tools.length ? { tools: req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })) } : {}),
+    });
+    // One quick retry when the service is briefly overloaded (Gemini "503 high demand", gateway errors).
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        res = await this.o.fetch(endpoint, { method: 'POST', headers: { ...this.headers(true), accept: 'text/event-stream' }, body, signal: withTimeout(req.signal, this.o.timeoutMs) });
+      } catch (e) {
+        if (req.signal.aborted) throw new ProviderError('Cancelled', 'cancelled');
+        if (e instanceof OfflinePolicyError) throw new ProviderError(e.message, 'offline_policy');
+        throw new ProviderError(`I couldn't reach ${this.o.label}.`, (e as Error).name === 'TimeoutError' ? 'timeout' : this.kind === 'local' ? 'unavailable' : 'network');
+      }
+      if (attempt === 0 && [500, 502, 503].includes(res.status) && !req.signal.aborted) {
+        await res.body?.cancel().catch(() => undefined);
+        await new Promise((r) => setTimeout(r, this.retryDelayMs));
+        continue;
+      }
+      break;
     }
     if (res.status === 401 || res.status === 403) throw new ProviderError(`The ${this.o.label} API key was rejected. Check it in Settings, Credentials.`, 'auth');
     if (res.status === 429) throw new ProviderError(`${this.o.label} is rate limiting requests.`, 'rate_limit');
@@ -107,19 +114,19 @@ export class OpenAICompatProvider implements LlmProvider {
     return this.fromStream(res, req);
   }
 
-  private fromJson(body: { choices?: Array<{ finish_reason?: string; message?: { content?: string | null; tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }> } }> }, req: ChatRequest): LlmTurn {
+  private fromJson(body: { choices?: Array<{ finish_reason?: string; message?: { content?: string | null; tool_calls?: Array<{ id: string; function: { name: string; arguments: string }; extra_content?: unknown }> } }> }, req: ChatRequest): LlmTurn {
     const choice = body.choices?.[0];
     if (!choice?.message) throw new ProviderError('The provider returned an empty response.', 'bad_response');
     const text = choice.message.content ?? '';
     if (text) req.onText?.(text);
-    const toolCalls = (choice.message.tool_calls ?? []).map((tc) => ({ id: tc.id, name: tc.function.name, input: parseArgs(tc.function.arguments) }));
+    const toolCalls = (choice.message.tool_calls ?? []).map((tc) => ({ id: tc.id, name: tc.function.name, input: parseArgs(tc.function.arguments), ...(tc.extra_content ? { extra: tc.extra_content } : {}) }));
     return { text, toolCalls, stop: finish(choice.finish_reason, toolCalls.length) };
   }
 
   private async fromStream(res: Response, req: ChatRequest): Promise<LlmTurn> {
     let text = '';
     let finishReason: string | undefined;
-    const calls = new Map<number, { id: string; name: string; args: string }>();
+    const calls = new Map<number, { id: string; name: string; args: string; extra?: unknown }>();
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
     let buf = '';
@@ -135,7 +142,7 @@ export class OpenAICompatProvider implements LlmProvider {
           if (!line.startsWith('data:')) continue;
           const data = line.slice(5).trim();
           if (data === '[DONE]') continue;
-          let chunk: { choices?: Array<{ delta?: { content?: string | null; tool_calls?: Array<{ index?: number; id?: string; function?: { name?: string; arguments?: string } }> }; finish_reason?: string | null }>; error?: { message?: string } };
+          let chunk: { choices?: Array<{ delta?: { content?: string | null; tool_calls?: Array<{ index?: number; id?: string; function?: { name?: string; arguments?: string }; extra_content?: unknown }> }; finish_reason?: string | null }>; error?: { message?: string } };
           try {
             chunk = JSON.parse(data);
           } catch {
@@ -154,6 +161,7 @@ export class OpenAICompatProvider implements LlmProvider {
             if (tc.id) cur.id = tc.id;
             if (tc.function?.name) cur.name += tc.function.name;
             if (tc.function?.arguments) cur.args += tc.function.arguments;
+            if (tc.extra_content) cur.extra = tc.extra_content;
             calls.set(i, cur);
           }
           if (c.finish_reason) finishReason = c.finish_reason;
@@ -164,7 +172,7 @@ export class OpenAICompatProvider implements LlmProvider {
       throw e instanceof ProviderError ? e : new ProviderError(`Stream from ${this.o.label} failed: ${(e as Error).message}`, 'network');
     }
     // Never run tools from a response that was cut off mid-generation.
-    const toolCalls = finishReason === 'length' ? [] : [...calls.entries()].sort(([a], [b]) => a - b).map(([i, c]) => ({ id: c.id || `call_${i}`, name: c.name, input: parseArgs(c.args) }));
+    const toolCalls = finishReason === 'length' ? [] : [...calls.entries()].sort(([a], [b]) => a - b).map(([i, c]) => ({ id: c.id || `call_${i}`, name: c.name, input: parseArgs(c.args), ...(c.extra ? { extra: c.extra } : {}) }));
     return { text, toolCalls, stop: finish(finishReason, toolCalls.length) };
   }
 }
