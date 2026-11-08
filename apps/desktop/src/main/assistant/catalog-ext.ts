@@ -142,6 +142,12 @@ export function fileType(text: string): string | null {
   for (const [re, id] of FILE_TYPE_WORDS) if (re.test(text)) return id;
   return null;
 }
+const ASK_FOLDER = 'Which folder should I look in: Downloads, Documents, Desktop or Pictures?';
+/** A folder named in a follow-up answer ("downloads", "in my projects folder"). */
+export function folderAnswer(answer: string): string | null {
+  if (/^(?:no|nope|cancel|never ?mind|stop|forget it)\b/.test(answer)) return null;
+  return fileFolder(answer) ?? fileFolder(`in ${answer.replace(/^(?:in|inside|from) /, '')}`);
+}
 export function fileFolder(text: string): string | null {
   const m = text.match(/\b(?:in|from|inside|within|of|under) (?:my |the )?([a-z0-9 _.-]+?)(?: folder| directory)?(?= by | into | to | with | modified | changed | from | that |$)/g);
   for (const part of (m ?? []).reverse()) {
@@ -290,7 +296,7 @@ export const EXTENDED: CommandDef[] = [
     resolve: (m) => tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), hint: 'Right-click it and choose Add to queue; music apps don\'t let other programs change their queue.' }) }),
   cmd({ id: 'music.repeat', category: 'Media', tool: 'music.play', description: 'Play a song on repeat.', examples: ['play kesariya on single-track repeat', 'play believer on loop'],
     patterns: [/^(?:play|put) (.+?) on (?:single[- ]track |single song |)(?:repeat|loop)(?: mode)?$/, /^(?:loop|repeat) (?:the song )?(.+?)(?: on repeat| forever| all day)?$/],
-    resolve: (m, text) => (/^(?:repeat|loop)$/.test(text) || /^(that|it|this|the last thing|after me)$/.test(m[1]) ? null : tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), hint: 'Press the repeat button until it shows a 1 to loop just this song.' })) }),
+    resolve: (m, text) => (/^(?:repeat|loop)$/.test(text) || /^(that|it|this|the last thing|after me)\b/.test(m[1]) ? null : tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), hint: 'Press the repeat button until it shows a 1 to loop just this song.' })) }),
   cmd({ id: 'music.lyrics', category: 'Media', tool: 'web.search', description: 'Find the lyrics of a song (opens a search; lyrics are copyrighted, so I don\'t save them).', examples: ['fetch and save synchronized lyrics for tum hi ho', 'show me the lyrics of shape of you'],
     patterns: [/\blyrics (?:for|of|to) (?:the song )?(.+)$/, /^(?:find|get|show me|search for) (?:the song )?(.+?) lyrics$/],
     resolve: (m, text) => tool('web.search', { query: `${clean(m[1])} lyrics${/synced|synchronized|lrc/.test(text) ? ' lrc synced' : ''}`, ...(/\bsave|download\b/.test(text) ? { note: "Lyrics are copyrighted, so I opened a search instead of saving them." } : {}) }) }),
@@ -598,16 +604,25 @@ export const EXTENDED: CommandDef[] = [
     } }),
   cmd({ id: 'files.duplicates', category: 'Files', tool: 'files.duplicates', description: 'Find duplicate files of a type in a folder (read-only).', examples: ['check for duplicate pdf documents inside downloads', 'find duplicate photos in my pictures folder'],
     patterns: [/\b(duplicate|duplicates|identical|same) (?:files?|copies|.*?)\b/],
-    resolve: (_m, text) => { const type = fileType(text) ?? (/\bfiles?\b/.test(text) ? 'all' : null); const folder = fileFolder(text); return type && folder ? tool('files.duplicates', { folder, type }) : null; } }),
+    resolve: (_m, text) => {
+      const type = fileType(text) ?? (/\bfiles?\b/.test(text) ? 'all' : null);
+      const folder = fileFolder(text);
+      if (!type) return null;
+      return folder ? tool('files.duplicates', { folder, type }) : clarify(ASK_FOLDER, { commandId: 'files.duplicates', slot: 'folder', partial: { type } });
+    },
+    fill: (answer, p) => { const folder = folderAnswer(answer); return folder ? tool('files.duplicates', { folder, type: p.type }) : null; } }),
   cmd({ id: 'files.bulk', category: 'Files', tool: 'files.bulk', description: 'Organize files of a type into a subfolder, date-stamp their names, zip them, or back them up (never deletes or overwrites).', examples: ['move all pdf documents from desktop into an organized subfolder', 'compress all excel spreadsheets in documents into a zip archive', 'back up all python scripts from projects to my backups folder', "rename all csv data files in downloads with today's date prefix"],
     patterns: [/^(?:move|organi[sz]e|sort|tidy|compress|zip|archive|back ?up|copy|rename|date[- ]?stamp|prefix)\b.*$/],
     resolve: (_m, text) => {
       const type = fileType(text);
       const folder = fileFolder(text.replace(/\b(?:to|into) (?:my |the )?backups?(?: folder)?\b/, '').replace(/\binto (?:a |an )?(?:organi[sz]ed |new |tidy )?(?:sub ?folder|zip archive|zip file|zip|archive)\b/, ''));
-      if (!type || !folder) return null;
+      if (!type) return null;
       const action = /^(compress|zip)|\bzip\b|\barchive\b/.test(text) ? 'zip' : /^back ?up|backups?\b|^copy/.test(text) ? 'backup' : /^(rename|date|prefix)|\bdate prefix\b|todays date/.test(text) ? 'rename_date' : 'organize';
+      // "organise these photos" names no folder: ask instead of guessing.
+      if (!folder) return /\b(these|those|my|the|all)\b/.test(text) ? clarify(ASK_FOLDER, { commandId: 'files.bulk', slot: 'folder', partial: { type, action } }) : null;
       return tool('files.bulk', { folder, type, action });
-    } }),
+    },
+    fill: (answer, p) => { const folder = folderAnswer(answer); return folder ? tool('files.bulk', { folder, type: p.type, action: p.action }) : null; } }),
 
   // ---------------------------------------------------------------- web extras
   cmd({ id: 'web.private', category: 'Web', tool: 'web.search_site', description: 'Search in a private (incognito) window.', examples: ['open google in incognito mode and search for cheap flights to delhi', 'search youtube privately for lofi music'],

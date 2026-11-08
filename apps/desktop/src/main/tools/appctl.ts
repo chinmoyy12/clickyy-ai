@@ -228,14 +228,18 @@ export const appControlTools: ToolDef[] = [
   }),
   defineTool({
     name: 'screen.save', title: 'Screenshot', description: 'Save a screenshot of the whole screen as a PNG in Documents\\Clickyy\\Screenshots.', category: 'Screen', risk: 1, permission: 'screen',
-    input: z.object({}).strict(), confirm: 'never', timeoutMs: 12000, offline: true,
+    input: z.object({ open: z.boolean().default(false) }).strict(), confirm: 'never', timeoutMs: 12000, offline: true,
     describe: () => 'Take a screenshot of the whole screen',
-    async run(_args, ctx) {
+    async run({ open }, ctx) {
       const png = Buffer.from(await ctx.platform.captureScreen(), 'base64');
       await mkdir(outputDir('Screenshots'), { recursive: true });
       const path = uniquePath(outputDir('Screenshots'), `Screenshot ${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}`, '.png');
       await writeFile(path, png, { flag: 'wx' });
-      return { ok: true, data: { path, bytes: png.length }, message: 'Saved a screenshot to Documents, Clickyy, Screenshots.', detail: path };
+      if (open) {
+        const err = await ctx.platform.openPath(path);
+        if (err) return { ok: true, data: { path, bytes: png.length }, message: `Saved a screenshot to Documents, Clickyy, Screenshots, but couldn't open it: ${err}`, detail: path };
+      }
+      return { ok: true, data: { path, bytes: png.length }, message: open ? 'Saved a screenshot to Documents, Clickyy, Screenshots, and opened it.' : 'Saved a screenshot to Documents, Clickyy, Screenshots.', detail: path };
     },
   }),
   defineTool({

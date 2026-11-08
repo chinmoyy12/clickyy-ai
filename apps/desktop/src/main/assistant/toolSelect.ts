@@ -59,3 +59,19 @@ export function selectTools(text: string, tools: ToolSpec[], max = 6): ToolSpec[
   const byName = new Map(tools.map((x) => [x.name, x]));
   return wanted.map((n) => byName.get(n)).filter((x): x is ToolSpec => !!x);
 }
+
+/** True for plain questions and writing requests that need no tools at all. */
+export function isPlainQuestion(text: string): boolean {
+  const t = text.toLowerCase().trim();
+  return QUESTION.test(t) && !ACTION.test(t);
+}
+
+/**
+ * Cloud models handle long tool lists well, but each definition is billed on every round. Offer up to 16
+ * relevant tools; none for plain questions; the full list only when an action-like request matched no topic.
+ */
+export function cloudTools(text: string, tools: ToolSpec[]): ToolSpec[] {
+  if (isPlainQuestion(text)) return [];
+  const picked = selectTools(text, tools, 16);
+  return picked.length ? picked : tools;
+}

@@ -121,8 +121,14 @@ export function Composer({ onTalk, onTalkEnd, onStop, onToggleMute, onConversati
         <button
           aria-label={muted ? 'Microphone muted (click to unmute)' : ptt ? 'Hold to talk' : 'Talk'}
           title={muted ? 'Unmute microphone' : ptt ? 'Hold to talk (or click)' : 'Talk'}
-          onPointerDown={() => { if (!muted && ptt) onTalk(); }}
+          onPointerDown={(e) => {
+            if (muted || !ptt) return;
+            // Keep receiving the release even if the pointer slides off the button; otherwise the mic stays open.
+            try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* not capturable */ }
+            onTalk();
+          }}
           onPointerUp={() => { if (!muted && ptt) onTalkEnd(); }}
+          onPointerCancel={() => { if (!muted && ptt) onTalkEnd(); }}
           onClick={() => { if (muted) onToggleMute(); else if (!ptt) onTalk(); }}
           className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border transition-colors ${muted ? 'border-line bg-surface text-muted' : listening === 'command' ? 'border-cyan/70 bg-cyan/15 text-cyan' : 'border-gold/50 bg-gold/10 text-gold hover:bg-gold/20'}`}
         >
@@ -154,7 +160,7 @@ export function Composer({ onTalk, onTalkEnd, onStop, onToggleMute, onConversati
 
 /**
  * One-click always-on voice: switches to wake-word mode (the mic stays open and listens only for
- * "Jarvis", "Clickyy" or "Hey Clickyy") or back to push-to-talk. The choice is saved.
+ * the enabled wake phrases, "Clicky" by default) or back to push-to-talk. The choice is saved.
  */
 export function AlwaysListeningToggle({ onUnmute }: { onUnmute?: () => void }) {
   const settings = useStore((s) => s.settings);
@@ -169,7 +175,7 @@ export function AlwaysListeningToggle({ onUnmute }: { onUnmute?: () => void }) {
   const notReady = on && speech && speech.state !== 'ready';
   return (
     <button role="switch" aria-checked={on} onClick={() => void toggle()}
-      title={on ? 'Always listening for your wake phrase. Click to switch to push-to-talk.' : 'Turn on always-on listening: just say Jarvis or Clickyy'}
+      title={on ? 'Always listening for your wake phrase. Click to switch to push-to-talk.' : 'Turn on always-on listening: just say "Clicky"'}
       className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors ${on ? 'bg-cyan/10 text-cyan hover:bg-cyan/20' : 'hover:bg-surface2'}`}>
       <span className={`relative inline-block h-3 w-6 rounded-full transition-colors ${on ? 'bg-cyan/70' : 'bg-line'}`}>
         <span className={`absolute top-0.5 h-2 w-2 rounded-full bg-ink transition-all ${on ? 'left-3.5' : 'left-0.5'}`} />

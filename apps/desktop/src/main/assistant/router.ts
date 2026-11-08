@@ -49,7 +49,10 @@ export function route(raw: string, ctx: RouteCtx, routines: Routine[] = [], pend
     if (filled) return { kind: 'commands', steps: [{ commandId: pending.commandId, resolution: filled, text }], normalized: text };
   }
 
-  const routine = routines.find((r) => r.enabled && r.phrases.some((p) => normalize(p) === text));
+  // A routine runs by one of its phrases, or by name: "run my study routine" for a routine called "Study".
+  const named = text.match(/^(?:run|start|do|begin|launch) (?:my |the )?(.+?) routine$/)?.[1];
+  const routine = routines.find((r) => r.enabled && r.phrases.some((p) => normalize(p) === text))
+    ?? (named ? routines.find((r) => r.enabled && normalize(r.name).replace(/ routine$/, '') === named) : undefined);
   if (routine) return { kind: 'routine', routine, normalized: text };
 
   const whole = matchOne(text, ctx);

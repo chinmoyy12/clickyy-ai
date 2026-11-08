@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img alt="tests" src="https://img.shields.io/badge/tests-1797%20TS%20%2B%2057%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
-  <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-67%2F67-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-1887%20TS%20%2B%2057%20Python%20passing-8fcb9b?style=flat-square&labelColor=191b20" />
+  <img alt="e2e" src="https://img.shields.io/badge/e2e%20on%20installed%20app-72%2F72-8fcb9b?style=flat-square&labelColor=191b20" />
   <img alt="offline" src="https://img.shields.io/badge/voice-100%25%20offline-d4a373?style=flat-square&labelColor=191b20" />
   <img alt="platform" src="https://img.shields.io/badge/platform-Windows%2011-969aa3?style=flat-square&labelColor=191b20" />
 </p>
@@ -25,6 +25,18 @@
 | **100% local**: **Ollama**, **LM Studio**, **llama.cpp**, **vLLM** | loopback only, works in Strict Offline mode |
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
+
+### 🔍 New in 0.5.1: engineering audit
+
+An independent pass over the whole app against the product blueprint fixed 14 bugs. The full report, with what works, what doesn't and what needs real hardware, is in [docs/AUDIT.md](docs/AUDIT.md).
+
+- Hindi replies are spoken by the Hindi neural voice. Before this fix they were silent.
+- Pressing Stop with the cloud voice no longer freezes voice control.
+- English sentences are no longer mistaken for Hinglish.
+- 15 everyday commands that were missed or misrouted now work: "play Alfaaz", "start a 25-minute focus timer", "turn Bluetooth on", "repeat that more slowly", "add milk to my shopping list".
+- Cloud AI calls send only relevant tool definitions. Plain questions used to carry about 13,000 extra tokens and now carry none.
+- Smart-home, email and calendar requests get an honest "not connected" answer. The AI model can no longer claim it switched off your lights.
+- New "Upcoming" tab to see and cancel reminders and timers, and a "New chat" button.
 
 ### 🎙️ New in 0.5: always listening for "Clicky", in English and Hindi
 

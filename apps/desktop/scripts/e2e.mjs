@@ -273,6 +273,21 @@ try {
   record('coin flip', /^It's (heads|tails)\.$/.test(x.r.text), x.r.text);
   x = await timed('how many days until christmas');
   record('days until a holiday', /days? until christmas|today/.test(x.r.text), x.r.text);
+  // 0.5.1 audit: blueprint commands that were missed or misrouted, and honest answers for missing integrations.
+  x = await timed('turn off the bedroom lights');
+  record('smart home: honest "not connected", nothing changed', /not connected.*Nothing was changed/.test(x.r.text) && x.r.source === 'deterministic', x.r.text.slice(0, 90));
+  x = await timed('Find the latest email from the college.');
+  record('English is not misread as Hinglish (email request)', /not connected to your email/.test(x.r.text), x.r.text.slice(0, 90));
+  x = await timed('start a 25-minute focus timer');
+  const focusOk = /25 minute|focus/i.test(x.r.text) && !/couldn't find an app/i.test(x.r.text);
+  await timed('cancel the focus session');
+  record('"25-minute" focus timer starts (then cancelled)', focusOk, x.r.text.slice(0, 90));
+  x = await timed('add oat milk to my shopping list');
+  const shopAdded = !/couldn't|can't/i.test(x.r.text);
+  x = await timed("what's on my shopping list");
+  record('shopping list add and read', shopAdded && /oat milk/i.test(x.r.text), x.r.text.slice(0, 90));
+  x = await timed('convert 5 feet 8 inches to centimetres');
+  record('feet and inches conversion (offline)', /172\.72 centimetres/.test(x.r.text), x.r.text);
   x = await timed('what can you do');
   const known = Number(x.r.text.match(/I know (\d+) things by name/)?.[1] ?? 0);
   record('over 1000 named capabilities', known > 1000, `${known} · ${x.r.text.match(/any of the \d+ apps in your Start menu/)?.[0] ?? 'Start menu apps not loaded yet'}`);

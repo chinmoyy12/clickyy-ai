@@ -74,6 +74,11 @@ export function normalize(raw: string): string {
     t = t.replace(POLITE, '').replace(TRAILING, '').trim();
   }
   t = wordsToNumbers(t);
+  // "a 25-minute timer" -> "a 25 minute timer" so duration patterns see the number and the unit.
+  t = t.replace(/(\d)-(minutes?|mins?|hours?|hrs?|seconds?|secs?|days?|weeks?)\b/g, '$1 $2');
+  // "turn bluetooth on" -> "turn on bluetooth" (the catalog expects the verb first).
+  // Sound phrases keep their own patterns ("turn the sound off", "turn the sound back on").
+  if (!/\b(sound|volume|audio|music|back)\b/.test(t)) t = t.replace(/^(turn|switch) (?!it\b|that\b|this\b|them\b|me\b)((?:\S+ ){0,3}\S+) (on|off)$/, '$1 $3 $2');
   return t.replace(/\s+/g, ' ').trim();
 }
 

@@ -29,7 +29,8 @@ export function pickVoice(preferred: string): SpeechSynthesisVoice | null {
 }
 
 export function splitSentences(text: string): string[] {
-  return (text.match(/[^.!?…]+[.!?…]+["')\]]*|[^.!?…]+$/g) ?? [text]).map((s) => s.trim()).filter(Boolean);
+  // "।" (danda) ends Hindi sentences.
+  return (text.match(/[^.!?…।]+[.!?…।]+["')\]]*|[^.!?…।]+$/g) ?? [text]).map((s) => s.trim()).filter(Boolean);
 }
 
 /**
@@ -57,7 +58,8 @@ export function chunkForSpeech(text: string): string[] {
     const m = merged[0].match(/^(.{20,110}?[,;:])\s+(.*)$/);
     if (m) merged.splice(0, 1, m[1], m[2]);
   }
-  return merged.filter((c) => /[a-z0-9]/i.test(c));
+  // Any letter or digit in any script: a Latin-only test dropped every Hindi (Devanagari) sentence, so Hindi replies were silent.
+  return merged.filter((c) => /[\p{L}\p{N}]/u.test(c));
 }
 
 export interface SpeakOptions { voiceName: string; rate: number; pitch: number; volume: number; style: ExpressionStyle }
@@ -77,6 +79,7 @@ export class Speaker {
   private audio: HTMLAudioElement | null = null;
   private audioCtx: AudioContext | null = null;
   private raf = 0;
+  private endCloud: (() => void) | null = null;
   onState: Listener = () => {};
   onLevel: (level: number) => void = () => {};
 
@@ -147,12 +150,14 @@ export class Speaker {
     };
     this.setSpeaking(true);
     tick();
-    let next: Promise<string> = synth(chunks[0]);
+    // Prefetched sentences may fail after playback was stopped; mark them handled so nothing goes unhandled.
+    const prefetch = (c: string) => { const p = synth(c); p.catch(() => {}); return p; };
+    let next: Promise<string> = prefetch(chunks[0]);
     try {
       for (let i = 0; i < chunks.length && gen === this.generation; i++) {
         const b64 = await next;
         if (gen !== this.generation) break;
-        if (i + 1 < chunks.length) next = synth(chunks[i + 1]);
+        if (i + 1 < chunks.length) next = prefetch(chunks[i + 1]);
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
         const buffer = await ctx.decodeAudioData(bytes.buffer);
         if (gen !== this.generation) break;
@@ -196,10 +201,13 @@ export class Speaker {
     this.setSpeaking(true);
     tick();
     await new Promise<void>((resolve) => {
+      // pause() fires no "ended" event: stop() calls this so a stopped reply doesn't hang the voice controller.
+      this.endCloud = resolve;
       audio.onended = () => resolve();
       audio.onerror = () => resolve();
       void audio.play().catch(() => resolve());
     });
+    this.endCloud = null;
     URL.revokeObjectURL(url);
     if (gen === this.generation) this.stop();
   }
@@ -213,6 +221,9 @@ export class Speaker {
     cancelAnimationFrame(this.raf);
     this.audio?.pause();
     this.audio = null;
+    const end = this.endCloud;
+    this.endCloud = null;
+    end?.();
     void this.audioCtx?.close();
     this.audioCtx = null;
     this.onLevel(0);

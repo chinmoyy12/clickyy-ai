@@ -132,12 +132,20 @@ describe('assistant orchestration', () => {
     expect(r).toMatchObject({ text: 'Octopuses have three hearts.', source: 'local_llm' });
     // A plain question gives a small local model no tools at all…
     expect(local.calls[0].tools).toEqual([]);
-    // …while a cloud model sees the whole registry (minus memory tools, which need the user's own words).
-    const cloud = new MockProvider('anthropic', 'cloud', [{ text: 'ok', toolCalls: [], stop: 'end' }]);
+    // A cloud model also gets no tools for a plain question (each definition is billed on every round)…
+    const cloud = new MockProvider('anthropic', 'cloud', [{ text: 'ok', toolCalls: [], stop: 'end' }, { text: 'ok', toolCalls: [], stop: 'end' }, { text: 'ok', toolCalls: [], stop: 'end' }]);
     const t2 = await make([cloud]);
     await t2.assistant.submit('tell me something interesting', 'text');
-    const names = cloud.calls[0].tools.map((x) => x.name);
-    expect(names).toContain('audio__set_volume');
+    expect(cloud.calls[0].tools).toEqual([]);
+    // …a relevant handful for an action…
+    await t2.assistant.submit('my speakers feel way too loud for this late hour', 'text');
+    const some = cloud.calls[1].tools.map((x) => x.name);
+    expect(some).toContain('audio__set_volume');
+    expect(some.length).toBeLessThanOrEqual(16);
+    // …and the whole registry (minus memory tools, which need the user's own words) when nothing matched.
+    await t2.assistant.submit('do the same thing again for the other one', 'text');
+    const names = cloud.calls[2].tools.map((x) => x.name);
+    expect(names.length).toBeGreaterThan(50);
     expect(names).not.toContain('memory__save');
     expect(local.calls[0].system).toMatch(/You are an AI, not a human/);
     expect(t.events.some((e) => e.type === 'reply_delta')).toBe(true);

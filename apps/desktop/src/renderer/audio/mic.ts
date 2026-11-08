@@ -11,10 +11,28 @@ export class Mic {
   onLevel: (level: number) => void = () => {};
   onLost: (reason: string) => void = () => {};
 
+  private opening: Promise<void> | null = null;
+  /** Bumped by stop(): a start() still waiting for the device sees it and releases what it opened. */
+  private epoch = 0;
+
   get active() { return !!this.stream; }
 
-  async start(): Promise<void> {
-    if (this.stream) return;
+  start(): Promise<void> {
+    if (this.stream) return Promise.resolve();
+    // Concurrent starts share one open (two streams would leave one running with the mic light on). An open
+    // that a stop() overtook releases its device, so a start after that stop queues a fresh open behind it.
+    if (!this.opening || this.openingEpoch !== this.epoch) {
+      this.openingEpoch = this.epoch;
+      const p: Promise<void> = (this.opening ?? Promise.resolve()).catch(() => {}).then(() => (this.stream ? undefined : this.open()))
+        .finally(() => { if (this.opening === p) this.opening = null; });
+      this.opening = p;
+    }
+    return this.opening;
+  }
+  private openingEpoch = -1;
+
+  private async open(): Promise<void> {
+    const epoch = this.epoch;
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
@@ -26,8 +44,16 @@ export class Mic {
             : `Could not open the microphone: ${(e as Error).message}`,
       );
     }
+    const release = () => { stream.getTracks().forEach((t) => t.stop()); void ctx.close(); };
     const ctx = new AudioContext();
-    await ctx.audioWorklet.addModule('./pcm-worklet.js');
+    try {
+      await ctx.audioWorklet.addModule('./pcm-worklet.js');
+    } catch (e) {
+      release();
+      throw new Error(`Could not start audio capture: ${(e as Error).message}`);
+    }
+    // stop() was called while the device was opening: don't keep a microphone nobody wants.
+    if (epoch !== this.epoch) { release(); return; }
     const src = ctx.createMediaStreamSource(stream);
     const node = new AudioWorkletNode(ctx, 'pcm-capture');
     node.port.onmessage = (e: MessageEvent<{ frame: ArrayBuffer; level: number }>) => {
@@ -42,6 +68,7 @@ export class Mic {
   }
 
   stop() {
+    this.epoch++;
     this.node?.port.close();
     this.node?.disconnect();
     this.stream?.getTracks().forEach((t) => t.stop());

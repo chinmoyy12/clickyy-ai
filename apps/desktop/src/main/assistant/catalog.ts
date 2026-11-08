@@ -9,6 +9,7 @@ import { findSearchSite, findSite } from './knowledge/sites';
 import { findSettingsPage, findShellFolder, findWinTool } from './knowledge/windows';
 import { findZone } from './knowledge/cities';
 import { CODE_FIRST, EXTENDED } from './catalog-ext';
+import { BLUEPRINT_FIRST, BLUEPRINT_LAST } from './catalog-blueprint';
 import { inBrowser, orList } from './browserAsk';
 
 export { inBrowser };
@@ -118,12 +119,14 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'safety.refuse_shell', category: 'Safety', description: 'Refuses requests to run arbitrary shell commands or scripts.', examples: ['run powershell command', 'execute this script', 'open cmd and run del'],
     patterns: [/\b(run|execute|exec)\b.*\b(powershell|cmd|command prompt|bash|shell|script|terminal command)\b/, /\b(powershell|cmd)\b.*\b(rm|del|format|remove-item|reg delete)\b/, /\bformat (my )?(c|hard) ?(drive)?\b/, /\bdelete (system ?32|windows)\b/],
     resolve: () => builtin('refuse_shell') }),
+  // Narrow blueprint phrases and honest "not connected" answers for smart home, email and calendar.
+  ...BLUEPRINT_FIRST,
 
   // ---------- conversation ----------
   cmd({ id: 'conv.stop', category: 'Conversation', description: 'Stop speaking immediately.', examples: ['stop talking', 'stop', 'quiet', 'be quiet'],
     patterns: [/^(stop|stop talking|stop speaking|quiet|be quiet|shh+|shut up|enough|hush|silence)$/], resolve: () => builtin('stop_speaking') }),
   cmd({ id: 'conv.cancel', category: 'Conversation', description: 'Cancel the current task.', examples: ['cancel that', 'never mind', 'forget it', 'go back'],
-    patterns: [/^(cancel|never ?mind|forget it|abort|scratch that|go back)( that| it)?$/], resolve: () => builtin('cancel') }),
+    patterns: [/^(cancel|never ?mind|forget it|abort|scratch that|go back)( that| it)?$/, /^(?:stop|cancel|abort|end|kill) (?:the |this |that |my )?(?:current )?(?:task|action|job|operation|agent)$/], resolve: () => builtin('cancel') }),
   cmd({ id: 'conv.greeting', category: 'Conversation', description: 'Greetings.', examples: ['hey clickyy', 'good morning clickyy', 'hello'],
     patterns: [/^(hi|hello|hey|hiya|yo|howdy|good (morning|afternoon|evening|day))( there)?( clickyy)?$/, /^$/], resolve: (m) => builtin('greeting', { when: m[2] }) }),
   cmd({ id: 'conv.presence', category: 'Conversation', description: 'Check that the assistant is listening.', examples: ['are you there', 'can you hear me', 'you there'],
@@ -138,6 +141,8 @@ export const CATALOG: CommandDef[] = [
     patterns: [/what can you (do|help( me)? with)|^help( me)?$|what are your (skills|abilities|commands|features|capabilities)|what commands|how many (things|commands|skills|capabilities|features) (can you|do you)/], resolve: () => builtin('capabilities') }),
   cmd({ id: 'conv.identity', category: 'Conversation', description: 'Who the assistant is (always honest that it is an AI).', examples: ['who are you', 'are you human', "what's your name"],
     patterns: [/^who are you$|what(s| is) your name|are you (a )?(human|real|person|robot|ai|bot)/], resolve: () => builtin('identity') }),
+  cmd({ id: 'conv.repeat_slower', category: 'Conversation', description: 'Repeat the last response more slowly.', examples: ['repeat that more slowly', 'say it again slower'],
+    patterns: [/^(?:repeat|say) (?:that|it)(?: again)? (?:a (?:little|bit) )?(?:more )?slow(?:ly|er)$/], resolve: () => builtin('repeat', { slower: true }) }),
   cmd({ id: 'conv.repeat', category: 'Conversation', description: 'Repeat the last response.', examples: ['can you repeat that', 'say that again', 'what did you say'],
     patterns: [/^(repeat|say) (that|it)( again)?$|^repeat( yourself)?$|^what did you (just )?say$|^come again$|^pardon$|^repeat the last instruction$/], resolve: () => builtin('repeat') }),
   cmd({ id: 'conv.slower', category: 'Conversation', description: 'Speak more slowly.', examples: ['speak a little slower', 'talk slower'],
@@ -149,7 +154,7 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'conv.detailed', category: 'Conversation', description: 'More detailed answers.', examples: ['be more detailed', 'explain in more detail'],
     patterns: [/be more detailed|more detail|longer answers?|go deeper/], resolve: () => builtin('verbosity', { level: 'detailed' }) }),
   cmd({ id: 'conv.new', category: 'Conversation', description: 'Start a new conversation.', examples: ["let's start a new conversation", 'clear the chat'],
-    patterns: [/(start )?(a )?new (conversation|chat|session)|let'?s start (over|fresh|again)|clear (the |this )?(conversation|chat)|reset (the )?conversation/], resolve: () => builtin('new_session') }),
+    patterns: [/(start )?(a )?new (conversation|chat|session|topic)|^(?:change|switch) (?:the )?(?:topic|subject)$|let'?s start (over|fresh|again)|clear (the |this )?(conversation|chat)|reset (the )?conversation/], resolve: () => builtin('new_session') }),
   cmd({ id: 'conv.continue', category: 'Conversation', description: 'Resume the previous conversation.', examples: ["let's continue where we left off"],
     patterns: [/continue where we left off|pick up where we left off|resume (our|the) (last )?conversation/], resolve: () => builtin('continue') }),
   cmd({ id: 'conv.mode', category: 'Conversation', description: 'Switch personality mode.', examples: ["let's switch to work mode", 'playful mode', 'soothing mode'],
@@ -380,7 +385,7 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'audio.unmute', category: 'Audio', tool: 'audio.mute', description: 'Unmute the speakers.', examples: ['unmute', 'unmute my computer', 'turn the sound back on'],
     patterns: [/^unmute( my| the)?( computer| pc| sound| audio| volume| speakers)?$/, /turn (the )?sound (back )?on/], resolve: () => tool('audio.mute', { mute: false }) }),
   cmd({ id: 'audio.mute', category: 'Audio', tool: 'audio.mute', description: 'Mute the speakers.', examples: ['mute my computer', 'mute', 'turn the sound off'],
-    patterns: [/^mute( my| the)?( computer| pc| sound| audio| volume| speakers| everything)?$/, /turn (the )?sound off/], resolve: () => tool('audio.mute', { mute: true }) }),
+    patterns: [/^mute( my| the)?( computer| pc| laptop| system| device| sound| audio| volume| speakers| everything)?$/, /turn (the )?sound off/], resolve: () => tool('audio.mute', { mute: true }) }),
   cmd({ id: 'audio.restore', category: 'Audio', tool: 'audio.restore_volume', description: 'Restore the previous volume.', examples: ['restore the previous volume', 'put the volume back'],
     patterns: [/(restore|reset|put back|go back to)( the)? (previous |last |old )?volume|volume back/], resolve: () => tool('audio.restore_volume') }),
   cmd({ id: 'audio.get', category: 'Audio', tool: 'audio.get_volume', description: 'Read the current volume.', examples: ["what's the volume", 'how loud is it', 'is my sound muted'],
@@ -444,11 +449,13 @@ export const CATALOG: CommandDef[] = [
 
   // ---------- web ----------
   cmd({ id: 'web.search', category: 'Web', tool: 'web.search', description: 'Search the web in your browser.', examples: ['search for the latest node documentation', 'look up electron security checklist', 'google best pizza near me'],
-    patterns: [/^(?:search|search the web|search online|google|look up|bing|find (?:information|info|out) (?:on|about))(?: for| about)? (.+)$/, /^(?:find|search for) (?:the )?(?:official )?(?:installation guide|docs|documentation|website) (?:for|of) (.+)$/],
+    patterns: [/^(?:search the web|search the internet|search online|search|google|look up|bing|find (?:information|info|out) (?:on|about))(?: for| about)? (.+)$/, /^(?:find|search for) (?:the )?(?:official )?(?:installation guide|docs|documentation|website) (?:for|of) (.+)$/],
     resolve: (m) => tool('web.search', { query: m[1] }),
     fill: (answer) => tool('web.search', { query: answer }) }),
 
   // ---------- apps (generic, last) ----------
+  // Lowest priority before "open <app>": find my file, missing routine, plain "play X".
+  ...BLUEPRINT_LAST,
   cmd({ id: 'apps.open', category: 'Apps', tool: 'apps.open', description: 'Open an approved application or alias.', examples: ['open chrome', 'launch spotify', 'open vs code', 'start notepad', 'open it again'],
     patterns: [/^(?:open|launch|start|run|fire up|load)(?: up)? (.+)$/, /^(?:open|launch|start)$/],
     resolve: (m, _t, ctx) => openTarget(m[1] ?? '', ctx),

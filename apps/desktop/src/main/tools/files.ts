@@ -48,11 +48,12 @@ export const fileTools: ToolDef[] = [
     input: z.object({ name: z.string().trim().min(1).max(100), newestFirst: z.boolean().default(true) }).strict(), confirm: 'never', timeoutMs: 15000, offline: true,
     describe: ({ name }) => `Search approved folders for "${name}"`,
     async run({ name, newestFirst }, ctx) {
-      const q = name.toLowerCase();
+      // Every word must appear, ignoring separators: "project report" finds "Project_Report-v2.docx".
+      const words = name.toLowerCase().split(/[\s_.-]+/).filter(Boolean);
       const found: string[] = [];
       for (const r of roots(ctx)) {
         try {
-          await walk(safe(r, ctx), (n) => n.toLowerCase().includes(q), found, { n: MAX_SCAN });
+          await walk(safe(r, ctx), (n) => { const f = n.toLowerCase().replace(/[_.-]+/g, ' '); return words.every((w) => f.includes(w)); }, found, { n: MAX_SCAN });
         } catch (e) {
           if (!(e instanceof PathRejected)) throw e;
         }

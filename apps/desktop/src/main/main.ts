@@ -271,6 +271,7 @@ async function main() {
   const modelsRoot = process.env.CLICKYY_EXTRA_MODELS!;
   const dl: ModelDownloadStatus = { id: BEST_ACCURACY.id, label: BEST_ACCURACY.label, installed: false, downloading: false, done: 0, total: modelBytes(BEST_ACCURACY) };
   let dlAbort: AbortController | null = null;
+  let dlTask: Promise<void> | null = null;
   void isModelInstalled(modelsRoot, BEST_ACCURACY).then((ok) => { dl.installed = ok; });
   const modelStatus = (): ModelDownloadStatus => ({ ...dl });
 
@@ -463,16 +464,17 @@ async function main() {
         const ctrl = new AbortController();
         dlAbort = ctrl;
         Object.assign(dl, { downloading: true, error: undefined, done: 0 });
-        void downloadModel(modelsRoot, BEST_ACCURACY, (done) => { dl.done = done; }, ctrl.signal, guard.fetchFor('model-download') as never)
+        dlTask = downloadModel(modelsRoot, BEST_ACCURACY, (done) => { dl.done = done; }, ctrl.signal, guard.fetchFor('model-download') as never)
           .then(async () => { dl.installed = true; log('Best-accuracy model installed'); await speech.restart(); })
           .catch((e: Error) => { dl.error = ctrl.signal.aborted ? 'Download cancelled.' : e.message; log(`Model download failed: ${e.message}`); })
-          .finally(() => { dl.downloading = false; dlAbort = null; });
+          .finally(() => { dl.downloading = false; dlAbort = null; dlTask = null; });
       }
       return modelStatus();
     },
     'models:cancel': () => { dlAbort?.abort(); return true; },
     'models:remove': async () => {
       dlAbort?.abort();
+      await dlTask; // let a cancelled download stop writing before its files are deleted
       await removeModel(modelsRoot, BEST_ACCURACY);
       dl.installed = false;
       dl.done = 0;

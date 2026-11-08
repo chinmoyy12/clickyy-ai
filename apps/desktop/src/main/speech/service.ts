@@ -83,9 +83,15 @@ export class SpeechService {
         resolveStart();
       }, 30_000);
       proc.stdout?.setEncoding('utf8');
+      let out = '';
+      let announced = false;
       proc.stdout?.on('data', async (d: string) => {
-        const m = d.match(/CLICKYY_READY port=(\d+)/);
+        if (announced) return;
+        // The ready line can arrive split across chunks.
+        out = (out + d).slice(-500);
+        const m = out.match(/CLICKYY_READY port=(\d+)\r?\n/);
         if (!m) return;
+        announced = true;
         clearTimeout(timer);
         this.port = parseInt(m[1], 10);
         await this.health();
@@ -95,11 +101,13 @@ export class SpeechService {
       proc.stderr?.on('data', (d: string) => { stderr = (stderr + d).slice(-2000); });
       proc.on('exit', (code) => {
         clearTimeout(timer);
+        resolveStart();
+        // A process replaced by restart() can exit after its successor started; it must not reset the new one.
+        if (this.proc !== proc) return;
         this.proc = null;
         this.ws?.close();
         this.ws = null;
         this.starting = null;
-        resolveStart();
         if (this.stopping) return this.setStatus({ state: 'stopped' });
         const reason = stderr.split('\n').filter(Boolean).slice(-1)[0] ?? `exit code ${code}`;
         if (this.restarts < 3) {
@@ -231,5 +239,7 @@ export class SpeechService {
     this.proc?.kill();
     this.proc = null;
     this.starting = null;
+    // The killed process's exit handler no longer owns the status (see start), so report it here.
+    if (this.status.state !== 'stopped') this.setStatus({ state: 'stopped' });
   }
 }

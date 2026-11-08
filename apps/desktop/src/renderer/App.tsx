@@ -201,7 +201,8 @@ export function App() {
         notify('error', (e as Error).message);
       }
     })();
-    const poll = setInterval(() => void call('providers:status').then((p) => store.set({ providers: p })).catch(() => {}), 30_000);
+    // Only while visible: the main process already re-checks the local model every 30 s for routing.
+    const poll = setInterval(() => { if (!document.hidden) void call('providers:status').then((p) => store.set({ providers: p })).catch(() => {}); }, 30_000);
 
     return () => {
       offs.forEach((o) => o());

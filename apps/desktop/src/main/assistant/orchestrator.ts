@@ -13,7 +13,7 @@ import type { Builtin, PendingSlot, Resolution } from './catalog';
 import { route } from './router';
 import { chooseStyle, greetingFor, phrase, PROFILES, systemPrompt, toSpeech, type Situation } from './style';
 import { redact } from '../security/redact';
-import { selectTools } from './toolSelect';
+import { cloudTools, selectTools } from './toolSelect';
 import { allApps } from '../tools/apps';
 import { BROWSER_LABEL, installedBrowsers, type BrowserId } from '../tools/web';
 import { CATALOG } from './catalog';
@@ -534,7 +534,12 @@ export class Assistant {
           speech: `I know over ${Math.floor(n.total / 100) * 100} things by name, including ${n.websites} websites, ${n.settingsPages} settings pages and ${n.commands} commands. I open apps and sites, control windows, volume and media, do briefings, weather, math, currency, timers and reminders, and run a self-test.${this.d.providers.candidates().length ? ' And I can answer open questions.' : ''}`,
           situation: 'explain', expectFollowUp: true };
       }
-      case 'repeat': return this.lastReply ? { text: this.lastReply.text, speech: this.lastReply.speech, situation: 'info' } : { text: "I haven't said anything yet.", situation: 'info' };
+      case 'repeat': {
+        if (!this.lastReply) return { text: "I haven't said anything yet.", situation: 'info' };
+        // "Repeat that more slowly": lower the speaking rate, then say it again.
+        if (p.slower) this.d.updateSettings({ speech: { rate: Math.round(Math.max(0.5, s.speech.rate - 0.15) * 100) / 100 } });
+        return { text: this.lastReply.text, speech: this.lastReply.speech, situation: 'info' };
+      }
       case 'slower':
       case 'faster': {
         const rate = Math.round(Math.min(2, Math.max(0.5, s.speech.rate + (b === 'slower' ? -0.1 : 0.1))) * 100) / 100;
@@ -548,8 +553,11 @@ export class Assistant {
         this.d.broker.cancelAll();
         return { text: phrase('cancelled', s), situation: 'info', expectFollowUp: false };
       case 'new_session':
+        // Same reset as the New chat button: context, open questions and remembered references.
         this.items = [];
         this.conversationId = null;
+        this.pending = null;
+        for (const k of Object.keys(this.session)) delete this.session[k];
         this.d.emit({ type: 'session_reset' });
         return { text: 'Fresh start. What would you like to do?', situation: 'greeting', expectFollowUp: true };
       case 'continue': {
@@ -632,8 +640,13 @@ export class Assistant {
     for (const provider of providers) {
       if (provider.kind === 'cloud') this.d.emit({ type: 'notice', level: 'info', text: `Sending your ${source === 'voice' ? 'transcribed request' : 'message'} to ${provider.label}.` });
       try {
-        // Local models get a short, relevant tool list (see toolSelect.ts); cloud models get all tools.
-        const offered = provider.kind === 'local' ? selectTools(text, tools) : tools;
+        // Every tool definition is re-sent on every round, and all 108 cost about 13,000 tokens. Local models get
+        // a short relevant list; cloud models a longer one, none for plain questions, and all of them only when
+        // nothing matched an action-like request (so "do that again" can still reach any tool).
+        let offered = provider.kind === 'local' ? selectTools(text, tools) : cloudTools(text, tools);
+        // Tools already called earlier in the kept context must stay defined (some APIs reject the history otherwise).
+        const used = new Set(this.items.flatMap((i) => (i.role === 'assistant' ? (i.toolCalls ?? []).map((c) => c.name) : [])));
+        if (provider.kind === 'cloud' && used.size) offered = [...offered, ...tools.filter((t) => used.has(t.name) && !offered.includes(t))];
         const out = await this.llmLoop(provider, system, offered, ctx, turnId);
         this.d.providers.reportSuccess(provider.id);
         return out;

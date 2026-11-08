@@ -1,6 +1,6 @@
 # Command catalog
 
-Generated from source by `npm run docs:commands`. **158 deterministic commands**, **435 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **107 registered tools**.
+Generated from source by `npm run docs:commands`. **175 deterministic commands**, **472 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **108 registered tools**.
 
 Deterministic commands work fully offline with no language model. Anything not matched here goes to the configured language model, which can only call the tools listed at the bottom.
 
@@ -30,10 +30,90 @@ Deterministic commands work fully offline with no language model. Anything not m
 |---|---|---|---|---|---|
 | Refuses requests to run arbitrary shell commands or scripts. | “run powershell command”<br>“execute this script”<br>“open cmd and run del” | built-in | — | — | — |
 
+## Windows
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Go back to the window you were just using. | “switch to the window i was using”<br>“go back to the app i was just in” | `windows.previous` | L1 low | windows | no |
+| Close the current app; it asks to save unsaved work first. | “close this app after saving my work” | `windows.close` | L2 sensitive | windows | always |
+| Close an app (every window; confirmed). | “close all google chrome windows”<br>“close all background instances of microsoft teams”<br>“quit spotify” | `windows.close_app` | L2 sensitive | windows | always |
+| Center, resize, keep on top, move to another monitor, show only one app, or open a new window. | “center the google chrome window on my screen”<br>“resize spotify window to 1280x720”<br>“pin notepad to the always-on-top layer”<br>“unpin notepad from always-on-top”<br>“move vs code to my second monitor”<br>“hide all windows except google chrome”<br>“open a new window in microsoft edge” | `windows.manage` | L1 low | windows | no |
+| Snap or maximize a named app window. | “snap google chrome to the left half of my screen”<br>“maximize spotify to full screen” | `windows.arrange` | L1 low | windows | no |
+| Switch between an app and the last window. | “switch focus between google chrome and my last active window” | `windows.focus` | L1 low | windows | no |
+| List open apps. | “show me my open applications”<br>“what apps are open” | `windows.list` | L1 low | windows | no |
+| Minimize everything / restore everything. | “minimize everything”<br>“show the desktop”<br>“restore all windows” | `windows.show_desktop` | L1 low | windows | no |
+| Switch to the previous window. | “switch to the previous window”<br>“go back to the last window” | `windows.previous` | L1 low | windows | no |
+| Minimize, maximize, restore or snap windows. | “minimize the current window”<br>“maximize this window”<br>“put the browser on the left”<br>“move the editor to the right” | `windows.arrange` | L1 low | windows | no |
+| Close a window (confirmed; the app may ask to save). | “close this window”<br>“close it”<br>“close notepad” | `windows.close` | L2 sensitive | windows | always |
+| Bring an app window to the front. | “switch to the browser”<br>“bring my code editor to the front”<br>“go to spotify” | `windows.focus` | L1 low | windows | no |
+
+## Screen
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Take a screenshot and open it. | “take a screenshot and show it to me”<br>“take a screenshot and open it” | `screen.save` | L1 low | screen | no |
+| Save a screenshot of the whole screen. | “take a screenshot”<br>“capture my screen”<br>“screenshot” | `screen.save` | L1 low | screen | no |
+| Save a screenshot of one app window. | “take a screenshot of just the google chrome window”<br>“screenshot the spotify window” | `windows.screenshot` | L1 low | screen | no |
+
+## Smart home
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Smart-home requests (explains that no smart-home devices are connected, instead of pretending). | “turn off the bedroom lights”<br>“set the desk lamp to 40 percent”<br>“lock the front door”<br>“is the front door locked” | built-in | — | — | — |
+
+## Communication
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Reading or searching your inbox (explains that no email account is connected). | “find the latest email from the college”<br>“read my emails”<br>“send this email to the selected recipient” | built-in | — | — | — |
+| Draft an email (opens your mail app; you press Send). | “draft an email to rahul about the updated excel report”<br>“write an email to my manager about tomorrows leave” | `message.email` | L1 low | web | no |
+| Prepare a WhatsApp message (you choose the chat and press Send). | “send a whatsapp message to priya about the project deadline extension”<br>“whatsapp amit that i am running late” | `message.whatsapp` | L1 low | web | no |
+
+## Productivity
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Calendar requests (explains that no calendar is connected and offers reminders). | “read my next calendar event”<br>“schedule a meeting for friday at 3 pm” | built-in | — | — | — |
+| What you have coming up (your Clickyy reminders and timers). | “what do i have today”<br>“what do i have on tomorrow” | `reminders.list` | L1 low | — | no |
+| Add something to your shopping list (a local note). | “add milk to my shopping list”<br>“put eggs on the grocery list” | `notes.append` | L1 low | — | no |
+| Read your shopping list. | “what's on my shopping list”<br>“read the grocery list” | `notes.find` | L1 low | — | no |
+| Pomodoro, deep-work or countdown timer for a task. | “start a 25-minute pomodoro timer for team standup meeting”<br>“start a 45-minute deep work timer for study block”<br>“start a 60-minute countdown timer for my report” | `timers.create` | L1 low | — | no |
+| Add something to your to-do list, optionally high priority. | “add 'client project review' to my high-priority to-do list”<br>“add buy milk to my to-do list”<br>“put call the bank on my task list” | `todo.add` | L1 low | — | no |
+| Mark a to-do item done. | “mark 'team standup meeting' as completed on my to-do list”<br>“tick off buy milk”<br>“i've finished the report” | `todo.complete` | L1 low | — | no |
+| Read your to-do list. | “what's on my to-do list”<br>“read my tasks”<br>“show my todo list” | `todo.list` | L1 low | — | no |
+| Clear completed to-dos or sub-tasks. | “clear completed sub-tasks under client project review”<br>“clear my finished to-dos” | `todo.clear_done` | L1 low | — | no |
+| Move a task to next week's backlog. | “move code deployment check to next week's backlog”<br>“push the report to next week” | `todo.defer` | L1 low | — | no |
+| Create a note; Clickyy asks what to write. | “create a new note titled 'team standup meeting' and ask me what to write”<br>“take a note called ideas”<br>“new note” | `notes.create` | L1 low | — | no |
+| Add to a note (asks what to add when you don't say). | “append a voice note to my 'client project review' file”<br>“add milk to my groceries note” | `notes.append` | L1 low | — | no |
+| Find your notes about something. | “show me all notes related to client project review”<br>“find my notes about the budget”<br>“read my notes” | `notes.find` | L1 low | — | no |
+| Export notes to a PDF, Markdown or text file, or pin a checklist to the desktop. | “export my notes on client project review to a clean pdf”<br>“pin the checklist for team standup meeting to my desktop” | `notes.export` | L1 low | — | no |
+| Read out the checklist for a task. | “read out my checklist for team standup meeting” | `checklist.read` | L1 low | — | no |
+| Email the action items for a task (opens a draft with your notes and to-dos). | “email the action items from team standup meeting to my team” | `notes.email` | L1 low | web | no |
+| Log time spent on a task. | “log 1 hour spent on client project review in my time tracker sheet”<br>“log 30 minutes on emails” | `time.log` | L1 low | — | no |
+| Summarize your progress on a task this week. | “summarize my progress on client project review this week”<br>“how much time did i spend on study this week” | `time.summary` | L1 low | — | no |
+| Stopwatch for timing a task. | “set a stopwatch to measure how long team standup meeting takes”<br>“start a stopwatch”<br>“stop the stopwatch” | `stopwatch.control` | L1 low | — | no |
+| Reminder for an event at a time. | “set a reminder for my team standup meeting at 9:00 am tomorrow”<br>“set a reminder for dentist appointment on friday at 4 pm” | `reminders.create` | L1 low | — | no |
+| Put an event on your schedule (as a Clickyy reminder; Outlook and Google Calendar are not connected). | “schedule team standup meeting on my calendar for friday at 3:00 pm”<br>“add dentist appointment to my calendar tomorrow at 10 am” | `reminders.create` | L1 low | — | no |
+| Hold time for a task (asks when it starts). | “block 2 hours on my calendar for client project review” | `reminders.create` | L1 low | — | no |
+| Daily, weekday or weekly repeating reminder or alarm. | “set a recurring daily alarm for meditation at 7:30 am”<br>“set a recurring weekly reminder for laptop backup every monday”<br>“remind me to drink water every day at 11 am” | `reminders.repeat` | L1 low | — | no |
+| Snooze a reminder. | “snooze my team standup meeting alert for 10 minutes”<br>“snooze for 5 minutes”<br>“snooze” | `reminders.snooze` | L1 low | — | no |
+| Cancel a reminder by name. | “cancel the scheduled reminder for team standup meeting”<br>“delete my dentist reminder” | `reminders.cancel_named` | L1 low | — | no |
+| When is something scheduled. | “check when my next team standup meeting is scheduled”<br>“when is my dentist appointment” | `reminders.find` | L1 low | — | no |
+| Move a reminder to a new time. | “reschedule my team standup meeting to tomorrow evening at 6:00 pm”<br>“move my dentist appointment to friday at 5 pm” | `reminders.reschedule` | L1 low | — | no |
+| Early warning before an event. | “set a 15-minute warning before team standup meeting starts”<br>“warn me 10 minutes before the dentist appointment” | `reminders.before` | L1 low | — | no |
+| Desktop shortcut to a workspace (explains how routines do this instead). | “create a desktop shortcut to launch my team standup meeting workspace” | built-in | — | — | — |
+| Cancel a timer, reminder or focus session. | “cancel the timer”<br>“cancel my reminder”<br>“stop the focus session”<br>“cancel all timers” | `reminders.cancel` | L1 low | — | no |
+| List reminders and timers. | “what reminders do I have”<br>“how long is left on my timer” | `reminders.list` | L1 low | — | no |
+| Start a focus (pomodoro) session. | “start a 25 minute focus session”<br>“start a study session”<br>“begin pomodoro” | `timers.create` | L1 low | — | no |
+| Set a countdown timer. | “set a timer for 10 minutes”<br>“5 minute timer”<br>“timer for 90 seconds” | `timers.create` | L1 low | — | no |
+| Create a reminder at a time or after a delay. | “remind me in 20 minutes”<br>“remind me to call mom in 1 hour”<br>“create a reminder for tomorrow morning”<br>“remind me at 5 pm to stretch” | `reminders.create` | L1 low | — | no |
+
 ## Conversation
 
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
 |---|---|---|---|---|---|
+| Undo (explains what can and cannot be undone). | “undo the last action if possible”<br>“undo that” | built-in | — | — | — |
+| "Listen to this" (answers that Clickyy is listening). | “listen to this”<br>“listen” | built-in | — | — | — |
 | Stop speaking immediately. | “stop talking”<br>“stop”<br>“quiet”<br>“be quiet” | built-in | — | — | — |
 | Cancel the current task. | “cancel that”<br>“never mind”<br>“forget it”<br>“go back” | built-in | — | — | — |
 | Greetings. | “hey clickyy”<br>“good morning clickyy”<br>“hello” | built-in | — | — | — |
@@ -43,6 +123,7 @@ Deterministic commands work fully offline with no language model. Anything not m
 | End the conversation and stop follow-up listening. | “that's all”<br>“goodbye”<br>“stop listening” | built-in | — | — | — |
 | Describe what Clickyy can do. | “what can you do”<br>“help”<br>“what are your commands” | built-in | — | — | — |
 | Who the assistant is (always honest that it is an AI). | “who are you”<br>“are you human”<br>“what's your name” | built-in | — | — | — |
+| Repeat the last response more slowly. | “repeat that more slowly”<br>“say it again slower” | built-in | — | — | — |
 | Repeat the last response. | “can you repeat that”<br>“say that again”<br>“what did you say” | built-in | — | — | — |
 | Speak more slowly. | “speak a little slower”<br>“talk slower” | built-in | — | — | — |
 | Speak faster. | “speak faster”<br>“talk a bit quicker” | built-in | — | — | — |
@@ -51,6 +132,12 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Start a new conversation. | “let's start a new conversation”<br>“clear the chat” | built-in | — | — | — |
 | Resume the previous conversation. | “let's continue where we left off” | built-in | — | — | — |
 | Switch personality mode. | “let's switch to work mode”<br>“playful mode”<br>“soothing mode” | built-in | — | — | — |
+
+## Utilities
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Height in feet and inches to centimetres or metres. | “convert 5 feet 8 inches to centimetres”<br>“what is 6 foot 2 in cm” | built-in | — | — | — |
 
 ## Status
 
@@ -92,41 +179,7 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Previous track. | “play the previous track”<br>“previous song” | `media.control` | L1 low | media | no |
 | Stop playback. | “stop the music”<br>“stop playback” | `media.control` | L1 low | media | no |
 | Search Spotify for music. | “play my focus playlist”<br>“play lofi on spotify”<br>“find taylor swift on spotify” | `media.spotify_search` | L1 low | media | no |
-
-## Productivity
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Pomodoro, deep-work or countdown timer for a task. | “start a 25-minute pomodoro timer for team standup meeting”<br>“start a 45-minute deep work timer for study block”<br>“start a 60-minute countdown timer for my report” | `timers.create` | L1 low | — | no |
-| Add something to your to-do list, optionally high priority. | “add 'client project review' to my high-priority to-do list”<br>“add buy milk to my to-do list”<br>“put call the bank on my task list” | `todo.add` | L1 low | — | no |
-| Mark a to-do item done. | “mark 'team standup meeting' as completed on my to-do list”<br>“tick off buy milk”<br>“i've finished the report” | `todo.complete` | L1 low | — | no |
-| Read your to-do list. | “what's on my to-do list”<br>“read my tasks”<br>“show my todo list” | `todo.list` | L1 low | — | no |
-| Clear completed to-dos or sub-tasks. | “clear completed sub-tasks under client project review”<br>“clear my finished to-dos” | `todo.clear_done` | L1 low | — | no |
-| Move a task to next week's backlog. | “move code deployment check to next week's backlog”<br>“push the report to next week” | `todo.defer` | L1 low | — | no |
-| Create a note; Clickyy asks what to write. | “create a new note titled 'team standup meeting' and ask me what to write”<br>“take a note called ideas”<br>“new note” | `notes.create` | L1 low | — | no |
-| Add to a note (asks what to add when you don't say). | “append a voice note to my 'client project review' file”<br>“add milk to my groceries note” | `notes.append` | L1 low | — | no |
-| Find your notes about something. | “show me all notes related to client project review”<br>“find my notes about the budget”<br>“read my notes” | `notes.find` | L1 low | — | no |
-| Export notes to a PDF, Markdown or text file, or pin a checklist to the desktop. | “export my notes on client project review to a clean pdf”<br>“pin the checklist for team standup meeting to my desktop” | `notes.export` | L1 low | — | no |
-| Read out the checklist for a task. | “read out my checklist for team standup meeting” | `checklist.read` | L1 low | — | no |
-| Email the action items for a task (opens a draft with your notes and to-dos). | “email the action items from team standup meeting to my team” | `notes.email` | L1 low | web | no |
-| Log time spent on a task. | “log 1 hour spent on client project review in my time tracker sheet”<br>“log 30 minutes on emails” | `time.log` | L1 low | — | no |
-| Summarize your progress on a task this week. | “summarize my progress on client project review this week”<br>“how much time did i spend on study this week” | `time.summary` | L1 low | — | no |
-| Stopwatch for timing a task. | “set a stopwatch to measure how long team standup meeting takes”<br>“start a stopwatch”<br>“stop the stopwatch” | `stopwatch.control` | L1 low | — | no |
-| Reminder for an event at a time. | “set a reminder for my team standup meeting at 9:00 am tomorrow”<br>“set a reminder for dentist appointment on friday at 4 pm” | `reminders.create` | L1 low | — | no |
-| Put an event on your schedule (as a Clickyy reminder; Outlook and Google Calendar are not connected). | “schedule team standup meeting on my calendar for friday at 3:00 pm”<br>“add dentist appointment to my calendar tomorrow at 10 am” | `reminders.create` | L1 low | — | no |
-| Hold time for a task (asks when it starts). | “block 2 hours on my calendar for client project review” | `reminders.create` | L1 low | — | no |
-| Daily, weekday or weekly repeating reminder or alarm. | “set a recurring daily alarm for meditation at 7:30 am”<br>“set a recurring weekly reminder for laptop backup every monday”<br>“remind me to drink water every day at 11 am” | `reminders.repeat` | L1 low | — | no |
-| Snooze a reminder. | “snooze my team standup meeting alert for 10 minutes”<br>“snooze for 5 minutes”<br>“snooze” | `reminders.snooze` | L1 low | — | no |
-| Cancel a reminder by name. | “cancel the scheduled reminder for team standup meeting”<br>“delete my dentist reminder” | `reminders.cancel_named` | L1 low | — | no |
-| When is something scheduled. | “check when my next team standup meeting is scheduled”<br>“when is my dentist appointment” | `reminders.find` | L1 low | — | no |
-| Move a reminder to a new time. | “reschedule my team standup meeting to tomorrow evening at 6:00 pm”<br>“move my dentist appointment to friday at 5 pm” | `reminders.reschedule` | L1 low | — | no |
-| Early warning before an event. | “set a 15-minute warning before team standup meeting starts”<br>“warn me 10 minutes before the dentist appointment” | `reminders.before` | L1 low | — | no |
-| Desktop shortcut to a workspace (explains how routines do this instead). | “create a desktop shortcut to launch my team standup meeting workspace” | built-in | — | — | — |
-| Cancel a timer, reminder or focus session. | “cancel the timer”<br>“cancel my reminder”<br>“stop the focus session”<br>“cancel all timers” | `reminders.cancel` | L1 low | — | no |
-| List reminders and timers. | “what reminders do I have”<br>“how long is left on my timer” | `reminders.list` | L1 low | — | no |
-| Start a focus (pomodoro) session. | “start a 25 minute focus session”<br>“start a study session”<br>“begin pomodoro” | `timers.create` | L1 low | — | no |
-| Set a countdown timer. | “set a timer for 10 minutes”<br>“5 minute timer”<br>“timer for 90 seconds” | `timers.create` | L1 low | — | no |
-| Create a reminder at a time or after a delay. | “remind me in 20 minutes”<br>“remind me to call mom in 1 hour”<br>“create a reminder for tomorrow morning”<br>“remind me at 5 pm to stretch” | `reminders.create` | L1 low | — | no |
+| Play a song, artist or mood ("play Alfaaz", "play something calm"). | “play alfaaz”<br>“play something calm”<br>“play something like coldplay” | `music.play` | L1 low | media | no |
 
 ## System
 
@@ -185,27 +238,6 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Open an app (longer ways to say it). | “start google chrome on my laptop”<br>“open terminal / command prompt” | `apps.open` | L1 low | apps | no |
 | Open an approved application or alias. | “open chrome”<br>“launch spotify”<br>“open vs code”<br>“start notepad”<br>“open it again” | `apps.open` | L1 low | apps | no |
 
-## Windows
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Close an app (every window; confirmed). | “close all google chrome windows”<br>“close all background instances of microsoft teams”<br>“quit spotify” | `windows.close_app` | L2 sensitive | windows | always |
-| Center, resize, keep on top, move to another monitor, show only one app, or open a new window. | “center the google chrome window on my screen”<br>“resize spotify window to 1280x720”<br>“pin notepad to the always-on-top layer”<br>“unpin notepad from always-on-top”<br>“move vs code to my second monitor”<br>“hide all windows except google chrome”<br>“open a new window in microsoft edge” | `windows.manage` | L1 low | windows | no |
-| Snap or maximize a named app window. | “snap google chrome to the left half of my screen”<br>“maximize spotify to full screen” | `windows.arrange` | L1 low | windows | no |
-| Switch between an app and the last window. | “switch focus between google chrome and my last active window” | `windows.focus` | L1 low | windows | no |
-| List open apps. | “show me my open applications”<br>“what apps are open” | `windows.list` | L1 low | windows | no |
-| Minimize everything / restore everything. | “minimize everything”<br>“show the desktop”<br>“restore all windows” | `windows.show_desktop` | L1 low | windows | no |
-| Switch to the previous window. | “switch to the previous window”<br>“go back to the last window” | `windows.previous` | L1 low | windows | no |
-| Minimize, maximize, restore or snap windows. | “minimize the current window”<br>“maximize this window”<br>“put the browser on the left”<br>“move the editor to the right” | `windows.arrange` | L1 low | windows | no |
-| Close a window (confirmed; the app may ask to save). | “close this window”<br>“close it”<br>“close notepad” | `windows.close` | L2 sensitive | windows | always |
-| Bring an app window to the front. | “switch to the browser”<br>“bring my code editor to the front”<br>“go to spotify” | `windows.focus` | L1 low | windows | no |
-
-## Screen
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Save a screenshot of one app window. | “take a screenshot of just the google chrome window”<br>“screenshot the spotify window” | `windows.screenshot` | L1 low | screen | no |
-
 ## Files
 
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
@@ -213,6 +245,7 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Find, count, sort, or find the largest or newest files of one type in a folder. | “find all pdf documents in my desktop folder”<br>“count how many excel spreadsheets are inside my downloads folder”<br>“list the 5 largest png and jpg images in my pictures folder”<br>“find word documents in documents modified today”<br>“sort all csv data files in downloads by newest date” | `files.by_type` | L1 low | files | no |
 | Find duplicate files of a type in a folder (read-only). | “check for duplicate pdf documents inside downloads”<br>“find duplicate photos in my pictures folder” | `files.duplicates` | L1 low | files | no |
 | Organize files of a type into a subfolder, date-stamp their names, zip them, or back them up (never deletes or overwrites). | “move all pdf documents from desktop into an organized subfolder”<br>“compress all excel spreadsheets in documents into a zip archive”<br>“back up all python scripts from projects to my backups folder”<br>“rename all csv data files in downloads with today's date prefix” | `files.bulk` | L2 sensitive | files | conditional |
+| Find one of your files by name in the approved folders, newest first. | “find my latest project report”<br>“where is my resume” | `files.search` | L1 low | files | no |
 
 ## Web
 
@@ -227,13 +260,6 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Search inside a website: YouTube, YouTube Music, Amazon, Wikipedia, GitHub, Reddit and 60 more. | “play lofi beats on youtube”<br>“search amazon for wireless earbuds”<br>“look up black holes on wikipedia”<br>“search arijit singh on yt music”<br>“find react hooks on stack overflow” | `web.search_site` | L1 low | web | no |
 | Open a website. | “open youtube.com”<br>“go to github.com”<br>“open the official website of python.org” | `web.open` | L1 low | web | no |
 | Search the web in your browser. | “search for the latest node documentation”<br>“look up electron security checklist”<br>“google best pizza near me” | `web.search` | L1 low | web | no |
-
-## Communication
-
-| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
-|---|---|---|---|---|---|
-| Draft an email (opens your mail app; you press Send). | “draft an email to rahul about the updated excel report”<br>“write an email to my manager about tomorrows leave” | `message.email` | L1 low | web | no |
-| Prepare a WhatsApp message (you choose the chat and press Send). | “send a whatsapp message to priya about the project deadline extension”<br>“whatsapp amit that i am running late” | `message.whatsapp` | L1 low | web | no |
 
 ## Skills
 
@@ -266,6 +292,12 @@ Deterministic commands work fully offline with no language model. Anything not m
 | List what Clickyy has been asked to remember. | “what do you remember about me”<br>“what do you know about me” | `memory.list` | L1 low | — | no |
 | Explicitly save a preference or fact. | “remember that I prefer dark roast coffee”<br>“remember my project is called Atlas” | `memory.save` | L1 low | — | no |
 | Delete saved memories matching words. | “forget about my coffee preference” | `memory.forget` | L1 low | — | no |
+
+## Automation
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Asks for a routine that does not exist (explains how to create one). | “run my study routine” | built-in | — | — | — |
 
 ## Tool registry
 
@@ -350,6 +382,7 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `apps.clear_cache` | Open the place where an app's cache can be cleared: the browser's clear-data page, or Windows storage settings for other apps. Nothing is deleted without you choosing it. | L1 low | apps | 8s | yes |
 | `windows.manage` | Center a window, resize it, keep it on top (or stop), move it to the next monitor, minimize every other window, or open a new window of the app. Omit query for the current window. | L1 low | windows | 10s | yes |
 | `windows.screenshot` | Save a screenshot of one app window as a PNG in Documents\Clickyy\Screenshots. | L1 low | screen | 12s | yes |
+| `screen.save` | Save a screenshot of the whole screen as a PNG in Documents\Clickyy\Screenshots. | L1 low | screen | 12s | yes |
 | `app.audio` | Mute or unmute just one app's sound in the Windows volume mixer. | L1 low | media | 8s | yes |
 | `files.by_type` | List, count, sort by date, find the largest, or find today's files of one type in a personal folder (Desktop, Documents, Downloads, Pictures, Music, Videos, or a named subfolder like Projects or Invoices). Searches subfolders too. Types: pdf, excel, csv, word, powerpoint, text, markdown, python, zip, images, videos, audio, all. | L1 low | files | 30s | yes |
 | `files.bulk` | Do one thing to every file of a type in a personal folder: move them into a tidy subfolder (organize), add today's date to the front of their names (rename_date), compress them into a ZIP in Documents\Clickyy\Archives, or copy them to Documents\Clickyy\Backups. Nothing is ever deleted or overwritten. | L2 sensitive | files | 300s | yes |

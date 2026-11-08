@@ -155,6 +155,14 @@ function distance(a: string, b: string): number {
 /** Everyday words that must never be "repaired" into something else (canonical, squashed spellings). */
 const COMMON_HINDI = 'sham subah suba savere dopahar rat aj kal parson ko ki ka ke se par pe me men mein hai hain tha thi the kya kaise kaisa kab kahan kyon kyun mujhe mera meri mere tum tumhara ap apna apni yah vah ye vo aur ya bhi nahi nahin mat bahut thoda thora abhi phir karna karne kiya lie liye bare vala vali vale sab sabhi sari koi kuch ek naya nai purane purana din hafta mahina sal ghar kam bat log dost man maa papa bhai bahan';
 
+/** Common English words, some spelled like Hindi ones; never evidence that a Latin-script sentence is Hindi. */
+const COMMON_ENGLISH = new Set(('the a an and or but if of to in on at by for from with about into over after before up down out off is are was were be been am '
+  + 'i me my you your he she it its we us our they them their this that these those what which who when where why how all any some no not '
+  + 'do does did done have has had can could will would should may might must shall let get got go going come make take give show tell '
+  + 'find open close play set turn start stop search look see read write send check put run new latest last next first best more less '
+  + 'please now today tomorrow email mail file files report college school office meeting work home man mat rat bare lie din sal log bat '
+  + 'so as than then there here very just also only too well good like want need time day week year').split(' '));
+
 /** soft form → canonical word the rules use (Hindi words, loanword targets, number words). */
 const VOCAB = new Map<string, string>();
 /** Canonical words that are Hindi (not English loanwords): used to tell romanized Hindi from English. */
@@ -397,7 +405,10 @@ export function understandHindi(raw: string): HindiResult {
     // Romanized Hindi with Whisper's spelling ("Spotify kolo", "Screenshot low"): only taken
     // when the repaired sentence has a Hindi word and fully matches a rule; English is left alone.
     const t = toCanonical(raw).replace(WAKE, '').trim();
-    if (!t.split(' ').some((w) => HINDI_WORDS.has(w)) || NEGATION.test(t)) return { text: raw, hindi: false, mapped: false };
+    // Evidence must be a word the user actually said that is Hindi and not also everyday English: "the" (थे),
+    // "me" (में) and "do" (दो) appear in any English sentence, and repair can turn "from" into "chrome".
+    const said = raw.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter((w) => w && !COMMON_ENGLISH.has(w));
+    if (!said.some((w) => toCanonical(w).split(' ').some((c) => HINDI_WORDS.has(c))) || NEGATION.test(t)) return { text: raw, hindi: false, mapped: false };
     for (const [re, rep] of RULES) {
       const m = t.match(re);
       if (m && re !== GENERIC_PLAY && re !== GENERIC_FIND) return { text: (typeof rep === 'string' ? rep : rep(...m)).trim(), hindi: true, mapped: true };
