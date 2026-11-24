@@ -70,6 +70,17 @@ export const IpcInvoke = {
   'models:download': empty,
   'models:cancel': empty,
   'models:remove': z.object({ confirm: z.literal(true) }),
+  /** Offline brain: download a local model through Ollama, check progress, get Ollama, list/forget learned phrases. */
+  'local:pull': z.object({ model: z.string().trim().regex(/^[a-z0-9][a-z0-9._:/-]{0,79}$/i) }),
+  'local:pullStatus': empty,
+  'local:pullCancel': empty,
+  'local:getOllama': empty,
+  'brain:status': empty,
+  'updates:status': empty,
+  'updates:check': empty,
+  'updates:install': empty,
+  'updates:skip': empty,
+  'brain:forget': z.object({ text: z.string().max(300).optional() }),
   'tts:cloud': z.object({ text: z.string().min(1).max(4000) }),
   'tts:neural': z.object({ text: z.string().min(1).max(1200) }),
   'tts:voices': empty,
@@ -91,5 +102,5 @@ export const IpcSend = {
 } as const;
 
 /** Push channels (main -> renderer). */
-export const IpcEvents = ['assistant:event', 'speech:event', 'settings:changed', 'ui:command'] as const;
+export const IpcEvents = ['assistant:event', 'speech:event', 'settings:changed', 'ui:command', 'updates:changed'] as const;
 export type IpcEventChannel = (typeof IpcEvents)[number];

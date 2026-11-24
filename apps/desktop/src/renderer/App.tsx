@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { Settings } from '@shared/settings';
-import type { AssistantEvent, AssistantReply, SpeechEvent } from '@shared/types';
+import type { AssistantEvent, AssistantReply, SpeechEvent, UpdateStatus } from '@shared/types';
 import { prosody } from '@shared/voiceProfiles';
 import { bridge, call } from './api';
 import { notify, store, upsertTimeline, useStore } from './state/store';
 import { Mic } from './audio/mic';
 import { Speaker, chime } from './audio/tts';
 import { VoiceController } from './voice/controller';
-import { Orb, type OrbMode } from './components/Orb';
+import type { OrbMode } from './components/Orb';
+import { OrbStage } from './components/OrbStage';
+import { Backdrop } from './components/Backdrop';
 import { Composer, ConfirmCard, Conversation, Notices, StatusLine, TitleBar } from './components/MainView';
 import { ActivityPanel } from './components/ActivityPanel';
+import { UpdateBanner } from './components/TopExtras';
 import { SettingsScreen } from './screens/Settings';
 
 function applyRootSettings(s: Settings) {
@@ -129,8 +132,11 @@ export function App() {
               });
             }
             // Voice turns hand speech + follow-up to the controller; typed turns and reminders are spoken directly.
-            if (!voiceTurn || r.source === 'system') {
-              if (r.source === 'system' || !speaker.isSpeaking) void speak(r);
+            if (r.source === 'system') void speak(r);
+            else if (!voiceTurn && store.get().settings?.speech.talkBack !== 'voice') {
+              // Talk back every time: a typed request is answered out loud too, replacing anything still being said.
+              speaker.stop();
+              void speak(r);
             }
             break;
           }
@@ -157,6 +163,7 @@ export function App() {
         }
         void controller.handleSpeech(ev);
       }),
+      bridge.on('updates:changed', (raw) => store.set({ update: raw as UpdateStatus })),
       bridge.on('settings:changed', (raw) => {
         const s = raw as Settings;
         store.set({ settings: s });
@@ -168,6 +175,7 @@ export function App() {
         const { cmd } = raw as { cmd: string };
         if (cmd === 'mic_mute') { store.set({ micMuted: true }); void controller.setMuted(true); }
         if (cmd === 'mic_unmute' && store.get().micMuted) { store.set({ micMuted: false }); void controller.setMuted(false); }
+        if (cmd === 'update_available') void call('updates:status').then((u) => store.set({ update: u })).catch(() => {});
         if (cmd === 'mic_toggle') { const m = !store.get().micMuted; store.set({ micMuted: m }); void controller.setMuted(m); notify('info', m ? 'Microphone muted' : 'Microphone on'); }
       }),
     ];
@@ -196,6 +204,7 @@ export function App() {
         applyRootSettings(s);
         store.set({ speech: await call('speech:status') });
         store.set({ providers: await call('providers:status') });
+        void call('updates:status').then((u) => store.set({ update: u })).catch(() => {});
         await controller.refresh();
       } catch (e) {
         notify('error', (e as Error).message);
@@ -215,7 +224,7 @@ export function App() {
   }, [engine]);
 
   if (!settings) {
-    return <div className="flex h-full items-center justify-center"><span className="wordmark text-xs text-gold">CLICKYY</span></div>;
+    return <div className="flex h-full items-center justify-center"><span className="wordmark wordmark-shine text-xs">CLICKYY</span></div>;
   }
 
   const reduced = document.documentElement.dataset.motion === 'reduced';
@@ -230,17 +239,19 @@ export function App() {
                   : 'idle';
 
   return (
-    <div className="flex h-full flex-col">
-      <TitleBar />
+    <div className="relative flex h-full flex-col">
+      <Backdrop mode={view === 'settings' ? 'muted' : orbMode} />
+      <div className="relative z-10"><TitleBar /></div>
+      <UpdateBanner />
       <Notices />
       {view === 'settings' ? (
         <SettingsScreen onPreview={(text) => void engine.speak({ turnId: 'preview', text, speech: text, style: 'warm', source: 'system', expectFollowUp: false })} />
       ) : (
         <>
-          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-hidden">
-            <Orb mode={orbMode} reducedMotion={reduced} size={panelOpen || confirming ? 120 : 210} />
+          <main className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-hidden">
+            <OrbStage mode={orbMode} reducedMotion={reduced} size={panelOpen || confirming ? 130 : 230} />
             <StatusLine mode={orbMode} />
-            <Conversation />
+            <Conversation reducedMotion={reduced} />
           </main>
           <ConfirmCard />
           <Composer
@@ -250,7 +261,7 @@ export function App() {
             onToggleMute={() => { const m = !store.get().micMuted; store.set({ micMuted: m }); void engine.controller.setMuted(m); }}
             onConversation={() => void engine.controller.startConversation()}
           />
-          {panelOpen && <ActivityPanel reducedMotion={reduced} />}
+          {panelOpen && <div className="relative z-10"><ActivityPanel reducedMotion={reduced} /></div>}
         </>
       )}
     </div>

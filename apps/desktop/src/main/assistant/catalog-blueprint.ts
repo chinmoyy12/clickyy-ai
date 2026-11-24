@@ -100,6 +100,10 @@ export const BLUEPRINT_LAST: CommandDef[] = [
     resolve: (m) => {
       const q = m[1].trim();
       if (/^(?:a |some |the )?(?:game|games|video|videos|movie|movies|chess|cards|it|that|this)\b/.test(q) || /\bon (?:youtube|netflix|prime|hotstar)$/.test(q)) return null;
+      // "play the earlier song again" / "play the next track" are playback controls, not a search.
+      if (/^(?:the )?(?:earlier|previous|last|prior) (?:song|track|one)\b|\b(?:song|track) before\b/.test(q)) return tool('media.control', { action: 'previous' });
+      if (/^(?:the )?(?:next|following) (?:song|track|one)\b/.test(q)) return tool('media.control', { action: 'next' });
+      if (/^(?:the )?(?:same )?(?:song|track|music) again$/.test(q)) return tool('media.control', { action: 'play' });
       const like = q.match(/^something (?:like|similar to) (.+)$/);
       const mood = q.match(/^something (.+)$/);
       const query = like ? `songs like ${like[1]}` : mood ? `${mood[1]} music` : q.replace(/^(?:some|the song)\s+/, '');

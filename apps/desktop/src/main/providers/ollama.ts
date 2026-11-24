@@ -11,13 +11,13 @@ export class OllamaProvider implements LlmProvider {
   readonly kind = 'local' as const;
   readonly label: string;
 
-  constructor(private baseUrl: string, readonly model: string, private timeoutMs: number, private fetchImpl: typeof fetch, private device: 'auto' | 'cpu' | 'gpu' = 'auto') {
+  constructor(private baseUrl: string, readonly model: string, private timeoutMs: number, private fetchImpl: typeof fetch, private device: 'auto' | 'cpu' | 'gpu' = 'auto', private numPredict?: number) {
     this.label = model ? `Ollama · ${model}` : 'Ollama';
   }
 
   private options(): Record<string, unknown> {
     const cpu = this.device === 'cpu' || (this.device === 'auto' && cpuOnly.has(this.model));
-    return { num_ctx: 8192, ...(cpu ? { num_gpu: 0 } : {}) };
+    return { num_ctx: 8192, ...(this.numPredict ? { num_predict: this.numPredict } : {}), ...(cpu ? { num_gpu: 0 } : {}) };
   }
 
   /** Load the model into memory ahead of the first question (no tokens generated). */

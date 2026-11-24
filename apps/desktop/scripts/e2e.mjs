@@ -144,6 +144,7 @@ try {
   record('strict offline answers locally, or honestly says no local model', (x.r.source === 'local_llm' && x.r.text.length > 20) || /no local language model/.test(x.r.text), `${x.r.providerLabel ?? x.r.source} · ${x.ms} ms · ${x.r.text.slice(0, 90)}`);
   const status = await invoke('providers:status');
   record('provider status reports local model state', typeof status.local.ready === 'boolean', status.local.message ?? 'ready');
+  await invoke('settings:update', { ai: { policy: 'smart_hybrid' } });
 
   // Memory and persistence.
   await say('remember that my favourite editor is VS Code');
@@ -317,6 +318,39 @@ try {
     const mic = await evaluate(`(async () => { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); const ctx = new AudioContext(); const a = ctx.createAnalyser(); ctx.createMediaStreamSource(s).connect(a); const d = new Float32Array(a.fftSize); let max = 0; for (let i = 0; i < 15; i++) { await new Promise((r) => setTimeout(r, 100)); a.getFloatTimeDomainData(d); for (const v of d) max = Math.max(max, Math.abs(v)); } const label = s.getAudioTracks()[0].label; s.getTracks().forEach((t) => t.stop()); await ctx.close(); return { label, max }; })()`);
     record('real microphone capture', typeof mic?.label === 'string', `${mic?.label} · peak ${mic?.max?.toFixed(4)}`);
   }
+
+  // 0.7: the on-device brain answers reworded commands with no model, and the knowledge tools work.
+  const brain = await invoke('brain:status');
+  record('on-device brain loaded', brain.intents > 100 && brain.runnable > 30, JSON.stringify(brain).slice(0, 200));
+  x = await timed('is the charger connected');
+  record('brain understands a reworded command', /battery|charg|plugged/i.test(x.r.text) && /brain/i.test(x.r.providerLabel ?? ''), `${x.ms} ms · ${x.r.providerLabel} · ${x.r.text.slice(0, 120)}`);
+  x = await timed("what's the news");
+  record('news headlines (no key)', /^Here are the top headlines\./.test(x.r.text) || /didn't answer|couldn't load/.test(x.r.text), `${x.ms} ms · ${x.r.text.slice(0, 160)}`);
+  x = await timed('what does wikipedia say about the taj mahal');
+  record('wikipedia answer (no key)', /from Wikipedia\.$/.test(x.r.text) || /didn't answer/.test(x.r.text), `${x.ms} ms · ${x.r.text.slice(0, 160)}`);
+
+  x = await timed('tell me a joke');
+  record('offline joke', x.r.text.length > 20 && x.r.source === 'deterministic', `${x.ms} ms · ${x.r.text.slice(0, 100)}`);
+  x = await timed('emi for 5 lakh at 9 percent for 3 years');
+  record('offline EMI calculator', /EMI is about 15,900 a month/.test(x.r.text), `${x.ms} ms · ${x.r.text.slice(0, 120)}`);
+  x = await timed('what day was august 15 1947');
+  record('offline day of the week', x.r.text === 'August 15, 1947 was a Friday.', x.r.text);
+  x = await timed('generate a strong password');
+  const pw = x.r.text.split('\n\n')[1] ?? '';
+  record('password shown, never spoken', pw.length === 16 && !x.r.speech.includes(pw), `${x.ms} ms · speech: ${x.r.speech.slice(0, 80)}`);
+
+  // 0.7: built-in AI (bundled Qwen3 1.7B), response modes, updates.
+  x = await timed('turbo mode');
+  const st7 = await invoke('settings:get');
+  record('voice switches to Turbo mode', st7.ai.mode === 'turbo' && /Turbo mode on/.test(x.r.text), `${x.ms} ms · ${x.r.text}`);
+  await timed('fast mode');
+  x = await timed('in one sentence, why do cats purr?');
+  const prov = await invoke('providers:status');
+  record('built-in AI answers a question with no key and no Ollama', /built-in/i.test(x.r.providerLabel ?? '') && x.r.text.length > 15, `${x.ms} ms · ${x.r.providerLabel} · ${x.r.text.slice(0, 120)} · engine ${prov.builtin?.state}`);
+  x = await timed('what version are you');
+  record('knows its version', /version 0\.7\.0/.test(x.r.text), x.r.text);
+  const upd = await invoke('updates:status');
+  record('updater present', upd.current === '0.7.0', `${upd.state} ${upd.message}`);
 
   const diag = await invoke('diagnostics:get');
   record('diagnostics', diag.bridge.state === 'ready', `main RSS ${diag.memoryMB} MB · bridge ${diag.bridge.state}`);

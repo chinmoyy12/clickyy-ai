@@ -32,4 +32,6 @@ Because espeak-ng and phonemizer are GPL-3.0, the `clickyy-speech.exe` program a
 
 ## Optional, not bundled
 
+**Built-in AI (bundled in the installer):** Qwen3 1.7B (Q4_K_M GGUF quantization by Unsloth) by the Qwen team, Alibaba Cloud, Apache License 2.0; llama.cpp (`llama-server`, CPU build b12676) by the ggml authors, MIT License; LLVM OpenMP runtime (`libomp.dll`), Apache License 2.0 with LLVM exceptions. License texts ship in `resources/llm/` inside the app.
+
 Ollama, LM Studio, and the models you download with them are installed separately under their own licenses (for example, the Llama 3.2 Community License).

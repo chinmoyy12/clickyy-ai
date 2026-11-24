@@ -296,7 +296,7 @@ export const EXTENDED: CommandDef[] = [
     resolve: (m) => tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), hint: 'Right-click it and choose Add to queue; music apps don\'t let other programs change their queue.' }) }),
   cmd({ id: 'music.repeat', category: 'Media', tool: 'music.play', description: 'Play a song on repeat.', examples: ['play kesariya on single-track repeat', 'play believer on loop'],
     patterns: [/^(?:play|put) (.+?) on (?:single[- ]track |single song |)(?:repeat|loop)(?: mode)?$/, /^(?:loop|repeat) (?:the song )?(.+?)(?: on repeat| forever| all day)?$/],
-    resolve: (m, text) => (/^(?:repeat|loop)$/.test(text) || /^(that|it|this|the last thing|after me)\b/.test(m[1]) ? null : tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), hint: 'Press the repeat button until it shows a 1 to loop just this song.' })) }),
+    resolve: (m, text) => (/^(?:repeat|loop)$/.test(text) || /^(that|it|this|the last thing|after me|what|everything|your|yourself|the answer|the question|the last sentence)\b/.test(m[1]) ? null : tool('music.play', { query: clean(m[1]).replace(/^the song /, ''), hint: 'Press the repeat button until it shows a 1 to loop just this song.' })) }),
   cmd({ id: 'music.lyrics', category: 'Media', tool: 'web.search', description: 'Find the lyrics of a song (opens a search; lyrics are copyrighted, so I don\'t save them).', examples: ['fetch and save synchronized lyrics for tum hi ho', 'show me the lyrics of shape of you'],
     patterns: [/\blyrics (?:for|of|to) (?:the song )?(.+)$/, /^(?:find|get|show me|search for) (?:the song )?(.+?) lyrics$/],
     resolve: (m, text) => tool('web.search', { query: `${clean(m[1])} lyrics${/synced|synchronized|lrc/.test(text) ? ' lrc synced' : ''}`, ...(/\bsave|download\b/.test(text) ? { note: "Lyrics are copyrighted, so I opened a search instead of saving them." } : {}) }) }),
@@ -572,7 +572,7 @@ export const EXTENDED: CommandDef[] = [
     resolve: (m) => { const a = appArg(m[1]); return a ? tool('windows.focus', { query: a }) : null; } }),
   cmd({ id: 'app.start_on', category: 'Apps', tool: 'apps.open', description: 'Open an app (longer ways to say it).', examples: ['start google chrome on my laptop', 'open terminal / command prompt'],
     patterns: [/^(?:open|start|launch|run) (.+?) (?:on|in) (?:my |the )?(?:laptop|pc|computer|system)$/, /^(?:open|start|launch) (.+? \/ .+)$/],
-    resolve: (m) => { const a = appArg(m[1]); return a ? tool('apps.open', { app: /^task manager$/.test(a) ? 'Task Manager' : a }) : null; } }),
+    resolve: (m) => { if (/\b(?:check|scan|test|diagnostics?|report|clean ?up|update|backup)\b/.test(m[1])) return null; const a = appArg(m[1]); return a ? tool('apps.open', { app: /^task manager$/.test(a) ? 'Task Manager' : a }) : null; } }),
 
   // ---------------------------------------------------------------- Windows features
   cmd({ id: 'system.feature', category: 'System', tool: 'system.feature', description: 'Turn a Windows feature on or off, toggle it, check it, reset it or open its settings (35 features: Wi-Fi, Bluetooth, dark mode, night light, hotspot, narrator, clipboard history and more).', examples: ['turn on bluetooth', 'turn off wi-fi', 'toggle dark mode', 'check if bluetooth is currently enabled', 'open the settings page for night light', 'reset hidden files visibility to default configuration', 'turn on high performance power plan'],
@@ -587,6 +587,8 @@ export const EXTENDED: CommandDef[] = [
     resolve: (m, text) => {
       const f = findFeature(m[1]);
       if (!f || m[1].split(' ').length > 7) return null;
+      // "show available wifi networks" lists networks; it doesn't switch Wi-Fi on.
+      if (/^show /.test(text) && /\b(?:networks?|list|available|nearby)\b/.test(m[1])) return null;
       const action = /^toggle/.test(text) ? 'toggle' : /^(check|tell me|see|find out|is) /.test(text) ? 'status' : /^(open|show|go to|take me to) (the )?settings/.test(text) ? 'settings' : /^reset/.test(text) ? 'reset' : /^(turn off|disable|switch off|deactivate|stop|hide)/.test(text) ? 'off' : 'on';
       return tool('system.feature', { feature: f.id, action });
     } }),

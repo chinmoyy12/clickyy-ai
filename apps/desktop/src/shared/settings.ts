@@ -20,6 +20,8 @@ export const PERMISSION_KEYS = ['system', 'media', 'apps', 'windows', 'web', 'fi
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
 
 import { CLOUD_PROVIDERS, LOCAL_RUNTIMES } from './providers';
+import { AI_MODES } from './modes';
+export { AI_MODES, type AiMode } from './modes';
 export { CLOUD_PROVIDERS, type CloudProviderId } from './providers';
 
 const shortcut = z.string().max(64).regex(/^[A-Za-z0-9+ ]*$/, 'Invalid accelerator');
@@ -55,6 +57,8 @@ export const SettingsSchema = z.object({
     /** Double-check every wake word with a second recognizer (far fewer false wakes). */
     verifyWake: z.boolean().default(true),
     ttsEngine: z.enum(['neural', 'system', 'cloud', 'off']).default('neural'),
+    /** 'always': every reply is spoken, typed ones too (a new reply interrupts the old one). 'voice': only replies to spoken requests. */
+    talkBack: z.enum(['always', 'voice']).default('always'),
     neuralVoice: z.string().regex(/^[a-z]{2}_[a-z]+$/).max(40).default('af_heart'),
     voiceName: z.string().max(200).default(''),
     cloudVoice: z.string().max(64).default('nova'),
@@ -75,7 +79,13 @@ export const SettingsSchema = z.object({
   ai: z.object({
     policy: z.enum(ROUTING_POLICIES).default('smart_hybrid'),
     allowCloudTranscripts: z.boolean().default(false),
+    /** Response speed vs. depth for model answers: Fast (short, quick), Balanced, Turbo (deeper reasoning, longer answers). */
+    mode: z.enum(AI_MODES).default('balanced'),
     local: z.object({
+      /** The AI model bundled inside the app (runs on this PC, no download, no key). */
+      builtin: z.boolean().default(true),
+      /** Try the built-in model before Ollama / a local server. Off: Ollama first, built-in as the fallback. */
+      builtinFirst: z.boolean().default(true),
       runtime: z.enum(LOCAL_RUNTIMES).default('ollama'),
       baseUrl: z.string().url().default('http://127.0.0.1:11434'),
       model: z.string().max(120).default(''),
@@ -132,6 +142,12 @@ export const SettingsSchema = z.object({
     saveHistory: z.boolean().default(true),
     historyRetentionDays: z.number().int().min(1).max(3650).default(30),
     auditLog: z.boolean().default(true),
+  }).prefault({}),
+  updates: z.object({
+    /** Look for a new version on GitHub at start and every few hours (never in Strict Offline). */
+    autoCheck: z.boolean().default(true),
+    /** A version the user chose to skip. */
+    skipped: z.string().max(40).default(''),
   }).prefault({}),
   ui: z.object({
     alwaysOnTop: z.boolean().default(false),

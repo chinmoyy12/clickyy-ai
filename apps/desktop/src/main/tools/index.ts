@@ -13,8 +13,11 @@ import { appControlTools } from './appctl';
 import { filePlusTools } from './filesplus';
 import { organizerTools } from './organizer';
 import { commsTools } from './comms';
+import { infoTools } from './info';
+import { moreTools } from './more';
+import { lifeTools } from './life';
 
 export function createRegistry(): ToolRegistry {
   return new ToolRegistry().register(...systemTools, ...mediaTools, ...appTools, ...webTools, ...fileTools, ...productivityTools, ...skillTools, ...extraTools,
-    ...officeTools, ...controlTools, ...appControlTools, ...filePlusTools, ...organizerTools, ...commsTools);
+    ...officeTools, ...controlTools, ...appControlTools, ...filePlusTools, ...organizerTools, ...commsTools, ...infoTools, ...moreTools, ...lifeTools);
 }

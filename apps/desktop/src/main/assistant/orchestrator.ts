@@ -11,6 +11,8 @@ import { POLICY_LABELS } from '../providers/manager';
 import { ProviderError, type ConversationItem, type LlmProvider } from '../providers/types';
 import type { Builtin, PendingSlot, Resolution } from './catalog';
 import { route } from './router';
+import { Brain, type BrainGuess, type LearnedPhrase } from './brain';
+import { hasDevanagari } from './hindi';
 import { chooseStyle, greetingFor, phrase, PROFILES, systemPrompt, toSpeech, type Situation } from './style';
 import { redact } from '../security/redact';
 import { cloudTools, selectTools } from './toolSelect';
@@ -19,6 +21,7 @@ import { BROWSER_LABEL, installedBrowsers, type BrowserId } from '../tools/web';
 import { CATALOG } from './catalog';
 import { capabilityCounts } from './knowledge';
 import { WAKE_PHRASE_LABELS, type WakePhraseId } from '@shared/settings';
+import { MODE_PROFILES, type AiMode } from '@shared/modes';
 import { codePrompt, comparisonPrompt, flashcardPrompt, LANGS, messagePrompt, parseCodeFiles, parseComparison, parseEmail, taskSlug, type CodeMode } from './codegen';
 
 const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
@@ -39,13 +42,25 @@ export interface AssistantDeps {
   uiCommand(cmd: string, payload?: unknown): void;
   /** Guarded fetch for tools that use the network (weather). */
   net: typeof fetch;
+  /** In-app updater (absent in tests). */
+  updates?: { version: string; check(manual: boolean): Promise<{ state: string; latest?: string; message: string }>; install(): Promise<void> };
 }
 
 /** Tools the model may never call by itself: memory changes must come from the user's own words. */
 const LLM_EXCLUDED = new Set(['memory.save', 'memory.forget']);
 const MAX_TOOL_ROUNDS = 6;
 
-interface Outcome { text: string; speech?: string; situation: Situation; expectFollowUp?: boolean; source?: AssistantReply['source']; providerLabel?: string }
+/** `publicText` replaces `text` in model context and history when the reply shows a secret (a generated password). */
+interface Outcome { text: string; publicText?: string; speech?: string; situation: Situation; expectFollowUp?: boolean; source?: AssistantReply['source']; providerLabel?: string; calls?: Array<{ tool: string; args: unknown; ok: boolean }> }
+
+/** One brain per process: it holds the network weights and the phrases learned on this PC. */
+let sharedBrain: Brain | null = null;
+export function getBrain(): Brain { return (sharedBrain ??= new Brain()); }
+
+/** Tools whose calls depend on the moment or carry personal content, so a replay could be wrong: never learned. */
+const NOT_LEARNABLE = /^(?:reminders|timers|notes|todo|memory|message|keyboard|files|clipboard|power|screen|document|project|sheet|time\.log|stopwatch|checklist)\b/;
+const BRAIN_LABEL = 'On-device brain';
+const YES = /^(?:yes|yeah|yep|yup|sure|ok|okay|correct|right|haan|ha|han|ji|haan ji|do it|yes please)$/;
 
 export class Assistant {
   readonly session: SessionState = {};
@@ -54,8 +69,21 @@ export class Assistant {
   private pending: PendingSlot | null = null;
   private current: AbortController | null = null;
   private lastReply: AssistantReply | null = null;
+  /** "Did you mean…?" offered by the brain when no language model is available. */
+  private suggestion: BrainGuess | null = null;
+  readonly brain: Brain;
 
-  constructor(private d: AssistantDeps) {}
+  constructor(private d: AssistantDeps) {
+    this.brain = getBrain();
+    try {
+      const row = d.repos.db.get("SELECT value FROM kv WHERE key = 'brain.learned'");
+      this.brain.loadLearned(row ? (JSON.parse(String(row.value)) as LearnedPhrase[]) : []);
+    } catch { this.brain.loadLearned([]); }
+  }
+
+  private saveLearned(list: LearnedPhrase[]) {
+    this.d.repos.db.run("INSERT INTO kv (key, value) VALUES ('brain.learned', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [JSON.stringify(list)]);
+  }
 
   get busy() { return this.current !== null; }
 
@@ -102,7 +130,7 @@ export class Assistant {
     if (reply.text) {
       this.lastReply = reply;
       this.session.lastSpoken = reply.speech;
-      this.persist('assistant', reply.text, { source: reply.source });
+      this.persist('assistant', outcome.publicText ?? reply.text, { source: reply.source });
     }
     this.d.emit({ type: 'reply', reply });
     this.d.emit({ type: 'phase', phase: 'idle' });
@@ -139,6 +167,18 @@ export class Assistant {
     const routed = route(text, { session: this.session, apps: allApps(registry), browser: this.d.settings().tools.browser, browsers: installedBrowsers(registry) }, this.d.repos.routines.list(), this.pending);
     this.pending = null;
 
+    // Answer to the brain's "Did you mean…?": yes runs it, anything else is a new request.
+    const offered = this.suggestion;
+    this.suggestion = null;
+    if (offered?.resolution && routed.kind !== 'commands' && YES.test(routed.normalized)) {
+      return { ...(await this.resolve(offered.resolution, ctx, turnId, offered.commandId)), providerLabel: BRAIN_LABEL };
+    }
+
+    if (routed.kind === 'none' && !hasDevanagari(routed.normalized)) {
+      const brainOut = await this.useBrain(routed.normalized, ctx, turnId);
+      if (brainOut) return brainOut;
+    }
+
     if (routed.kind === 'routine') return this.runRoutine(routed.routine, ctx, turnId);
 
     // A command keyword inside a request that needs reasoning: let a cloud model answer it with tools.
@@ -155,17 +195,44 @@ export class Assistant {
       }
       if (outputs.length === 1) {
         // Track conversational context so follow-up questions can refer back to what just happened.
-        this.items.push({ role: 'user', text }, { role: 'assistant', text: outputs[0].text });
+        this.items.push({ role: 'user', text }, { role: 'assistant', text: outputs[0].publicText ?? outputs[0].text });
         this.trimContext();
         return outputs[0];
       }
       const combined = outputs.map((o) => o.text).join(' ');
-      this.items.push({ role: 'user', text }, { role: 'assistant', text: combined });
+      this.items.push({ role: 'user', text }, { role: 'assistant', text: outputs.map((o) => o.publicText ?? o.text).join(' ') });
       this.trimContext();
       return { text: combined, situation: outputs.some((o) => o.situation === 'failure') ? 'failure' : 'success', expectFollowUp: outputs.some((o) => o.expectFollowUp) };
     }
 
-    return this.converse(text, source, ctx, turnId);
+    return this.converse(text, source, ctx, turnId, [], routed.normalized);
+  }
+
+  /**
+   * The offline brain: a phrase learned from experience replays its tool call; otherwise the intent network
+   * runs a command it is confident about. When no language model is available it offers its best guess.
+   */
+  private async useBrain(text: string, ctx: ToolContext, turnId: string): Promise<Outcome | null> {
+    const learned = this.brain.recall(text);
+    if (learned && this.d.registry.get(learned.tool)) {
+      this.saveLearned(this.brain.learnedList());
+      const out = await this.runTool(learned.tool, learned.args, ctx, turnId, 'user_command');
+      return { ...out, providerLabel: `${BRAIN_LABEL} (learned)` };
+    }
+    const g = this.brain.guess(text);
+    if (!g) return null;
+    if (g.resolution && g.confidence >= Brain.ACT) {
+      return { ...(await this.resolve(g.resolution, ctx, turnId, g.commandId)), providerLabel: BRAIN_LABEL };
+    }
+    if (g.confidence >= Brain.SUGGEST && !(await this.usableProviders()).length) {
+      if (g.resolution) {
+        this.suggestion = g;
+        return { text: `Did you mean "${g.example}"? Say yes and I'll do it.`, situation: 'info', expectFollowUp: true, providerLabel: BRAIN_LABEL };
+      }
+      const def = CATALOG.find((c) => c.id === g.commandId);
+      return { text: `I think you want to ${def ? def.description.replace(/\.$/, '').toLowerCase() : 'do something I know'}. Try saying it like: "${g.example}".`, situation: 'info', expectFollowUp: true, providerLabel: BRAIN_LABEL };
+    }
+    return null;
   }
 
   private async resolve(r: Resolution, ctx: ToolContext, turnId: string, commandId: string): Promise<Outcome> {
@@ -191,6 +258,15 @@ export class Assistant {
       }
     };
     switch (b) {
+      case 'check_updates': {
+        if (!this.d.updates) return { text: "Updates can't be checked in this build.", situation: 'info' };
+        const r = await this.d.updates.check(true);
+        if (r.state === 'available') {
+          this.d.uiCommand('update_available');
+          return { text: `${r.message} I've put an Update button at the top of the window. Press it when you're ready; I'll restart with the new version.`, situation: 'info' };
+        }
+        return { text: r.message, situation: r.state === 'error' ? 'failure' : 'info' };
+      }
       case 'briefing': {
         this.d.emit({ type: 'progress', turnId, text: phrase('working', s) });
         const now = new Date();
@@ -492,8 +568,9 @@ export class Assistant {
     const slow = setTimeout(() => this.d.emit({ type: 'progress', turnId, text: phrase('working', this.d.settings()) }), 1500);
     try {
       const result = await this.d.executor.execute(name, args, ctx, { origin });
-      const text = result.detail && this.d.settings().personality.verbosity !== 'brief' ? `${result.message}\n\n${result.detail}` : result.message;
-      return { text, speech: toSpeech(result.message), situation: result.ok ? 'success' : 'failure', result };
+      const text = result.detail && (result.secretDetail || this.d.settings().personality.verbosity !== 'brief') ? `${result.message}\n\n${result.detail}` : result.message;
+      const publicText = result.secretDetail ? `${result.message} (Shown once on screen; not saved to history.)` : undefined;
+      return { text, publicText, speech: toSpeech(result.message), situation: result.ok ? 'success' : 'failure', result };
     } catch (e) {
       if (e instanceof ToolError && e.code === 'cancelled') throw e;
       const msg = e instanceof Error ? e.message : String(e);
@@ -580,6 +657,17 @@ export class Assistant {
         this.d.updateSettings({ personality: { profile, ...(profile === 'professional' ? { verbosity: 'brief', humor: 0 } : {}) } });
         return { text: profile === 'professional' ? 'Work mode on. I\'ll keep things short and focused.' : `Switched to ${PROFILES[profile].label.toLowerCase()} mode.`, situation: 'success' };
       }
+      case 'ai_mode': {
+        const mode = p.mode as AiMode | undefined;
+        if (!mode) {
+          const cur = MODE_PROFILES[s.ai.mode];
+          return { text: `I'm in ${cur.label} mode. Say fast mode for quicker answers, turbo mode for deeper thinking, or balanced mode for the middle.`, situation: 'info' };
+        }
+        this.d.updateSettings({ ai: { mode } });
+        return { text: MODE_PROFILES[mode].spoken, situation: 'success' };
+      }
+      case 'version':
+        return { text: `I'm Clickyy AI version ${this.d.updates?.version ?? 'unknown'}. Say check for updates to look for a newer one.`, situation: 'info' };
       case 'verbosity':
         this.d.updateSettings({ personality: { verbosity: p.level as 'brief' | 'detailed' } });
         return { text: p.level === 'brief' ? "Got it, I'll keep it short." : "Okay, I'll go into more detail.", situation: 'success' };
@@ -632,10 +720,11 @@ export class Assistant {
   }
 
   /** @param hintTools registry tool names the router already matched; always offered to the model. */
-  private async converse(text: string, source: 'text' | 'voice', ctx: ToolContext, turnId: string, hintTools: string[] = []): Promise<Outcome> {
+  /** @param learnAs normalized phrase to remember if the model handles it with one safe tool call (empty for reasoning requests). */
+  private async converse(text: string, source: 'text' | 'voice', ctx: ToolContext, turnId: string, hintTools: string[] = [], learnAs = ''): Promise<Outcome> {
     const s = this.d.settings();
     const providers = await this.usableProviders();
-    if (!providers.length) return this.noModel(text);
+    if (!providers.length) return (await this.encyclopedia(text, ctx, turnId)) ?? this.noModel(text);
 
     this.items.push({ role: 'user', text });
     this.trimContext();
@@ -658,6 +747,7 @@ export class Assistant {
         if (hinted.size) offered = [...offered, ...tools.filter((t) => hinted.has(t.name) && !offered.includes(t))];
         const out = await this.llmLoop(provider, system, offered, ctx, turnId);
         this.d.providers.reportSuccess(provider.id);
+        if (learnAs) this.maybeLearn(learnAs, out.calls ?? []);
         return out;
       } catch (e) {
         if (ctx.signal.aborted || (e instanceof ProviderError && e.code === 'cancelled') || (e instanceof ToolError && e.code === 'cancelled')) throw e;
@@ -672,8 +762,18 @@ export class Assistant {
     return { text: `I couldn't get an answer: ${lastError?.message ?? 'no provider responded'}`, situation: 'failure' };
   }
 
+  /** Experience memory: one successful, low-risk, repeatable tool call is remembered for next time. */
+  private maybeLearn(text: string, calls: Array<{ tool: string; args: unknown; ok: boolean }>) {
+    if (calls.length !== 1 || !calls[0].ok) return;
+    const { tool, args } = calls[0];
+    const def = this.d.registry.get(tool);
+    if (!def || def.risk !== 1 || def.confirm !== 'never' || NOT_LEARNABLE.test(tool) || !args || typeof args !== 'object' || Array.isArray(args)) return;
+    this.saveLearned(this.brain.learn(text, tool, args as Record<string, unknown>));
+  }
+
   private async llmLoop(provider: LlmProvider, system: string, tools: ReturnType<ToolRegistry['llmTools']>, ctx: ToolContext, turnId: string): Promise<Outcome> {
     let finalText = '';
+    const calls: Array<{ tool: string; args: unknown; ok: boolean }> = [];
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const turn = await provider.chat({ system, items: this.items, tools, signal: ctx.signal, onText: (delta) => this.d.emit({ type: 'reply_delta', turnId, text: delta }) });
       // Small local models sometimes write a tool call as JSON text instead of using the tool-call
@@ -706,12 +806,27 @@ export class Assistant {
         }
         const out = await this.runTool(def.name, call.input, ctx, turnId, 'llm');
         const r = out.result ?? { ok: false, message: out.text };
+        calls.push({ tool: def.name, args: call.input, ok: r.ok });
         results.push({ id: call.id, name: call.name, content: JSON.stringify({ ok: r.ok, message: r.message, data: truncate(r.data) }), isError: !r.ok });
       }
       this.items.push({ role: 'tool', results });
       if (round === MAX_TOOL_ROUNDS - 1) finalText = finalText || 'I stopped after several steps to avoid looping. Here is where things stand in the activity panel.';
     }
-    return { text: finalText || 'Done.', situation: 'explain', expectFollowUp: true, source: provider.kind === 'local' ? 'local_llm' : 'cloud_llm', providerLabel: provider.label };
+    return { text: finalText || 'Done.', situation: 'explain', expectFollowUp: true, source: provider.kind === 'local' ? 'local_llm' : 'cloud_llm', providerLabel: provider.label, calls };
+  }
+
+  /**
+   * With no language model, "who is X" / "what is X" / "tell me about X" still gets a factual spoken answer
+   * from Wikipedia when online (no key needed). Never in Strict Offline or with web access turned off.
+   */
+  private async encyclopedia(text: string, ctx: ToolContext, turnId: string): Promise<Outcome | null> {
+    const s = this.d.settings();
+    if (s.ai.policy === 'strict_offline' || !s.tools.permissions.web || !ctx.platform.isOnline()) return null;
+    const subject = encyclopediaSubject(text);
+    if (!subject) return null;
+    const out = await this.runTool('knowledge.lookup', { query: subject }, ctx, turnId, 'user_command').catch(() => null);
+    if (!out?.result?.ok) return null;
+    return { ...out, providerLabel: 'Wikipedia' };
   }
 
   private noModel(text: string): Outcome {
@@ -721,12 +836,27 @@ export class Assistant {
     if (looksLikeCommand) return { text: "I'm not sure how to do that one. Try rephrasing, or say what can you do to hear what I support.", situation: 'info', expectFollowUp: true };
     if (s.ai.policy === 'strict_offline' || !st.cloud.hasKey || !st.cloud.allowed) {
       return {
-        text: `I can't answer open questions right now because no ${s.ai.policy === 'strict_offline' ? 'local ' : ''}language model is available. ${st.local.message ?? ''} I can still handle commands like opening apps, volume, timers, and system status.`.replace(/\s+/g, ' ').trim(),
+        text: `I can't answer open questions right now because no ${s.ai.policy === 'strict_offline' ? 'local ' : ''}language model is available. To think and answer offline with no API key, open Settings, AI, Offline brain, and press Download. I can still handle commands like opening apps, volume, music, timers, and system status.`.replace(/\s+/g, ' ').trim(),
         situation: 'info',
       };
     }
     return { text: "My language model isn't reachable right now, so I can only handle built-in commands. Check your connection or the provider settings.", situation: 'failure' };
   }
+}
+
+/**
+ * The subject of a plain encyclopedia question ("who is ada lovelace" → "ada lovelace"), or null when the
+ * question is personal, about the conversation, a calculation, or needs reasoning rather than a fact.
+ */
+export function encyclopediaSubject(text: string): string | null {
+  const t = text.toLowerCase().replace(/[?!.]+$/g, '').replace(/['’]/g, '').replace(/\s+/g, ' ').trim();
+  const m = t.match(/^(?:(?:hey |ok |okay )?clicky,? )?(?:(?:who|what) (?:is|was|are|were)|whos|whats|tell me (?:something )?about|do you know (?:who|what) (?:is|was))(?: an?| the)? (.{2,60})$/);
+  if (!m) return null;
+  const subject = m[1].trim();
+  if (subject.split(' ').length > 6) return null;
+  if (/\d|[+*/^=]/.test(subject)) return null;
+  if (/\b(?:you|your|yourself|me|my|mine|i|we|our|us|it|this|that|these|those|there|here|now|today|tomorrow|tonight|time|date|day|weather|news|best|better|worse|worst|difference|meaning of life|happening|going on|wrong|up|next|plan|price|cost|score|should|would|could|can|will|do|does|did)\b/.test(subject)) return null;
+  return subject;
 }
 
 /** Detects `{"name": "x__y", "parameters": {...}}` (or "arguments") written as the whole reply. */

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { Settings } from '@shared/settings';
-import type { AssistantPhase, ConfirmationRequest, ProviderStatus, SpeechServiceStatus, ToolCallRecord } from '@shared/types';
+import type { AssistantPhase, ConfirmationRequest, ProviderStatus, SpeechServiceStatus, ToolCallRecord, UpdateStatus } from '@shared/types';
 
 export interface ChatLine { id: string; role: 'user' | 'assistant' | 'system'; text: string; source?: string; provider?: string; at: number; streaming?: boolean }
 export interface Notice { id: number; level: 'info' | 'warn' | 'error'; text: string; at: number }
@@ -26,12 +26,15 @@ export interface UiState {
   progress: string;
   view: 'main' | 'settings';
   panelOpen: boolean;
+  update: UpdateStatus | null;
+  /** Version whose update banner the user closed for this run. */
+  updateDismissed?: string;
 }
 
 let state: UiState = {
   settings: null, phase: 'idle', listening: 'off', partial: '', lines: [], timeline: [], confirmations: [], providers: null,
   speech: { state: 'stopped' }, micMuted: false, micError: null, micLevel: 0, speakLevel: 0, speaking: false,
-  network: { active: false }, notices: [], progress: '', view: 'main', panelOpen: false,
+  network: { active: false }, notices: [], progress: '', view: 'main', panelOpen: false, update: null,
 };
 const listeners = new Set<() => void>();
 
@@ -54,6 +57,8 @@ export function useStore<T>(select: (s: UiState) => T): T {
 
 let noticeId = 0;
 export function notify(level: Notice['level'], text: string) {
+  // The same message twice in a row (e.g. two subsystems reporting one mic failure) shows once.
+  if (store.get().notices.some((x) => x.text === text && x.level === level)) return;
   const n = { id: ++noticeId, level, text, at: Date.now() };
   store.set((s) => ({ notices: [...s.notices.slice(-3), n] }));
   setTimeout(() => store.set((s) => ({ notices: s.notices.filter((x) => x.id !== n.id) })), level === 'error' ? 9000 : 5000);

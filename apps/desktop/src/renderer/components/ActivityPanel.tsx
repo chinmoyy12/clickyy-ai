@@ -54,7 +54,7 @@ export function ActivityPanel({ reducedMotion }: { reducedMotion: boolean }) {
   const confirmations = useStore((s) => s.confirmations);
 
   return (
-    <motion.div initial={reducedMotion ? false : { height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="border-t border-line bg-surface/60">
+    <motion.div initial={reducedMotion ? false : { height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="glass-strong rounded-t-2xl border-b-0">
       <div role="tablist" aria-label="Activity" className="flex gap-1 px-3 pt-2">
         {(['conversation', 'timeline', 'upcoming', 'status'] as const).map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}

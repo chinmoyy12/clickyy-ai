@@ -7,6 +7,7 @@ import { GeneralSection, VoiceSection, PersonalitySection, ListeningSection, App
 import { AiSection, CredentialsSection } from './settings/ai';
 import { AppsSection, RoutinesSection, PermissionsSection } from './settings/automation';
 import { MemorySection, HistorySection, CommandsSection, DiagnosticsSection } from './settings/data';
+import { UpdatesSection } from './settings/updates';
 
 export type Update = (patch: DeepPartial<Settings>) => Promise<void>;
 
@@ -14,7 +15,7 @@ const SECTIONS = [
   ['general', 'General'], ['voice', 'Voice & speech'], ['personality', 'Personality'], ['listening', 'Listening & wake word'],
   ['ai', 'AI & routing'], ['credentials', 'Credentials'], ['permissions', 'Permissions'], ['apps', 'Approved apps'],
   ['routines', 'Routines'], ['memory', 'Memory'], ['history', 'History & privacy'], ['appearance', 'Appearance & access'],
-  ['commands', 'Commands'], ['diagnostics', 'Diagnostics'],
+  ['commands', 'Commands'], ['diagnostics', 'Diagnostics'], ['updates', 'Updates & about'],
 ] as const;
 export type SectionId = (typeof SECTIONS)[number][0];
 
@@ -31,7 +32,7 @@ export function SettingsScreen({ onPreview }: { onPreview: (text: string) => voi
   useEffect(() => { document.getElementById('settings-body')?.scrollTo({ top: 0 }); }, [section]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       <div className="flex items-center gap-2 px-3 pb-2">
         <button aria-label="Back" onClick={() => store.set({ view: 'main' })} className="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-surface2 hover:text-ink"><ArrowLeft size={16} /></button>
         <h2 className="text-[1em] font-semibold">Settings</h2>
@@ -62,6 +63,7 @@ export function SettingsScreen({ onPreview }: { onPreview: (text: string) => voi
           {section === 'appearance' && <AppearanceSection s={settings} update={update} />}
           {section === 'commands' && <CommandsSection />}
           {section === 'diagnostics' && <DiagnosticsSection />}
+          {section === 'updates' && <UpdatesSection s={settings} update={update} />}
         </div>
       </div>
     </div>

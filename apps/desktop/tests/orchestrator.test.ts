@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fakeNet, setup } from './helpers';
-import { Assistant } from '../src/main/assistant/orchestrator';
+import { Assistant, encyclopediaSubject } from '../src/main/assistant/orchestrator';
 import { Scheduler } from '../src/main/scheduler';
 import type { ProviderManager } from '../src/main/providers/manager';
 import { ProviderError, type ChatRequest, type LlmProvider, type LlmTurn } from '../src/main/providers/types';
 import type { AssistantEvent } from '../src/shared/types';
 import type { DeepPartial, Settings } from '../src/shared/settings';
 import { detectApps } from '../src/main/tools/apps';
+import { Brain } from '../src/main/assistant/brain';
+import { route } from '../src/main/assistant/router';
 
 class MockProvider implements LlmProvider {
   calls: ChatRequest[] = [];
@@ -46,6 +48,89 @@ async function make(providers: LlmProvider[], patch: DeepPartial<Settings> = {},
   });
   return { ...s, assistant, events, ui, manager: manager as unknown as { ensured: number } };
 }
+
+describe('on-device brain', () => {
+  it('understands a reworded request with no language model at all', async () => {
+    const t = await make([]);
+    const r = await t.assistant.submit('is the charger connected', 'voice');
+    expect(r.text).toMatch(/Battery is at 81 percent/);
+    expect(r.providerLabel).toBe('On-device brain');
+  });
+  it('offers its best guess when unsure and runs it on "yes"', async () => {
+    const t = await make([]);
+    // Pick a phrasing the brain is unsure about (between "suggest" and "act"), whatever the current weights are.
+    const candidates = ['lock it up', 'secure my computer', 'carry on playing', 'next one please', 'which day is today', 'snap the screen', 'grab a picture of my screen',
+      'call off the shutdown', 'what is my schedule today', 'bring the sound back', 'kill the sound', 'silence the computer', 'do i have wifi', 'which programs eat my ram', 'sound please', 'music thing', 'song', 'the screen thing'];
+    const unsure = candidates.find((c) => { const r = route(c, { session: {}, apps: [] }); if (r.kind !== 'none') return false; const g = t.assistant.brain.guess(r.normalized); return !!g?.resolution && g.confidence >= Brain.SUGGEST && g.confidence < Brain.ACT; });
+    expect(unsure).toBeDefined();
+    const q = await t.assistant.submit(unsure!, 'voice');
+    expect(q.text).toMatch(/^Did you mean "/);
+    const a = await t.assistant.submit('yes', 'voice');
+    expect(a.providerLabel).toBe('On-device brain');
+    expect(a.text).not.toMatch(/Did you mean/);
+  });
+  it('learns a phrase the model handled with one safe tool, then answers it offline', async () => {
+    const cloud = new MockProvider('gemini', 'cloud', [
+      { text: '', toolCalls: [{ id: 'c1', name: 'math__calculate', input: { expression: '17*3' } }], stop: 'tool_use' },
+      { text: 'That is 51.', toolCalls: [], stop: 'end' },
+    ]);
+    const providers: LlmProvider[] = [cloud];
+    const t = await make(providers);
+    const first = await t.assistant.submit('crunch the product of seventeen and three', 'text');
+    expect(first.text).toBe('That is 51.');
+    providers.length = 0; // the model goes away (offline, no key)
+    const again = await t.assistant.submit('please crunch the product of seventeen and three', 'text');
+    expect(again.providerLabel).toBe('On-device brain (learned)');
+    expect(again.text).toMatch(/51/);
+    expect(cloud.calls).toHaveLength(2);
+  });
+  it('never learns risky or personal actions', async () => {
+    const cloud = new MockProvider('gemini', 'cloud', [
+      { text: '', toolCalls: [{ id: 'c1', name: 'reminders__create', input: { text: 'call mom', inMinutes: 5 } }], stop: 'tool_use' },
+      { text: 'Okay.', toolCalls: [], stop: 'end' },
+    ]);
+    const t = await make([cloud]);
+    await t.assistant.submit('nudge me about mom shortly', 'text');
+    expect(t.assistant.brain.learnedList().some((l) => l.tool.startsWith('reminders'))).toBe(false);
+  });
+});
+
+describe('generated passwords stay on screen', () => {
+  it('shows the password but never speaks it, saves it, or sends it to a model', async () => {
+    const cloud = new MockProvider('gemini', 'cloud', [{ text: 'Sure.', toolCalls: [], stop: 'end' }]);
+    const t = await make([cloud]);
+    const r = await t.assistant.submit('generate a strong password', 'voice');
+    const pw = r.text.split('\n\n')[1];
+    expect(pw).toMatch(/^\S{16}$/);
+    expect(r.speech).not.toContain(pw);
+    await t.assistant.submit('write me a short poem about the sea', 'text');
+    expect(JSON.stringify(cloud.calls[0].items)).not.toContain(pw);
+    const saved = t.repos.conversations.list().flatMap((c) => t.repos.conversations.messages(c.id).map((m) => m.text)).join('\n');
+    expect(saved).toContain('not saved to history');
+    expect(saved).not.toContain(pw);
+  });
+});
+
+describe('knowledge without a model or key', () => {
+  it('answers "who is" from Wikipedia when there is no language model', async () => {
+    const t = await make([]);
+    const r = await t.assistant.submit('who is ada lovelace', 'voice');
+    expect(r.providerLabel).toBe('Wikipedia');
+    expect(r.text).toMatch(/English mathematician.*That's from Wikipedia\.$/);
+  });
+  it('stays offline in Strict Offline, and never looks up personal or reasoning questions', async () => {
+    const strict = await make([], { ai: { policy: 'strict_offline' } });
+    expect((await strict.assistant.submit('who is ada lovelace', 'voice')).text).toMatch(/no local language model/);
+    for (const q of ['what is your name', 'what is 2 plus 2 times x', 'who is better messi or ronaldo', 'what is the time', 'what should i eat']) expect(encyclopediaSubject(q), q).toBeNull();
+    expect(encyclopediaSubject("what's a black hole?")).toBe('black hole');
+    expect(encyclopediaSubject('tell me about the taj mahal')).toBe('taj mahal');
+  });
+  it('reads the news with no model', async () => {
+    const t = await make([]);
+    const r = await t.assistant.submit("what's the news", 'voice');
+    expect(r.text).toMatch(/^Here are the top headlines\./);
+  });
+});
 
 describe('self-test, browser memory and always-listening', () => {
   it('runs a real self-test across every subsystem', async () => {

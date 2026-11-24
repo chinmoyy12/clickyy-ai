@@ -93,6 +93,12 @@ export interface SpeechServiceStatus {
 /** The optional "Best accuracy" recognition model (downloaded from Settings). */
 export interface ModelDownloadStatus { id: string; label: string; installed: boolean; downloading: boolean; done: number; total: number; error?: string }
 
+/** Progress of downloading a local model through Ollama. */
+export interface LocalPullStatus { model: string; active: boolean; status: string; completed: number; total: number; error?: string; done: boolean; ollamaRunning: boolean }
+
+/** The on-device brain: intent network size and phrases learned from experience. */
+export interface BrainStatus { intents: number; runnable: number; learned: Array<{ text: string; tool: string; uses: number }> }
+
 export interface NeuralVoice { id: string; name: string; accent: string; gender: 'female' | 'male' }
 
 export interface ProviderStatus {
@@ -100,10 +106,26 @@ export interface ProviderStatus {
   online: boolean;
   local: { configured: boolean; ready: boolean; model: string; models: string[]; message?: string };
   cloud: { provider: string; model: string; hasKey: boolean; allowed: boolean; message?: string };
+  /** The AI model bundled with the app. */
+  builtin?: { available: boolean; enabled: boolean; state: 'unavailable' | 'off' | 'starting' | 'ready' | 'error'; message?: string; model: string };
+  mode?: 'fast' | 'balanced' | 'turbo';
   /** Which providers have a stored key (never the key itself). */
   keys: Record<string, boolean>;
   active: 'local' | 'cloud' | 'none';
   activeLabel?: string;
+}
+
+/** In-app updater state (see main/updater.ts). */
+export interface UpdateStatus {
+  state: 'idle' | 'checking' | 'none' | 'available' | 'downloading' | 'ready' | 'installing' | 'error' | 'disabled';
+  current: string;
+  latest?: string;
+  notes?: string;
+  url?: string;
+  size?: number;
+  done?: number;
+  checkedAt?: number;
+  message: string;
 }
 
 export interface ConversationSummary { id: string; title: string; createdAt: number; updatedAt: number; messageCount: number }

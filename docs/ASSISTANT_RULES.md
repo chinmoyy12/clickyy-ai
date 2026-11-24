@@ -28,7 +28,12 @@ The model-facing version of these rules lives in `systemPrompt()` in
    then confirmed by a second model so TV chatter doesn't trigger it. "Clicky, play Kesariya" in one
    breath runs straight away.
 2. **Understand.** Common requests ("play X", "volume 30", "open Chrome", "set a timer") are matched by
-   the deterministic router, which is instant and works offline. Everything else goes to the language model.
+   the deterministic router, which is instant and works offline. If the rules miss a reworded command, the
+   on-device brain (a small neural network, offline, no key) acts when it's at least 90% sure, asks
+   "Did you mean …?" between 60% and 90%, and never runs risky or detail-needing commands from a guess.
+   Phrases the model handled with one safe action are remembered and replayed offline. Everything else
+   goes to the language model; with none available, "who is / what is X" is answered from Wikipedia when
+   online. See [CAPABILITIES.md](CAPABILITIES.md#the-on-device-brain-07).
    When a sentence contains a command keyword but asks for more ("compare my battery with my free memory",
    "write a haiku from my battery level"), it goes to the cloud model if one is available. That model is
    always offered the matched tool, so it answers with real numbers. Without a cloud model, the plain

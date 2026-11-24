@@ -8,7 +8,7 @@ import { parseClockTime, parseDuration } from './normalize';
 import { findSearchSite, findSite } from './knowledge/sites';
 import { findSettingsPage, findShellFolder, findWinTool } from './knowledge/windows';
 import { findZone } from './knowledge/cities';
-import { CODE_FIRST, EXTENDED } from './catalog-ext';
+import { CODE_FIRST, EXTENDED, parseLoan } from './catalog-ext';
 import { BLUEPRINT_FIRST, BLUEPRINT_LAST } from './catalog-blueprint';
 import { inBrowser, orList } from './browserAsk';
 
@@ -20,7 +20,8 @@ export type Builtin =
   | 'identity' | 'thanks' | 'shortcuts' | 'ui' | 'mic_pause' | 'refuse_shell' | 'how_are_you' | 'continue'
   | 'briefing' | 'system_report' | 'screen' | 'clipboard_ai' | 'clipboard_read'
   | 'open_with_browser' | 'set_browser' | 'always_listen' | 'self_test'
-  | 'say' | 'code_task' | 'ai_task' | 'draft_message' | 'battery_alert';
+  | 'say' | 'code_task' | 'ai_task' | 'draft_message' | 'battery_alert'
+  | 'ai_mode' | 'check_updates' | 'version';
 
 export interface RouteCtx {
   session: SessionState;
@@ -157,6 +158,25 @@ export const CATALOG: CommandDef[] = [
     patterns: [/(start )?(a )?new (conversation|chat|session|topic)|^(?:change|switch) (?:the )?(?:topic|subject)$|let'?s start (over|fresh|again)|clear (the |this )?(conversation|chat)|reset (the )?conversation/], resolve: () => builtin('new_session') }),
   cmd({ id: 'conv.continue', category: 'Conversation', description: 'Resume the previous conversation.', examples: ["let's continue where we left off"],
     patterns: [/continue where we left off|pick up where we left off|resume (our|the) (last )?conversation/], resolve: () => builtin('continue') }),
+  cmd({ id: 'conv.ai_mode', category: 'Conversation', description: 'Response mode: Fast (quick, short answers), Balanced, or Turbo (deeper reasoning).', examples: ['turbo mode', 'switch to fast mode', 'balanced mode', 'think harder', 'what response mode are you in'],
+    patterns: [
+      /^(?:(?:switch|change|go|set|put) (?:it |yourself )?(?:to |into |in )?|use |turn on |enable |activate |start |lets go |go )?(?:the )?(fast|quick|speed|rapid|balanced|medium|default|turbo|deep|deep thinking|reasoning|thinking) (?:response |answer |reply )?mode(?: on| please| now)?$/,
+      /^(?:go|be|answer) (turbo|faster|quick(?:er)?)$/,
+      /^(?:think|reason) (harder|deeper|more carefully|step by step)(?: from now on)?$/,
+      /^(?:what|which) (?:response |speed |answer )?mode (?:are you|am i|is (?:it|on))(?: in| using)?$/,
+    ],
+    resolve: (m, text) => {
+      if (/^(?:what|which)/.test(text)) return builtin('ai_mode', {});
+      const w = m[1];
+      const mode = /^(fast|faster|quick|quicker|speed|rapid)$/.test(w) ? 'fast' : /^(balanced|medium|default)$/.test(w) ? 'balanced' : 'turbo';
+      return builtin('ai_mode', { mode });
+    } }),
+  cmd({ id: 'app.update', category: 'Conversation', description: 'Check for a new version of Clickyy and install it.', examples: ['check for updates', 'is there a new version', 'update yourself', 'what version are you'],
+    patterns: [
+      /^(?:please )?(?:check (?:for )?(?:app |clickyy |new )?(?:updates?|a new version)|(?:is there|are there|any) (?:an? )?(?:new )?(?:updates?|new version|newer version)(?: available| for you| for clickyy)?|update (?:yourself|clickyy|the app|this app)|install (?:the )?(?:latest )?update|are you up to date|get the latest version)$/,
+      /^(?:what|which) version (?:are you|of clickyy is this|is this)$|^(?:whats|what is) your version$/,
+    ],
+    resolve: (_m, text) => builtin(/version (?:are you|of clickyy is this|is this)$|your version$/.test(text) ? 'version' : 'check_updates') }),
   cmd({ id: 'conv.mode', category: 'Conversation', description: 'Switch personality mode.', examples: ["let's switch to work mode", 'playful mode', 'soothing mode'],
     patterns: [/(switch to|let'?s switch to|enable|start|go into|use|activate) (work|focus|professional|playful|fun|casual|calm|soothing|sweet|elegant|energetic|charming|natural|normal) mode/, /^(work|playful|professional|soothing|casual) mode$/],
     resolve: (m) => {
@@ -258,6 +278,7 @@ export const CATALOG: CommandDef[] = [
     resolve: (m) => {
       const target = m[1].replace(/\b(this year|from now|from today)\b/g, '').trim();
       if (!target || /\b(timer|reminder|alarm|focus|pomodoro)\b/.test(target)) return null;
+      if (/^\d{1,2}(?::\d{2})? ?(?:am|pm|oclock)?$|^(?:noon|midnight|midday)$/.test(target)) return null; // a clock time: time.until
       return tool('date.until', { target });
     } }),
   cmd({ id: 'skill.currency', category: 'Skills', tool: 'currency.convert', description: 'Convert currency with daily ECB rates (online).', examples: ['convert 100 dollars to rupees', '50 euros in usd', 'how much is 20 pounds in yen', 'exchange rate dollar to rupee'],
@@ -288,6 +309,125 @@ export const CATALOG: CommandDef[] = [
       const place = m[2]?.replace(/\b(today|tomorrow|right now|now|please)\b/g, '').trim();
       return tool('weather.current', place ? { location: place } : {});
     } }),
+  // ---------- 0.7 everyday extras ----------
+  cmd({ id: 'fun.joke', category: 'Fun', tool: 'fun.say', description: 'Tell a joke (offline).', examples: ['tell me a joke', 'make me laugh', 'another joke', 'say something funny'],
+    patterns: [/^(?:(?:tell|give)(?: me| us)? |say |do you know |know any )?(?:a |another |one more |some |any )?(?:good |funny |new )?jokes?(?: please)?$/, /^make me (?:laugh|smile)$/, /^say something funny$/, /^cheer me up with a joke$/],
+    resolve: () => tool('fun.say', { kind: 'joke' }) }),
+  cmd({ id: 'fun.fact', category: 'Fun', tool: 'fun.say', description: 'Share an interesting, true fact (offline).', examples: ['tell me a fun fact', 'give me an interesting fact', 'another fact', 'teach me something new'],
+    patterns: [/^(?:(?:tell|give)(?: me| us)? |say |share )?(?:a |an |another |one more |some )?(?:fun |interesting |random |cool |amazing )?facts?(?: please)?$/, /^teach me something (?:new|interesting|cool)$/, /^did you know$/],
+    resolve: () => tool('fun.say', { kind: 'fact' }) }),
+  cmd({ id: 'fun.riddle', category: 'Fun', tool: 'fun.say', description: 'Ask a riddle, then reveal the answer when asked (offline).', examples: ['tell me a riddle', 'give me a riddle', 'another riddle'],
+    patterns: [/^(?:(?:tell|give|ask)(?: me| us)? )?(?:a |another |one more )?(?:good |hard |easy )?riddles?(?: please)?$/], resolve: () => tool('fun.say', { kind: 'riddle' }) }),
+  cmd({ id: 'fun.riddle_answer', category: 'Fun', tool: 'fun.riddle_answer', description: 'Reveal the answer to the last riddle.', examples: ['tell me the answer', 'i give up', "what's the answer to the riddle"],
+    patterns: [/^(?:tell me |whats |what is |give me |reveal )?the answer(?: to the riddle)?(?: please)?$/, /^i give up$/], resolve: () => tool('fun.riddle_answer') }),
+  cmd({ id: 'fun.motivation', category: 'Fun', tool: 'fun.say', description: 'A line of encouragement (offline).', examples: ['motivate me', 'i need some motivation', 'inspire me', 'give me a pep talk'],
+    patterns: [/^(?:motivate|inspire|encourage) me(?: please)?$/, /^(?:i need |give me )(?:some |a little )?(?:motivation|inspiration|encouragement|a pep talk)$/, /^(?:say something|tell me something) (?:motivating|inspiring|encouraging)$/],
+    resolve: () => tool('fun.say', { kind: 'motivation' }) }),
+  cmd({ id: 'security.password', category: 'Skills', tool: 'password.generate', description: 'Make a strong random password, shown on screen and never read aloud (offline).', examples: ['generate a strong password', 'make me a 20 character password', 'create a random password', 'suggest a secure password'],
+    patterns: [/^(?:generate|make|create|give|suggest|get)(?: me)? (?:a |an )?(?:new )?(?:(?:strong|secure|random|good|safe) )*(?:(\d{1,2}) (?:character|char|letter|digit) )?password(?: (?:with|of) (\d{1,2}) (?:characters|chars|letters))?(?: please)?$/],
+    resolve: (m) => { const n = Number(m[1] ?? m[2] ?? 16); return tool('password.generate', { length: Math.min(64, Math.max(8, n)) }); } }),
+  cmd({ id: 'text.spell', category: 'Skills', tool: 'text.spell', description: 'Spell a word letter by letter, or with the phonetic alphabet (offline).', examples: ['how do you spell necessary', 'spell accommodation', 'spell my name chinmay phonetically'],
+    patterns: [/^(?:how (?:do you|do i|to) spell|spell(?: out)?|(?:whats|what is) the spelling of)(?: the word| my name)? ([a-z][a-z'-]{0,39})( phonetically| using the phonetic alphabet| with the phonetic alphabet)?$/],
+    resolve: (m) => (/^(?:check|it|that|this)$/.test(m[1]) ? null : tool('text.spell', { word: m[1], phonetic: !!m[2] })) }),
+  cmd({ id: 'number.roman', category: 'Skills', tool: 'number.roman', description: 'Roman numerals to and from numbers (offline).', examples: ['what is 2026 in roman numerals', 'convert 49 to roman numerals', 'what number is mcmxcix'],
+    patterns: [/^(?:(?:whats|what is|convert|write|show me) )?(\d{1,4}) (?:in|to|into|as) roman(?: numerals?)?$/, /^(?:whats |what is )?(?:the )?roman numerals? for (\d{1,4})$/, /^(?:what number is|convert|what is) ([mdclxvi]{2,15})(?: from roman numerals?)?(?: in numbers| to a number| to numbers| as a number)?$/],
+    resolve: (m) => tool('number.roman', { value: m[1] }) }),
+  cmd({ id: 'math.split_bill', category: 'Skills', tool: 'math.split_bill', description: 'Split a bill between people, with an optional tip (offline).', examples: ['split 1200 between 4 people', 'split the bill of 2500 among 5 with a 10 percent tip', "what's a 15 percent tip on 80"],
+    patterns: [
+      /^split (?:a |the |my |this )?(?:bill |check |amount |total )?(?:of )?(?:rs |inr |\$)?(\d+(?:\.\d+)?)(?: rupees| dollars| rs)? (?:between|among|amongst|by|for|with|into) (\d{1,4})(?: people| persons| friends| ways| of us)?(?: (?:with|and|plus|including) (?:a )?(\d+(?:\.\d+)?) percent tip)?$/,
+      /^(?:whats |what is |calculate |work out )?(?:a )?(\d+(?:\.\d+)?) percent tip (?:on|for) (?:rs |\$)?(\d+(?:\.\d+)?)(?: rupees| dollars)?(?: (?:split )?(?:between|among|for) (\d{1,4})(?: people)?)?$/,
+    ],
+    resolve: (m, text) => (/percent tip (?:on|for)/.test(text) && !/^split/.test(text)
+      ? tool('math.split_bill', { amount: Number(m[2]), tipPercent: Number(m[1]), people: Number(m[3] ?? 1) })
+      : tool('math.split_bill', { amount: Number(m[1]), people: Number(m[2]), tipPercent: Number(m[3] ?? 0) })) }),
+  cmd({ id: 'date.weekday', category: 'Skills', tool: 'date.weekday', description: 'Which day of the week a date or holiday falls on (offline).', examples: ['what day was august 15 1947', 'what day is christmas this year', 'which day of the week is january 26'],
+    patterns: [/^(?:what|which) day (?:of the week )?(?:is|was|will|does|did) (.+?)(?: be| fall on| fall| falls on| land on)?(?: this year| next year)?$/, /^what day (?:does|did|will) (.+?) (?:fall|land) on(?: this year)?$/],
+    resolve: (m) => {
+      const t = m[1].replace(/^(?:it|today|tomorrow|yesterday)$/, '');
+      return t && (/\b(?:january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\b|\d{4}-\d/.test(t) || /christmas|new year|halloween|valentine|independence day|republic day|diwali|easter|thanksgiving|gandhi jayanti|mothers day|fathers day|boxing day|earth day|teachers day|childrens day|womens day|april fool|solstice|patricks day|labou?r day|fourth of july|july fourth/.test(t)) ? tool('date.weekday', { date: t.replace(/^the /, '') }) : null;
+    } }),
+  cmd({ id: 'date.age', category: 'Skills', tool: 'date.weekday', description: 'Age from a birth date (offline).', examples: ['how old is someone born on june 2 2006', 'how old am i if i was born on march 3 1999'],
+    patterns: [/^how old (?:is (?:someone|somebody|a person)|am i|would i be|is a person) (?:who was |if i was |if i were |if )?born (?:on |in )?(.+\d{4})$/],
+    resolve: (m) => tool('date.weekday', { date: m[1], mode: 'age' }) }),
+  cmd({ id: 'system.panel', category: 'System', tool: 'system.panel', description: 'Open Windows panels: screen snip, notifications, quick settings, Wi-Fi list, second screen, Task View, Clock, Store, Camera, Photos, Maps, Calculator.', examples: ['snip part of my screen', 'show my notifications', 'open quick settings', 'show available wifi networks', 'connect to a second screen', 'open task view', 'open the camera'],
+    patterns: [
+      /^(?:take a |make a |start a |open (?:the )?)?(?:screen ?)?snip(?:ping)?(?: tool)?$|^snip (?:part of |a part of |an area of |a region of )?(?:my |the )?screen$|^(?:screenshot|capture) (?:part of|an area of|a region of|a section of) (?:my |the )?screen$/,
+      /^(?:open|show|check|see)(?: me)? (?:my |the )?(?:notifications?|notification (?:center|centre|panel)|action (?:center|centre))$/,
+      /^(?:open|show)(?: me)? (?:the )?quick settings(?: panel)?$/,
+      /^(?:show|list|open|scan for|find)(?: me)? (?:the |all )?(?:available |nearby )?(?:wifi|wi fi|wireless) (?:networks?|list)(?: nearby| around me)?$/,
+      /^(?:connect to|project to|extend to|duplicate to|show) (?:a |1 |my |the )?(?:second (?:screen|monitor|display)|projector|external (?:monitor|display|screen)|tv)$|^(?:open )?(?:the )?project(?:ion)? (?:menu|options|settings)$/,
+      /^(?:open|show)(?: me)? (?:the )?task view$|^show (?:me )?all (?:my )?(?:open )?(?:windows|apps) side by side$/,
+      /^(?:open|launch|start)(?: up)? (?:the )?(clock|alarms?|store|microsoft store|windows store|camera|webcam|photos|maps)(?: app)?$/,
+    ],
+    resolve: (m, text) => {
+      if (/snip|part of|area of|region of|section of/.test(text)) return tool('system.panel', { panel: 'snip' });
+      if (/notification|action cent/.test(text)) return tool('system.panel', { panel: 'notifications' });
+      if (/quick settings/.test(text)) return tool('system.panel', { panel: 'quick_settings' });
+      if (/wifi|wi fi|wireless/.test(text)) return tool('system.panel', { panel: 'wifi_list' });
+      if (/second|projector|external|\btv\b|project/.test(text)) return tool('system.panel', { panel: 'project' });
+      if (/task view|side by side/.test(text)) return tool('system.panel', { panel: 'task_view' });
+      const app = m[1] ?? '';
+      const panel = /clock|alarm/.test(app) ? 'clock' : /store/.test(app) ? 'store' : /camera|webcam/.test(app) ? 'camera' : app === 'photos' ? 'photos' : 'maps';
+      return tool('system.panel', { panel });
+    } }),
+  cmd({ id: 'math.emi', category: 'Skills', tool: 'math.emi', description: 'Loan EMI, total interest and total payment (offline).', examples: ['emi for 5 lakh at 9 percent for 3 years', 'calculate the emi on a 25 lakh home loan at 8.5 percent for 20 years', 'monthly payment for a 20000 loan at 7 percent for 24 months'],
+    patterns: [/^(?:(?:calculate|whats|what is|work out|tell me) )?(?:the |my )?(?:emi|monthly (?:payment|installment|instalment)) (?:for|on|of) (?:a |an |my )?(.*?\d.*?) (?:at|with|@) (.+?) (?:for|over) (.+)$/],
+    resolve: (_m, text) => { const l = parseLoan(text); return l ? tool('math.emi', { principal: l.principal, ratePercent: l.rate, months: l.months }) : null; } }),
+  cmd({ id: 'math.bmi', category: 'Skills', tool: 'math.bmi', description: 'BMI from weight and height (offline).', examples: ['calculate my bmi 70 kg 175 cm', "what's the bmi for 82 kilos and 180 centimeters"],
+    patterns: [/\bbmi\b.*?(\d+(?:\.\d+)?) ?(?:kg|kgs|kilos?|kilograms?)\b.*?(\d+(?:\.\d+)?) ?(?:cm|cms|centimet(?:er|re)s?)\b/, /\bbmi\b.*?(\d+(?:\.\d+)?) ?(?:cm|cms|centimet(?:er|re)s?)\b.*?(\d+(?:\.\d+)?) ?(?:kg|kgs|kilos?|kilograms?)\b/],
+    resolve: (m, text) => { const kgFirst = /\d ?(?:kg|kilo)/.test(text.split(/cm|centimet/)[0]); return tool('math.bmi', kgFirst ? { weightKg: Number(m[1]), heightCm: Number(m[2]) } : { weightKg: Number(m[2]), heightCm: Number(m[1]) }); } }),
+  cmd({ id: 'date.leap', category: 'Skills', tool: 'date.leap', description: 'Is a year a leap year (offline).', examples: ['is 2028 a leap year', 'was 1900 a leap year'],
+    patterns: [/^(?:is|was|will) (\d{1,4}) (?:be )?a leap year$/, /^is this year a leap year$/],
+    resolve: (m) => tool('date.leap', { year: Number(m[1] ?? new Date().getFullYear()) }) }),
+  cmd({ id: 'time.until', category: 'Skills', tool: 'time.until', description: 'How long until a time of day (offline).', examples: ['how long until 5 pm', 'how many minutes until 6:30', 'how much time until midnight'],
+    patterns: [/^how (?:long|many (?:minutes|hours)|much time)(?: is it| is left| left| do i have)? (?:until|till|til|before) (\d{1,2}(?::\d{2})? ?(?:am|pm|oclock)?|noon|midnight|midday)$/],
+    resolve: (m) => tool('time.until', { time: m[1] }) }),
+  cmd({ id: 'fun.choose', category: 'Fun', tool: 'fun.choose', description: 'Pick one of your options at random.', examples: ['pick between pizza and burger', 'help me decide between red blue or green', 'choose between tea or coffee'],
+    patterns: [/^(?:(?:can you |please )?(?:pick|choose|decide)(?: for me)?|help me (?:decide|choose|pick)|you (?:pick|choose|decide)) (?:between|from|among) (.{3,200})$/, /^(?:flip a coin|toss up) between (.{3,200})$/],
+    resolve: (m) => {
+      const opts = m[1].replace(/\?$/, '').split(/,\s*| or | and /).map((o) => o.replace(/^(?:the|a|an) /, '').trim()).filter(Boolean);
+      return opts.length >= 2 && opts.length <= 10 ? tool('fun.choose', { options: opts }) : null;
+    } }),
+  cmd({ id: 'fun.rps', category: 'Fun', tool: 'fun.rps', description: 'Play rock, paper, scissors.', examples: ["let's play rock paper scissors", 'i choose paper', 'rock'],
+    patterns: [/^(?:lets |let us |can we |wanna |do you want to )?play rock paper scissors$|^rock paper scissors$/, /^(?:i (?:choose|pick|go with|play)|ill go with|my move is) (rock|paper|scissors)$/, /^(rock|paper|scissors)$/],
+    resolve: (m) => tool('fun.rps', m[1] ? { move: m[1] } : {}) }),
+  cmd({ id: 'wellness.breathe', category: 'Fun', tool: 'wellness.breathe', description: 'A short guided breathing exercise.', examples: ['help me relax', "let's do a breathing exercise", 'i feel stressed', 'calm me down'],
+    patterns: [/^(?:help me (?:relax|calm down|breathe|unwind)|calm me down|(?:(?:lets|let us) )?(?:(?:start|do|try|guide me through) )?(?:a )?(?:short |quick )?breathing exercises?|i(?: am|m) (?:feeling )?(?:stressed|anxious|overwhelmed|tense)(?: out)?|i feel (?:stressed|anxious|overwhelmed|tense)(?: out)?|guide my breathing)$/],
+    resolve: () => tool('wellness.breathe') }),
+  cmd({ id: 'dictionary.define', category: 'Skills', tool: 'dictionary.define', description: 'Dictionary definitions, synonyms and antonyms (no account needed).', examples: ['define serendipity', 'what does ubiquitous mean', 'synonyms for happy', 'opposite of generous', "what's the meaning of resilience"],
+    patterns: [
+      /^(?:define|definition of|(?:whats|what is|tell me) the (?:definition|meaning) of|meaning of|dictionary)(?: the word)? ([a-z][a-z'-]{1,39})$/,
+      /^what does (?:the word )?([a-z][a-z'-]{1,39}) mean$/,
+      /^(?:(?:give me|whats|what is|what are|tell me|list)(?: a| the| some)? )?(synonyms?|antonyms?|another word|other words|opposite|the opposite) (?:of|for) ([a-z][a-z'-]{1,39})$/,
+    ],
+    resolve: (m) => {
+      if (m[2]) return tool('dictionary.define', { word: m[2], mode: /^(?:antonym|opposite|the opposite)/.test(m[1]) ? 'antonyms' : 'synonyms' });
+      return /^(?:life|it|that|this|everything|love)$/.test(m[1]) ? null : tool('dictionary.define', { word: m[1] });
+    } }),
+  cmd({ id: 'skill.air_quality', category: 'Skills', tool: 'weather.air', description: 'Current air quality (AQI) for a city (no account needed).', examples: ["what's the air quality", 'aqi in delhi', 'how is the air in mumbai today', 'pollution level in bangalore'],
+    patterns: [/\b(?:air quality|aqi|pollution levels?|air pollution|smog)\b(?:.*?\b(?:in|for|at|of) ([a-z][a-z .'-]{1,40}))?/, /^(?:hows|how is) the air(?: quality)?(?: (?:in|at) ([a-z][a-z .'-]{1,40}))?(?: today| now| right now)?$/],
+    resolve: (m) => { const place = m[1]?.replace(/\b(?:today|tomorrow|right now|now|please)\b/g, '').trim(); return tool('weather.air', place ? { location: place } : {}); } }),
+  cmd({ id: 'skill.sun', category: 'Skills', tool: 'weather.sun', description: "Today's sunrise and sunset times (no account needed).", examples: ['when is sunset', 'what time is sunrise in tokyo', 'when does the sun set today'],
+    patterns: [/\b(?:sunrise|sunset|sun rise|sun set)\b(?:.*?\b(?:in|for|at) ([a-z][a-z .'-]{1,40}))?/, /^when (?:does|will) the sun (?:rise|set|go down|come up)(?: (?:in|at) ([a-z][a-z .'-]{1,40}))?(?: today| tomorrow)?$/],
+    resolve: (m) => { const place = m[1]?.replace(/\b(?:today|tomorrow|right now|now|please)\b/g, '').trim(); return tool('weather.sun', place ? { location: place } : {}); } }),
+  cmd({ id: 'skill.news', category: 'Skills', tool: 'news.headlines', description: 'Read the latest news headlines, or news about a topic (no account needed).', examples: ["what's the news", 'read me the headlines', 'news about cricket', 'latest technology news', "what's happening in the world"],
+    patterns: [
+      /^(?:(?:whats|what is|tell me|give me|read(?: me)?|show(?: me)?|get(?: me)?|any) )?(?:the )?(?:latest |top |todays |breaking |recent )?(?:news|headlines)(?: (?:about|on|for|from|in|regarding) (?:the )?([a-z0-9][a-z0-9 .&'-]{1,50}?))?(?: today| right now| now| please)?$/,
+      /^(?:whats the |what is the |read me the |give me the |tell me the )?(?:latest|todays|top|recent) ([a-z0-9][a-z0-9 .&'-]{1,40}?) (?:news|headlines)$/,
+      /^whats (?:happening|going on) in the world(?: today)?$/,
+    ],
+    resolve: (m) => {
+      const topic = (m[1] ?? '').trim();
+      return tool('news.headlines', topic && !/^(?:the world|world|today)$/.test(topic) ? { topic } : {});
+    } }),
+  cmd({ id: 'skill.wikipedia', category: 'Skills', tool: 'knowledge.lookup', description: 'Spoken encyclopedia answer from Wikipedia (no account needed).', examples: ['what does wikipedia say about black holes', 'tell me about the eiffel tower from wikipedia', 'wikipedia summary of albert einstein', 'according to wikipedia who is ada lovelace'],
+    patterns: [
+      /^what does wikipedia (?:say|know|have) (?:about|on) (.{2,80})$/,
+      /^(?:tell me|read me|give me a summary) (?:about|of) (.{2,80}?) (?:from|on|according to|using) wikipedia$/,
+      /^(?:give me (?:the |a )?)?wikipedia (?:summary|article|entry|page) (?:of|for|on|about) (.{2,80})$/,
+      /^according to wikipedia,? (?:who|what) (?:is|was|are|were) (.{2,80})$/,
+    ],
+    resolve: (m) => tool('knowledge.lookup', { query: m[1].replace(/\?$/, '').trim() }) }),
   cmd({ id: 'skill.convert', category: 'Skills', tool: 'units.convert', description: 'Convert units offline.', examples: ['convert 5 miles to kilometers', 'how many cups in a liter', '100 fahrenheit in celsius', '2 gigabytes in megabytes'],
     patterns: [/^(?:convert )?(\d+(?:\.\d+)?) ?([a-z][a-z/ ]{0,24}?) (?:to|in|into) ([a-z][a-z/ ]{0,24})$/, /^how many ([a-z][a-z ]{0,24}) (?:are )?in (?:a|an|one|1) ([a-z][a-z ]{0,24})$/],
     resolve: (m, text) => (/^how many/.test(text) ? tool('units.convert', { value: 1, from: m[2], to: m[1] }) : tool('units.convert', { value: parseFloat(m[1]), from: m[2], to: m[3] })) }),
@@ -301,7 +441,9 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'memory.save', category: 'Memory', tool: 'memory.save', description: 'Explicitly save a preference or fact.', examples: ['remember that I prefer dark roast coffee', 'remember my project is called Atlas'],
     patterns: [/^(please )?remember (that )?(.+)$/], resolve: (m) => tool('memory.save', { text: m[3] }) }),
   cmd({ id: 'memory.forget', category: 'Memory', tool: 'memory.forget', description: 'Delete saved memories matching words.', examples: ['forget about my coffee preference'],
-    patterns: [/^forget (about |that |what i said about )?(.{2,})$/], resolve: (m) => tool('memory.forget', { query: m[2].replace(/^my /, '') }) }),
+    patterns: [/^forget (about |that |what i said about )?(.{2,})$/],
+    // "forget about it" means never mind, not "delete a memory called it".
+    resolve: (m) => (/^(?:it|that|this|them|him|her|everything i just said|what i just said)$/.test(m[2].trim()) ? builtin('cancel') : tool('memory.forget', { query: m[2].replace(/^my /, '') })) }),
 
   // ---------- productivity ----------
   cmd({ id: 'timer.cancel', category: 'Productivity', tool: 'reminders.cancel', description: 'Cancel a timer, reminder or focus session.', examples: ['cancel the timer', 'cancel my reminder', 'stop the focus session', 'cancel all timers'],
@@ -402,7 +544,7 @@ export const CATALOG: CommandDef[] = [
   cmd({ id: 'media.pause', category: 'Media', tool: 'media.control', description: 'Pause playback.', examples: ['pause the music', 'pause'],
     patterns: [/^pause( the| my)?( music| song| video| playback| track| media| spotify)?$/], resolve: () => tool('media.control', { action: 'pause' }) }),
   cmd({ id: 'media.play', category: 'Media', tool: 'media.control', description: 'Resume playback.', examples: ['resume playback', 'play music', 'continue the song'],
-    patterns: [/^(resume|unpause|continue)( the| my)?( music| song| video| playback| track| media)?$/, /^play( the| some| my)?( music| song| video| media)?$/], resolve: () => tool('media.control', { action: 'play' }) }),
+    patterns: [/^(resume|unpause|continue)( the| my)?( music| song| video| playback| track| media)?$/, /^(?:start|put|turn|get) (?:the |my )?(?:music|song|playback) (?:back up|back on|again)$/, /^play( the| some| my)?( music| song| video| media)?$/], resolve: () => tool('media.control', { action: 'play' }) }),
   cmd({ id: 'media.next', category: 'Media', tool: 'media.control', description: 'Next track.', examples: ['skip this track', 'next song'],
     patterns: [/^(skip|next)( this| the)?( track| song| one)?$|^(play|go to) the next (track|song)$/], resolve: () => tool('media.control', { action: 'next' }) }),
   cmd({ id: 'media.previous', category: 'Media', tool: 'media.control', description: 'Previous track.', examples: ['play the previous track', 'previous song'],

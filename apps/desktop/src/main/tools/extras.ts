@@ -6,7 +6,7 @@ import { findZone } from '../assistant/knowledge/cities';
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
 /** Fixed-date and computed holidays/events for "how many days until christmas". */
-function eventDate(name: string, year: number): Date | null {
+export function eventDate(name: string, year: number): Date | null {
   const n = name.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
   const fixed: Record<string, [number, number]> = {
     christmas: [11, 25], 'christmas eve': [11, 24], 'new year': [0, 1], 'new years': [0, 1], 'new years day': [0, 1], 'new years eve': [11, 31],

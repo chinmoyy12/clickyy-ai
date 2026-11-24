@@ -65,6 +65,10 @@ export function VoiceSection({ s, update, onPreview }: P & { onPreview: (t: stri
           <Select label="Speech engine" value={s.speech.ttsEngine} onChange={(v) => void update({ speech: { ttsEngine: v } })}
             options={[{ value: 'neural', label: 'Neural voice (offline, natural)' }, { value: 'system', label: 'Windows voice (offline)' }, { value: 'cloud', label: 'Cloud voice (online)' }, { value: 'off', label: 'Off — text only' }]} />
         </Row>
+        <Row label="Talk back" hint="Every time: typed questions are answered out loud too, and a new answer interrupts the old one. Voice only: typed questions get a text answer.">
+          <Select label="Talk back" value={s.speech.talkBack} onChange={(v) => void update({ speech: { talkBack: v } })}
+            options={[{ value: 'always', label: 'Every time' }, { value: 'voice', label: 'Only when I speak' }]} />
+        </Row>
         {s.speech.ttsEngine === 'neural' && neural.length > 0 && (
           <div className="grid grid-cols-2 gap-1.5 md:grid-cols-3">
             {[...female, ...neural.filter((v) => v.gender !== 'female')].map((v) => (

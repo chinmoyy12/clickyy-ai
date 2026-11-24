@@ -5,6 +5,7 @@ import { useStore, store, type ChatLine } from '../state/store';
 import { call } from '../api';
 import { Orb, type OrbMode } from './Orb';
 import { Badge } from './ui';
+import { ModeSwitch } from './TopExtras';
 
 const PHASE_LABEL: Record<string, string> = {
   idle: 'Ready', wake_detected: 'Wake phrase heard', listening: 'Listening…', processing: 'Thinking…', speaking: 'Speaking',
@@ -20,15 +21,16 @@ export function TitleBar() {
   return (
     <header className="drag flex h-11 shrink-0 items-center justify-between px-3">
       <div className="flex items-center gap-2.5">
-        <span className="wordmark text-[11px] font-semibold text-gold">CLICKYY</span>
+        <span className="wordmark wordmark-shine text-[11px] font-semibold">CLICKYY</span>
         <span
-          className="no-drag inline-flex items-center gap-1 rounded-md border border-line px-1.5 py-0.5 text-[10px] text-muted"
+          className="glass no-drag inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-muted"
           title={strict ? 'Strict Offline: nothing leaves this PC' : network.active ? `Cloud request in progress (${network.host})` : cloudActive ? 'Cloud model in use for open questions' : 'Local only right now'}
         >
           {network.active ? <Cloud size={11} className="text-cyan" /> : cloudActive && !strict ? <Cloud size={11} /> : <CloudOff size={11} />}
-          {strict ? 'Strict offline' : network.active ? 'Cloud active' : cloudActive ? 'Hybrid · cloud ready' : 'Local'}
+          {strict ? 'Strict offline' : network.active ? 'Cloud active' : cloudActive ? 'Hybrid · cloud ready' : providers?.activeLabel?.startsWith('Built-in') ? 'Built-in AI' : 'Local'}
         </span>
       </div>
+      <ModeSwitch />
       <div className="no-drag flex items-center gap-0.5">
         <IconBtn label="Settings" onClick={() => store.set({ view: 'settings' })}><Cog size={15} /></IconBtn>
         <IconBtn label="Minimize" onClick={() => void call('window:control', { action: 'minimize' })}><Minus size={15} /></IconBtn>
@@ -55,39 +57,70 @@ function RichText({ text }: { text: string }) {
   );
 }
 
-export function Conversation() {
+/** First-run ideas: one tap runs them, so people discover what Clickyy can do. */
+export const SUGGESTIONS = ["What's the news?", 'Tell me a joke', 'Set a timer for 5 minutes', "How's my battery?", 'Help me relax', 'Open Chrome'];
+
+export function Suggestions() {
+  return (
+    <div className="flex max-w-[360px] flex-wrap justify-center gap-1.5 px-4" aria-label="Try saying">
+      {SUGGESTIONS.map((s, i) => (
+        <motion.button key={s} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          onClick={() => window.dispatchEvent(new CustomEvent('clickyy:submit-text', { detail: s }))}
+          className="chip glass rounded-full px-3 py-1 text-[0.8em] text-ink/85">
+          {s}
+        </motion.button>
+      ))}
+    </div>
+  );
+}
+
+export function Conversation({ reducedMotion = false }: { reducedMotion?: boolean }) {
   const lines = useStore((s) => s.lines);
   const partial = useStore((s) => s.partial);
   const progress = useStore((s) => s.progress);
   const lastUser = [...lines].reverse().find((l) => l.role === 'user');
   const lastAssistant = [...lines].reverse().find((l) => l.role !== 'user');
   return (
-    <div className="flex min-h-[120px] w-full flex-col items-center gap-2 px-6 text-center" aria-live="polite">
-      <div className="min-h-[1.4em] text-[0.92em] text-muted">
+    <div className="flex min-h-[120px] w-full flex-col items-center gap-2.5 px-5 text-center" aria-live="polite">
+      <div className="min-h-[1.4em] max-w-full truncate px-2 text-[0.9em] text-muted">
         {partial ? <span className="text-cyan/90">“{partial}”</span> : lastUser ? <span>“{lastUser.text}”</span> : null}
       </div>
-      <AnimatePresence mode="wait">
-        {lastAssistant && (
-          <motion.div key={lastAssistant.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-            className="selectable max-h-[34vh] w-full overflow-y-auto text-[1.02em] leading-relaxed text-ink [&_p+p]:mt-2">
-            <RichText text={lastAssistant.text} />
-            {lastAssistant.provider && <div className="mt-1 text-[0.72em] text-muted">via {lastAssistant.provider}</div>}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!lastAssistant && !partial && !lastUser && <Suggestions />}
+      <div className="w-full [perspective:900px]">
+        <AnimatePresence mode="wait">
+          {lastAssistant && (
+            <motion.div key={lastAssistant.id}
+              initial={reducedMotion ? { opacity: 0 } : { opacity: 0, rotateX: -14, y: 14, scale: 0.98 }}
+              animate={{ opacity: 1, rotateX: 0, y: 0, scale: 1 }}
+              exit={reducedMotion ? { opacity: 0 } : { opacity: 0, rotateX: 8, y: -8 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              style={{ transformOrigin: '50% 0%' }}
+              className="glass selectable max-h-[34vh] w-full overflow-y-auto rounded-2xl px-4 py-3 text-left text-[1.0em] leading-relaxed text-ink [&_p+p]:mt-2">
+              <RichText text={lastAssistant.text} />
+              {lastAssistant.provider && <div className="mt-1.5 text-[0.72em] text-muted">via {lastAssistant.provider}</div>}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       {progress && <div className="text-[0.85em] text-gold/80">{progress}</div>}
     </div>
   );
 }
 
+const DOT: Partial<Record<OrbMode, string>> = { listening: 'text-cyan', wake_detected: 'text-gold', processing: 'text-gold', executing: 'text-gold', speaking: 'text-gold', confirming: 'text-warn', error: 'text-danger', offline: 'text-muted', muted: 'text-muted', idle: 'text-ok' };
+
 export function StatusLine({ mode }: { mode: OrbMode }) {
   const detail = useStore((s) => s.phaseDetail);
   const listening = useStore((s) => s.listening);
-  const label = listening === 'wake' && mode === 'idle' ? 'Listening for wake phrase' : PHASE_LABEL[mode] ?? mode;
+  const label = listening === 'wake' && mode === 'idle' ? 'Listening for "Clicky"' : PHASE_LABEL[mode] ?? mode;
+  const busy = mode !== 'idle' && mode !== 'muted' && mode !== 'offline';
   return (
-    <div className="flex items-center gap-2 text-[0.85em] text-muted" role="status">
-      {listening !== 'off' && <span className="inline-flex items-center gap-1 rounded-full border border-cyan/40 px-2 py-0.5 text-[0.85em] text-cyan"><Radio size={11} /> mic on</span>}
-      <span>{label}{detail && mode === 'executing' ? `: ${detail}` : ''}</span>
+    <div className="flex items-center gap-2 text-[0.82em]" role="status">
+      <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-ink/80">
+        <span className={`status-dot ${busy ? 'pulse' : ''} ${DOT[mode] ?? 'text-muted'}`} />
+        {label}{detail && mode === 'executing' ? `: ${detail}` : ''}
+      </span>
+      {listening !== 'off' && <span className="inline-flex items-center gap-1 rounded-full border border-cyan/40 bg-cyan/5 px-2 py-1 text-[0.85em] text-cyan"><Radio size={11} /> mic on</span>}
     </div>
   );
 }
@@ -116,8 +149,8 @@ export function Composer({ onTalk, onTalkEnd, onStop, onToggleMute, onConversati
   };
   const ptt = mode === 'push_to_talk';
   return (
-    <div className="w-full px-4 pb-3">
-      <div className="flex items-center gap-2">
+    <div className="relative z-10 w-full px-4 pb-3">
+      <div className="glass flex items-center gap-2 rounded-2xl p-1.5">
         <button
           aria-label={muted ? 'Microphone muted (click to unmute)' : ptt ? 'Hold to talk' : 'Talk'}
           title={muted ? 'Unmute microphone' : ptt ? 'Hold to talk (or click)' : 'Talk'}
@@ -130,21 +163,21 @@ export function Composer({ onTalk, onTalkEnd, onStop, onToggleMute, onConversati
           onPointerUp={() => { if (!muted && ptt) onTalkEnd(); }}
           onPointerCancel={() => { if (!muted && ptt) onTalkEnd(); }}
           onClick={() => { if (muted) onToggleMute(); else if (!ptt) onTalk(); }}
-          className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border transition-colors ${muted ? 'border-line bg-surface text-muted' : listening === 'command' ? 'border-cyan/70 bg-cyan/15 text-cyan' : 'border-gold/50 bg-gold/10 text-gold hover:bg-gold/20'}`}
+          className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl transition-all duration-300 ${muted ? 'border border-line bg-surface text-muted' : listening === 'command' ? 'mic-live bg-cyan/15 text-cyan' : 'btn-gold'}`}
         >
           {muted ? <MicOff size={18} /> : <Mic size={18} />}
         </button>
-        <form className="flex flex-1 items-center rounded-xl border border-line bg-surface focus-within:border-gold/50" onSubmit={(e) => { e.preventDefault(); submit(); }}>
+        <form className="flex flex-1 items-center rounded-xl border border-transparent bg-black/20 transition-colors focus-within:border-gold/40" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <input ref={inputRef} aria-label="Type a message" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a command or question…"
-            className="selectable h-11 flex-1 bg-transparent px-3 text-[0.95em] outline-none placeholder:text-muted/60" />
+            className="selectable h-11 flex-1 bg-transparent px-3 text-[0.95em] outline-none focus-visible:!outline-none placeholder:text-muted/60" />
           <button type="submit" aria-label="Send" disabled={!text.trim()} className="mr-1 grid h-9 w-9 place-items-center rounded-lg text-muted hover:text-gold disabled:opacity-30"><Send size={16} /></button>
         </form>
         <button aria-label="Stop" title="Stop (Esc)" onClick={onStop} disabled={!busy}
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line bg-surface text-muted transition-colors hover:border-danger/60 hover:text-danger disabled:opacity-30">
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-25">
           <Square size={15} />
         </button>
       </div>
-      <div className="mt-2 flex items-center justify-between text-[0.75em] text-muted">
+      <div className="mt-2 flex items-center justify-between px-1 text-[0.75em] text-muted">
         <div className="flex items-center gap-1">
           <button onClick={onToggleMute} className={`rounded-md px-2 py-1 hover:bg-surface2 ${muted ? 'text-danger' : ''}`}>{muted ? 'Mic muted' : 'Mute mic'}</button>
           <button onClick={onConversation} className="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-surface2" title="Hands-free conversation until you say that's all"><MessageCircle size={12} /> Conversation</button>
@@ -195,7 +228,7 @@ export function ConfirmCard() {
   const danger = req.risk === 3;
   return (
     <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-desc"
-      className={`mx-4 mb-3 rounded-[14px] border p-3.5 ${danger ? 'border-danger/60 bg-danger/10' : 'border-warn/50 bg-warn/5'}`}>
+      className={`glass-strong relative z-10 mx-4 mb-3 rounded-2xl border p-3.5 ${danger ? '!border-danger/60' : '!border-warn/50'}`}>
       <div className="flex items-start gap-2.5">
         <ShieldAlert size={18} className={danger ? 'text-danger' : 'text-warn'} />
         <div className="min-w-0 flex-1">
@@ -203,7 +236,7 @@ export function ConfirmCard() {
           <p id="confirm-desc" className="selectable mt-1 text-[0.88em] leading-relaxed text-ink/90">{req.description}</p>
           {req.preview && <pre className="code-block mt-2 max-h-32 overflow-y-auto selectable">{req.preview}</pre>}
           <div className="mt-3 flex gap-2">
-            <button ref={approveRef} onClick={() => answer(true)} className={`rounded-lg px-3 py-1.5 text-[0.88em] font-medium ${danger ? 'bg-danger/80 text-black hover:bg-danger' : 'bg-gold/80 text-black hover:bg-gold'}`}>
+            <button ref={approveRef} onClick={() => answer(true)} className={`rounded-lg px-3 py-1.5 text-[0.88em] font-medium ${danger ? 'bg-danger/85 text-black hover:bg-danger' : 'btn-gold'}`}>
               {req.actionLabel}
             </button>
             <button onClick={() => answer(false)} className="rounded-lg border border-line px-3 py-1.5 text-[0.88em] hover:border-ink/40">Cancel</button>
@@ -221,8 +254,8 @@ export function Notices() {
     <div className="pointer-events-none fixed inset-x-0 top-12 z-40 flex flex-col items-center gap-1.5 px-4" aria-live="polite">
       <AnimatePresence>
         {notices.map((n) => (
-          <motion.div key={n.id} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className={`pointer-events-auto max-w-[94%] rounded-lg border px-3 py-1.5 text-[0.8em] shadow-lg backdrop-blur ${n.level === 'error' ? 'border-danger/50 bg-[#2a1715]/95 text-danger' : n.level === 'warn' ? 'border-warn/40 bg-[#2a2415]/95 text-warn' : 'border-line bg-surface/95 text-muted'}`}>
+          <motion.div key={n.id} initial={{ opacity: 0, y: -10, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className={`glass-strong pointer-events-auto max-w-[94%] rounded-xl px-3 py-1.5 text-[0.8em] ${n.level === 'error' ? '!border-danger/50 text-danger' : n.level === 'warn' ? '!border-warn/40 text-warn' : 'text-ink/80'}`}>
             {n.text}
           </motion.div>
         ))}

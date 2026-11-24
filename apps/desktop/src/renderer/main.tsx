@@ -1,7 +1,6 @@
 import { Component, StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/index.css';
-import { App } from './App';
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   override state = { error: null as Error | null };
@@ -19,7 +18,14 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
   }
 }
 
-createRoot(document.getElementById('root')!).render(
+// Design preview in a plain browser (dev server only): run vite, then open /?mock.
+if (import.meta.env.DEV && !window.clickyy && location.search.includes('mock')) await import('./dev/mockBridge');
+const { App } = await import('./App');
+
+// One root per page, even if the dev server re-runs this module.
+const container = document.getElementById('root')! as HTMLElement & { _clickyyRoot?: ReturnType<typeof createRoot> };
+container._clickyyRoot ??= createRoot(container);
+container._clickyyRoot.render(
   <StrictMode>
     <ErrorBoundary>
       <App />

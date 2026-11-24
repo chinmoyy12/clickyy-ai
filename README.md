@@ -26,6 +26,26 @@
 
 Set a primary provider, a fallback provider and a local fallback. If one fails, Clickyy moves on to the next.
 
+### 🧠 New in 0.7.0: its own AI built in, no internet and no API key
+
+- **A built-in AI model, inside the app.** Clickyy now ships with its own language model: Qwen3 1.7B, run on your PC by llama.cpp. It answers questions, holds conversations and uses tools straight after install. You don't download anything, sign up or add a key, and it works in Strict Offline mode. On an i5 laptop a short answer takes about half a second to two seconds. Ollama and cloud models (Claude, Gemini, ChatGPT…) remain optional extras.
+- **Fast, Balanced and Turbo modes.** One switch in the title bar, or say "turbo mode". Fast gives short, quick answers. Turbo lets the model think step by step before it answers (better at maths, planning and multi-part tasks), and gives cloud models a bigger budget and higher reasoning effort.
+- **Updates itself.** Clickyy checks GitHub for new versions. When one is out, an **Update now** button appears; it downloads the installer, checks its SHA-256 checksum and restarts into the new version, keeping your settings and history. You can also say "check for updates". You only visit this page once.
+- **Always talks back.** Typed questions are answered out loud too. A new answer replaces one that's still playing. Settings › Voice › Talk back can limit speech to spoken requests.
+- **Understands reworded commands offline.** A small neural network trained into the app (under 1 ms per guess, 363 KB) understands phrasings the rules don't know, such as "is the charger connected", "capture my display" or "kill the sound". It acts only when it's at least 90% sure. If it's unsure, it asks "Did you mean …? Say yes and I'll do it." Risky actions are never run from a guess.
+- **Learns how you talk.** When the AI handles a request with one safe action, Clickyy remembers that exact phrase and does it offline next time. You can see and forget learned phrases in Settings › AI › Offline brain.
+- **Bigger models if you want them.** Settings › AI › Offline brain can also download a larger model (Llama 3.2, Qwen 3, Gemma 3) through Ollama, with a progress bar.
+- **News and encyclopedia answers, no key needed.** "What's the news", "latest cricket news", "what does Wikipedia say about black holes". With no AI model, "who is Ada Lovelace" is still answered from Wikipedia when you're online.
+- **A new 3D interface.**
+  - **The orb:** a real-time, ray-traced orb drawn by one WebGL shader. Flowing plasma, a fresnel rim and a highlight follow your mouse. Each state has its own look: cyan ripples while listening, an orbiting light while thinking, a glow while speaking, a gold pulse while it waits for you, red on errors.
+  - **Around it:** a slow aurora and a perspective horizon, glass panels, replies that turn into view in 3D, and one-tap suggestions on first launch.
+  - **Fallbacks:** reduced motion gives still frames, and the 2D orb takes over if WebGL is unavailable.
+- **22 more everyday commands.**
+  - **Online, no key:** dictionary, synonyms and opposites; air quality; sunrise and sunset.
+  - **Offline:** jokes, facts and riddles; motivation; guided breathing; loan EMI and bill splitting; BMI; dates in history; spelling; Roman numerals; strong passwords (shown, never spoken); "decide for me"; rock paper scissors.
+  - **Windows panels by voice:** snip, notifications, quick settings, Wi-Fi list, second screen, Task View.
+- **Measured honestly.** On 42 commands written after the brain shipped, rules alone handled 18 and rules plus brain handled 29. The brain made no wrong actions, and none of 30 general questions triggered a command. How it works, and how it compares with Google, Siri, Alexa, ChatGPT and Claude, is in [docs/CAPABILITIES.md](docs/CAPABILITIES.md).
+
 ### ⚡ New in 0.6.0: it just does it
 
 - **Songs start playing.** "Play Kesariya" finds the top match and starts it on YouTube Music. You no longer land on a search page.
@@ -108,9 +128,9 @@ Say **"what can you do"** and Clickyy tells you its real count, measured from it
 
 ### ⬇️ Install
 
-1. **[Download Clickyy-AI-Setup.exe](https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe)** (~440 MB, Windows 11 x64, no admin needed). Offline speech recognition and the neural voice are included.
+1. **[Download Clickyy-AI-Setup.exe](https://github.com/chinmoyy12/clickyy-ai/releases/latest/download/Clickyy-AI-Setup.exe)** (~2 GB, Windows 11 x64, no admin needed). The built-in AI, offline speech recognition and the neural voice are all included. After this, Clickyy updates itself.
 2. Run it. This build isn't code-signed yet, so if SmartScreen appears, click **More info → Run anyway**.
-3. Press **Ctrl+Shift+Space** anytime to show Clickyy. For conversation, install [Ollama](https://ollama.com) and run `ollama pull llama3.2`, or add a cloud key in Settings → Credentials. You don't need to keep Ollama running: Clickyy starts it when needed, and uses any installed model if the configured one is missing.
+3. Press **Ctrl+Shift+Space** anytime to show Clickyy. Conversation works straight away with the built-in AI. Optionally add a bigger model through [Ollama](https://ollama.com), or a cloud key in Settings → Credentials.
 
 <p align="center">
   <img src="docs/screenshots/main.png" width="31%" alt="Main window" />

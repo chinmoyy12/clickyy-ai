@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { IpcSend, type IpcPayload } from '@shared/ipc';
 import { WAKE_PHRASES, type DeepPartial, type Settings, type WakePhraseId } from '@shared/settings';
 import { CLOUD_PROVIDERS, PROVIDER_PRESETS, resolveBaseUrl, type CloudProviderId } from '@shared/providers';
-import type { AssistantEvent, CatalogEntry, Diagnostics, ModelDownloadStatus, SpeechEvent } from '@shared/types';
+import type { AssistantEvent, CatalogEntry, Diagnostics, ModelDownloadStatus, SpeechEvent, LocalPullStatus, BrainStatus } from '@shared/types';
 import { Db } from './storage/db';
 import { createRepos, type Repos } from './storage/repos';
 import { EncryptedFileSecretStore } from './security/secrets';
@@ -27,6 +27,8 @@ import { Scheduler } from './scheduler';
 import { locateSpeechService, SpeechService } from './speech/service';
 import { BEST_ACCURACY, download as downloadModel, isInstalled as isModelInstalled, remove as removeModel, totalBytes as modelBytes } from './speech/models';
 import { registerIpc, type Handlers } from './ipc';
+import { BuiltinEngine, locateBuiltin } from './providers/builtin';
+import { Updater } from './updater';
 
 const DEV_URL = process.env.CLICKYY_DEV_SERVER_URL;
 const APP_ORIGIN = 'app://clickyy';
@@ -99,6 +101,7 @@ if (!app.requestSingleInstanceLock()) app.quit();
 let win: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let quitting = false;
+let builtinEngine: BuiltinEngine | null = null;
 let repos: Repos;
 
 const CSP = [
@@ -116,7 +119,7 @@ const CSP = [
   "form-action 'none'",
 ].join('; ');
 
-function send(channel: 'assistant:event' | 'speech:event' | 'settings:changed' | 'ui:command', payload: unknown) {
+function send(channel: 'assistant:event' | 'speech:event' | 'settings:changed' | 'ui:command' | 'updates:changed', payload: unknown) {
   if (win && !win.isDestroyed()) win.webContents.send(channel, payload);
 }
 const emit = (ev: AssistantEvent) => send('assistant:event', ev);
@@ -165,7 +168,11 @@ function createWindow(settings: Settings) {
       allowRunningInsecureContent: false, spellcheck: false, backgroundThrottling: false,
     },
   });
-  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    // Only the project's own GitHub pages (release notes) open, in the default browser.
+    if (/^https:\/\/github\.com\/chinmoyy12\/clickyy-ai(\/[A-Za-z0-9/._-]*)?$/.test(url)) void shell.openExternal(url);
+    return { action: 'deny' };
+  });
   win.webContents.on('will-navigate', (e, url) => {
     const allowed = DEV_URL ? url.startsWith(DEV_URL) : url.startsWith(APP_ORIGIN);
     if (!allowed) e.preventDefault();
@@ -274,6 +281,9 @@ async function main() {
   let dlTask: Promise<void> | null = null;
   void isModelInstalled(modelsRoot, BEST_ACCURACY).then((ok) => { dl.installed = ok; });
   const modelStatus = (): ModelDownloadStatus => ({ ...dl });
+  const pull: Omit<LocalPullStatus, 'ollamaRunning'> = { model: '', active: false, status: '', completed: 0, total: 0, done: false };
+  let pullAbort: AbortController | null = null;
+  const pullStatus = (): LocalPullStatus => ({ ...pull, ollamaRunning: providers.localRunning });
 
   // Seed the approved app registry with installed well-known apps on first run.
   if (repos.apps.list().length === 0) for (const a of detectApps(existsSync)) repos.apps.upsert(a);
@@ -285,6 +295,33 @@ async function main() {
   const broker = new ConfirmationBroker((request) => { emit({ type: 'confirm', request }); emit({ type: 'phase', phase: 'confirming' }); win?.show(); }, (id, approved) => emit({ type: 'confirm_resolved', id, approved }));
   const executor = new ToolExecutor(registry, broker, (call) => emit({ type: 'tool', call }));
   const providers = new ProviderManager(settings, secrets, guard, () => net.isOnline(), startOllama);
+  // Built-in AI: the model shipped inside the installer, run by the bundled llama.cpp server.
+  builtinEngine = new BuiltinEngine(locateBuiltin(process.resourcesPath, app.getAppPath()), { fetch: guard.fetchFor('local-model'), log });
+  providers.setBuiltin(builtinEngine);
+  log(builtinEngine.available ? `Built-in AI found: ${builtinEngine.paths!.model}` : 'Built-in AI not bundled in this build.');
+  setTimeout(() => { void providers.warmBuiltin(); }, 4000).unref();
+
+  // In-app updates from GitHub releases (checked at start and every 6 hours; the user presses Update to install).
+  const updater = new Updater({
+    version: app.getVersion(),
+    fetch: guard.fetchFor('updates'),
+    downloadDir: join(app.getPath('temp'), 'clickyy-update'),
+    launch: (file, args) => new Promise((ok, fail) => {
+      const child = spawn(file, args, { detached: true, stdio: 'ignore', shell: false, windowsHide: false });
+      child.once('error', fail);
+      child.once('spawn', () => { child.unref(); ok(); });
+    }),
+    quit: () => { quitting = true; app.quit(); },
+    offline: () => settings().ai.policy === 'strict_offline',
+    onChange: (st) => send('updates:changed', st),
+  });
+  const autoCheck = () => {
+    const s = settings();
+    if (!app.isPackaged || !s.updates.autoCheck || s.ai.policy === 'strict_offline' || !net.isOnline()) return;
+    void updater.check(false, s.updates.skipped);
+  };
+  setTimeout(autoCheck, 15_000).unref();
+  setInterval(autoCheck, 6 * 3600_000).unref();
 
   let speech: SpeechService;
   const scheduler = new Scheduler(repos.reminders, (r, late) => {
@@ -299,6 +336,8 @@ async function main() {
     applyWindowSettings(next, prev);
     send('settings:changed', next);
     if (prev.ai.local.baseUrl !== next.ai.local.baseUrl || prev.ai.local.model !== next.ai.local.model) void providers.refreshLocal();
+    if (prev.ai.local.builtin && !next.ai.local.builtin) providers.stopBuiltin();
+    else if (!prev.ai.local.builtin && next.ai.local.builtin) void providers.warmBuiltin();
     return next;
   };
 
@@ -309,6 +348,12 @@ async function main() {
     speechStatus: () => speech.status,
     uiCommand: (cmd, payload) => send('ui:command', { cmd, payload }),
     net: guard.fetchFor('tools'),
+    updates: { version: app.getVersion(), check: (manual) => updater.check(manual, settings().updates.skipped), install: () => updater.install() },
+  });
+  const brainStatus = (): BrainStatus => ({
+    intents: assistant.brain.net.labels.length - 1,
+    runnable: assistant.brain.runnableCount,
+    learned: assistant.brain.learnedList().map((l) => ({ text: l.text, tool: l.tool, uses: l.uses })),
   });
 
   // Proactive alerts: Clickyy speaks up when the battery runs low or the CPU stays pegged.
@@ -472,6 +517,33 @@ async function main() {
       return modelStatus();
     },
     'models:cancel': () => { dlAbort?.abort(); return true; },
+    'local:pull': (p) => {
+      const { model } = p as IpcPayload<'local:pull'>;
+      if (settings().ai.policy === 'strict_offline') throw new Error('Strict Offline mode blocks downloads. Switch to Smart Hybrid for the download, then switch back; the model then works fully offline.');
+      if (!pull.active) {
+        const ctrl = new AbortController();
+        pullAbort = ctrl;
+        Object.assign(pull, { model, active: true, status: 'Starting…', completed: 0, total: 0, error: undefined, done: false });
+        void providers.pullLocal(model, (pr) => { pull.status = pr.status; if (pr.total) { pull.total = pr.total; pull.completed = pr.completed ?? 0; } }, ctrl.signal)
+          .then(() => { pull.done = true; pull.status = 'Ready'; repos.settings.update({ ai: { local: { runtime: 'ollama', model } } }); log(`Local model ${model} installed`); })
+          .catch((e: Error) => { pull.error = ctrl.signal.aborted ? 'Download cancelled.' : e.message; log(`Local model download failed: ${e.message}`); })
+          .finally(() => { pull.active = false; pullAbort = null; });
+      }
+      return pullStatus();
+    },
+    'local:pullStatus': () => pullStatus(),
+    'local:pullCancel': () => { pullAbort?.abort(); return true; },
+    'local:getOllama': async () => { await shell.openExternal('https://ollama.com/download/windows'); return true; },
+    'brain:status': () => brainStatus(),
+    'updates:status': () => updater.status,
+    'updates:check': () => updater.check(true),
+    'updates:install': async () => { await updater.install().catch(() => undefined); return updater.status; },
+    'updates:skip': () => { const st = updater.status; if (st.latest) updateSettings({ updates: { skipped: st.latest } }); return updater.check(false, st.latest ?? ''); },
+    'brain:forget': (p) => {
+      const list = assistant.brain.forget((p as IpcPayload<'brain:forget'>).text);
+      repos.db.run("INSERT INTO kv (key, value) VALUES ('brain.learned', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [JSON.stringify(list)]);
+      return brainStatus();
+    },
     'models:remove': async () => {
       dlAbort?.abort();
       await dlTask; // let a cancelled download stop writing before its files are deleted
@@ -549,6 +621,7 @@ async function main() {
     globalShortcut.unregisterAll();
     scheduler.stopAll();
     speech.shutdown();
+    builtinEngine?.stop();
     bridge.stop();
     db.close();
   });

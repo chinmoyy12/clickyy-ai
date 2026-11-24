@@ -37,6 +37,8 @@ export interface SessionState {
   lastSpoken?: string;
   lastUserText?: string;
   lastTool?: { name: string; input: unknown };
+  /** Answer to the riddle Clickyy just asked. */
+  riddleAnswer?: string;
   [key: string]: unknown;
 }
 
@@ -47,6 +49,8 @@ export interface ToolResult<O = unknown> {
   message: string;
   /** Optional on-screen detail (lists, previews). */
   detail?: string;
+  /** The detail is secret (a generated password): always shown on screen, never spoken, never sent to a model, never saved to history. */
+  secretDetail?: boolean;
 }
 
 export type ConfirmPolicy = 'never' | 'always' | ((input: never, ctx: ToolContext) => boolean);

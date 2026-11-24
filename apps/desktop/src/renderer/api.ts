@@ -1,10 +1,10 @@
 import type { IpcChannel, IpcPayload } from '@shared/ipc';
-import type { AppEntry, AuditEntry, CatalogEntry, ConversationSummary, Diagnostics, Memory, ProviderStatus, Reminder, Routine, SpeechServiceStatus, StoredMessage, AssistantReply, ConfirmationRequest, NeuralVoice, ModelDownloadStatus } from '@shared/types';
+import type { AppEntry, AuditEntry, CatalogEntry, ConversationSummary, Diagnostics, Memory, ProviderStatus, Reminder, Routine, SpeechServiceStatus, StoredMessage, AssistantReply, ConfirmationRequest, NeuralVoice, ModelDownloadStatus, LocalPullStatus, BrainStatus, UpdateStatus } from '@shared/types';
 import type { Settings } from '@shared/settings';
 
 interface Bridge {
   invoke(channel: IpcChannel, payload?: unknown): Promise<unknown>;
-  on(channel: 'assistant:event' | 'speech:event' | 'settings:changed' | 'ui:command', cb: (data: unknown) => void): () => void;
+  on(channel: 'assistant:event' | 'speech:event' | 'settings:changed' | 'ui:command' | 'updates:changed', cb: (data: unknown) => void): () => void;
   sendAudio(frame: ArrayBuffer): void;
   ttsState(speaking: boolean): void;
 }
@@ -29,6 +29,8 @@ interface Returns {
   'reminders:list': Reminder[]; 'catalog:list': CatalogEntry[]; 'audit:list': AuditEntry[]; 'diagnostics:get': Diagnostics; 'folders:pick': string | null;
   'tts:cloud': string; 'providers:models': string[]; 'tts:neural': string; 'tts:voices': NeuralVoice[]; 'assistant:status': { busy: boolean; pending: ConfirmationRequest[] };
   'models:status': ModelDownloadStatus; 'models:download': ModelDownloadStatus;
+  'local:pull': LocalPullStatus; 'local:pullStatus': LocalPullStatus; 'brain:status': BrainStatus; 'brain:forget': BrainStatus;
+  'updates:status': UpdateStatus; 'updates:check': UpdateStatus; 'updates:install': UpdateStatus; 'updates:skip': UpdateStatus;
 }
 
 export function call<C extends IpcChannel>(channel: C, payload?: IpcPayload<C>): Promise<C extends keyof Returns ? Returns[C] : unknown> {

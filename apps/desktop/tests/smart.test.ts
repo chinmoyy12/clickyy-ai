@@ -182,3 +182,16 @@ describe('action-first assistant rules', () => {
     expect(prompt).toMatch(/Never run or suggest running shell commands/);
   });
 });
+
+describe('rule misroutes found by the brain holdout set', () => {
+  const apps: AppEntry[] = detectApps(() => true).map((a, i) => ({ ...a, id: `a${i}` }));
+  const r = (t: string) => { const x = route(t, { session: {}, apps }); return x.kind === 'commands' ? x.steps[0] : null; };
+  it('"forget about it" cancels instead of deleting a memory called "it"', () => {
+    expect(r('forget about it')?.resolution).toMatchObject({ kind: 'builtin', builtin: 'cancel' });
+    expect(r('forget about my coffee preference')?.commandId).toBe('memory.forget');
+  });
+  it('"repeat what you just said" is not a song on repeat', () => expect(r('repeat what you just said')?.commandId).not.toBe('music.repeat'));
+  it('"run a health check on my computer" does not try to open an app', () => expect(r('run a health check on my computer')?.commandId).not.toBe('app.start_on'));
+  it('"start the music back up" resumes playback', () => expect(r('start the music back up')?.resolution).toMatchObject({ tool: 'media.control', args: { action: 'play' } }));
+  it('"play the earlier song again" goes back a track', () => expect(r('play the earlier song again')?.resolution).toMatchObject({ tool: 'media.control', args: { action: 'previous' } }));
+});

@@ -1,7 +1,7 @@
 {
   "name": "clickyy-ai",
   "productName": "Clickyy AI",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Clickyy AI - privacy-conscious voice assistant for Windows 11",
   "author": "Clickyy AI",
   "license": "MIT",
@@ -20,7 +20,8 @@
     "docs:commands": "node scripts/gen-commands.mjs",
     "check": "npm run typecheck && npm run lint && npm test",
     "dist": "npm run build && electron-builder --win --x64",
-    "dist:dir": "npm run build && electron-builder --win --x64 --dir"
+    "dist:dir": "npm run build && electron-builder --win --x64 --dir",
+    "fetch:llm": "node scripts/fetch-llm.mjs"
   },
   "build": {
     "appId": "ai.clickyy.desktop",
@@ -47,6 +48,10 @@
       {
         "from": "resources/speech-service",
         "to": "speech-service"
+      },
+      {
+        "from": "resources/llm",
+        "to": "llm"
       }
     ],
     "asar": true,

@@ -1,6 +1,6 @@
 # Command catalog
 
-Generated from source by `npm run docs:commands`. **175 deterministic commands**, **472 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **108 registered tools**.
+Generated from source by `npm run docs:commands`. **201 deterministic commands**, **565 example phrasings** (every example is an automated test in `tests/router.test.ts`), backed by **128 registered tools**.
 
 Deterministic commands work fully offline with no language model. Anything not matched here goes to the configured language model, which can only call the tools listed at the bottom.
 
@@ -131,6 +131,8 @@ Deterministic commands work fully offline with no language model. Anything not m
 | More detailed answers. | “be more detailed”<br>“explain in more detail” | built-in | — | — | — |
 | Start a new conversation. | “let's start a new conversation”<br>“clear the chat” | built-in | — | — | — |
 | Resume the previous conversation. | “let's continue where we left off” | built-in | — | — | — |
+| Response mode: Fast (quick, short answers), Balanced, or Turbo (deeper reasoning). | “turbo mode”<br>“switch to fast mode”<br>“balanced mode”<br>“think harder”<br>“what response mode are you in” | built-in | — | — | — |
+| Check for a new version of Clickyy and install it. | “check for updates”<br>“is there a new version”<br>“update yourself”<br>“what version are you” | built-in | — | — | — |
 | Switch personality mode. | “let's switch to work mode”<br>“playful mode”<br>“soothing mode” | built-in | — | — | — |
 
 ## Utilities
@@ -189,6 +191,7 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Read or change the screen brightness. | “set laptop screen brightness to 40 percent”<br>“dim the display to 20 percent brightness”<br>“brightness up”<br>“what's my screen brightness” | `display.brightness` | L1 low | system | no |
 | Turn a Windows feature on or off, toggle it, check it, reset it or open its settings (35 features: Wi-Fi, Bluetooth, dark mode, night light, hotspot, narrator, clipboard history and more). | “turn on bluetooth”<br>“turn off wi-fi”<br>“toggle dark mode”<br>“check if bluetooth is currently enabled”<br>“open the settings page for night light”<br>“reset hidden files visibility to default configuration”<br>“turn on high performance power plan” | `system.feature` | L1 low | system | conditional |
 | Measure and explain 25 system areas (CPU and temperature, memory, disks, disk speed, battery health, GPU, bandwidth, IP, Wi-Fi signal, top processes, ports, USB, Bluetooth, display, updates, crashes, latency, folder sizes, Recycle Bin…), check them against safe limits, sample for 10 seconds, or save, copy, notify, pin or email the report. | “check my laptop's cpu usage and core temperatures”<br>“warn me if there is any issue with battery health”<br>“export my laptops disk read and write io speeds to a text log”<br>“generate an excel table of connected usb devices and external drives”<br>“run a 10-second stress and stability check on ram memory consumption and swap usage”<br>“what is my public ip address” | `system.diagnostic` | L1 low | system | no |
+| Open Windows panels: screen snip, notifications, quick settings, Wi-Fi list, second screen, Task View, Clock, Store, Camera, Photos, Maps, Calculator. | “snip part of my screen”<br>“show my notifications”<br>“open quick settings”<br>“show available wifi networks”<br>“connect to a second screen”<br>“open task view”<br>“open the camera” | `system.panel` | L1 low | system | no |
 | Cancel a pending shutdown or restart. | “cancel shutdown”<br>“abort the restart” | `power.abort` | L1 low | — | no |
 | Shut down, restart or sign out (always confirmed). | “shut down my computer”<br>“restart the pc”<br>“sign me out” | `power.action` | L3 destructive | power | always |
 | Lock the workstation. | “lock my pc”<br>“lock the screen” | `system.lock` | L1 low | system | no |
@@ -276,6 +279,21 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Summarize, explain, translate or proofread what you copied (asks before reading the clipboard). | “summarize what i copied”<br>“explain my clipboard”<br>“proofread what i just copied”<br>“translate my clipboard to spanish” | `clipboard.read` | L2 sensitive | clipboard | always |
 | Read what you copied out loud. | “read what i copied”<br>“read my clipboard aloud”<br>“read the selected text aloud” | `clipboard.read` | L2 sensitive | clipboard | always |
 | Current weather and today's forecast. | “what's the weather”<br>“weather in london”<br>“do i need an umbrella today”<br>“how's the weather in tokyo”<br>“what's the temperature outside” | `weather.current` | L1 low | web | no |
+| Make a strong random password, shown on screen and never read aloud (offline). | “generate a strong password”<br>“make me a 20 character password”<br>“create a random password”<br>“suggest a secure password” | `password.generate` | L1 low | — | no |
+| Spell a word letter by letter, or with the phonetic alphabet (offline). | “how do you spell necessary”<br>“spell accommodation”<br>“spell my name chinmay phonetically” | `text.spell` | L1 low | — | no |
+| Roman numerals to and from numbers (offline). | “what is 2026 in roman numerals”<br>“convert 49 to roman numerals”<br>“what number is mcmxcix” | `number.roman` | L1 low | — | no |
+| Split a bill between people, with an optional tip (offline). | “split 1200 between 4 people”<br>“split the bill of 2500 among 5 with a 10 percent tip”<br>“what's a 15 percent tip on 80” | `math.split_bill` | L1 low | — | no |
+| Which day of the week a date or holiday falls on (offline). | “what day was august 15 1947”<br>“what day is christmas this year”<br>“which day of the week is january 26” | `date.weekday` | L1 low | — | no |
+| Age from a birth date (offline). | “how old is someone born on june 2 2006”<br>“how old am i if i was born on march 3 1999” | `date.weekday` | L1 low | — | no |
+| Loan EMI, total interest and total payment (offline). | “emi for 5 lakh at 9 percent for 3 years”<br>“calculate the emi on a 25 lakh home loan at 8.5 percent for 20 years”<br>“monthly payment for a 20000 loan at 7 percent for 24 months” | `math.emi` | L1 low | — | no |
+| BMI from weight and height (offline). | “calculate my bmi 70 kg 175 cm”<br>“what's the bmi for 82 kilos and 180 centimeters” | `math.bmi` | L1 low | — | no |
+| Is a year a leap year (offline). | “is 2028 a leap year”<br>“was 1900 a leap year” | `date.leap` | L1 low | — | no |
+| How long until a time of day (offline). | “how long until 5 pm”<br>“how many minutes until 6:30”<br>“how much time until midnight” | `time.until` | L1 low | — | no |
+| Dictionary definitions, synonyms and antonyms (no account needed). | “define serendipity”<br>“what does ubiquitous mean”<br>“synonyms for happy”<br>“opposite of generous”<br>“what's the meaning of resilience” | `dictionary.define` | L1 low | web | no |
+| Current air quality (AQI) for a city (no account needed). | “what's the air quality”<br>“aqi in delhi”<br>“how is the air in mumbai today”<br>“pollution level in bangalore” | `weather.air` | L1 low | web | no |
+| Today's sunrise and sunset times (no account needed). | “when is sunset”<br>“what time is sunrise in tokyo”<br>“when does the sun set today” | `weather.sun` | L1 low | web | no |
+| Read the latest news headlines, or news about a topic (no account needed). | “what's the news”<br>“read me the headlines”<br>“news about cricket”<br>“latest technology news”<br>“what's happening in the world” | `news.headlines` | L1 low | web | no |
+| Spoken encyclopedia answer from Wikipedia (no account needed). | “what does wikipedia say about black holes”<br>“tell me about the eiffel tower from wikipedia”<br>“wikipedia summary of albert einstein”<br>“according to wikipedia who is ada lovelace” | `knowledge.lookup` | L1 low | web | no |
 | Convert units offline. | “convert 5 miles to kilometers”<br>“how many cups in a liter”<br>“100 fahrenheit in celsius”<br>“2 gigabytes in megabytes” | `units.convert` | L1 low | — | no |
 | Calculator (offline). | “what's 15 percent of 240”<br>“calculate 12 times 7”<br>“what is the square root of 144”<br>“what is 2 to the power of 10”<br>“what's 1250 divided by 5” | `math.calculate` | L1 low | — | no |
 
@@ -284,6 +302,19 @@ Deterministic commands work fully offline with no language model. Anything not m
 | Command | Example phrasings | Tool | Risk | Permission | Confirmation |
 |---|---|---|---|---|---|
 | Turn always-on listening (wake word) on or off. | “turn on always listening”<br>“enable wake word”<br>“listen all the time”<br>“turn off always listening”<br>“disable hands free mode” | built-in | — | — | — |
+
+## Fun
+
+| Command | Example phrasings | Tool | Risk | Permission | Confirmation |
+|---|---|---|---|---|---|
+| Tell a joke (offline). | “tell me a joke”<br>“make me laugh”<br>“another joke”<br>“say something funny” | `fun.say` | L1 low | — | no |
+| Share an interesting, true fact (offline). | “tell me a fun fact”<br>“give me an interesting fact”<br>“another fact”<br>“teach me something new” | `fun.say` | L1 low | — | no |
+| Ask a riddle, then reveal the answer when asked (offline). | “tell me a riddle”<br>“give me a riddle”<br>“another riddle” | `fun.say` | L1 low | — | no |
+| Reveal the answer to the last riddle. | “tell me the answer”<br>“i give up”<br>“what's the answer to the riddle” | `fun.riddle_answer` | L1 low | — | no |
+| A line of encouragement (offline). | “motivate me”<br>“i need some motivation”<br>“inspire me”<br>“give me a pep talk” | `fun.say` | L1 low | — | no |
+| Pick one of your options at random. | “pick between pizza and burger”<br>“help me decide between red blue or green”<br>“choose between tea or coffee” | `fun.choose` | L1 low | — | no |
+| Play rock, paper, scissors. | “let's play rock paper scissors”<br>“i choose paper”<br>“rock” | `fun.rps` | L1 low | — | no |
+| A short guided breathing exercise. | “help me relax”<br>“let's do a breathing exercise”<br>“i feel stressed”<br>“calm me down” | `wellness.breathe` | L1 low | — | no |
 
 ## Memory
 
@@ -413,3 +444,23 @@ Every tool has a typed zod input schema, permission, confirmation policy, timeou
 | `media.play_local` | Make a playlist of the music files in your Music folder (optionally only those whose file or folder name mentions an artist or words), shuffled if asked, and play it in your default music player. | L1 low | media | 30s | yes |
 | `media.stop_after` | Pause playback when the current track finishes (needs a player that shares its progress with Windows, like Spotify or a browser). | L1 low | media | 8s | yes |
 | `media.pause_in` | Pause playback after a number of minutes (a sleep timer for music). | L1 low | media | 3s | yes |
+| `news.headlines` | Read the latest news headlines, optionally about a topic (e.g. cricket, technology, India, the stock market). From Google News; no account needed. | L1 low | web | 12s | no |
+| `knowledge.lookup` | Get a short, factual encyclopedia summary of a person, place, thing or idea from Wikipedia (no account needed). Good for "who is", "what is", "tell me about". | L1 low | web | 12s | no |
+| `fun.say` | Tell a joke, an interesting fact, a riddle, or a line of motivation (offline, written for Clickyy). | L1 low | — | 1s | yes |
+| `fun.riddle_answer` | Reveal the answer to the last riddle. | L1 low | — | 1s | yes |
+| `password.generate` | Make a strong random password (cryptographically random, offline). Shown on screen only, never read aloud. | L1 low | — | 1s | yes |
+| `text.spell` | Spell a word letter by letter, optionally with the phonetic alphabet (offline). | L1 low | — | 1s | yes |
+| `number.roman` | Convert a number to Roman numerals or a Roman numeral to a number (offline). | L1 low | — | 1s | yes |
+| `math.split_bill` | Split a bill between people, with an optional tip percentage (offline). | L1 low | — | 1s | yes |
+| `date.weekday` | Which day of the week a date or holiday falls on, or how old someone born on a date is (offline). | L1 low | — | 1s | yes |
+| `dictionary.define` | Define an English word, or give synonyms or antonyms (Free Dictionary API, no account needed). | L1 low | web | 12s | no |
+| `weather.air` | Current air quality (US AQI, PM2.5, PM10) for a place or your home city, via Open-Meteo (no account needed). | L1 low | web | 12s | no |
+| `weather.sun` | Today's sunrise and sunset times for a place or your home city, via Open-Meteo (no account needed). | L1 low | web | 12s | no |
+| `system.panel` | Open a built-in Windows panel or app by fixed URI: snip, notifications, quick_settings, wifi_list, project, task_view, clock, store, camera, photos, maps, calculator (snip is the screen snip tool; project is the second-screen menu). | L1 low | system | 5s | yes |
+| `math.emi` | Monthly EMI, total interest and total payment for a loan (offline). Rate is the yearly percent; term in months. | L1 low | — | 1s | yes |
+| `math.bmi` | Body-mass index from weight in kilograms and height in centimetres, with the WHO adult category (offline, general information only). | L1 low | — | 1s | yes |
+| `date.leap` | Whether a year is a leap year, and how many days February has (offline). | L1 low | — | 1s | yes |
+| `time.until` | How long until a time of day, like 5 pm or 18:30 (offline). | L1 low | — | 1s | yes |
+| `fun.choose` | Pick one option at random when the user asks you to choose between things (offline, cryptographically random). | L1 low | — | 1s | yes |
+| `fun.rps` | Play rock, paper, scissors against Clickyy (offline, random). | L1 low | — | 1s | yes |
+| `wellness.breathe` | Guide a short, calming box-breathing exercise (offline). | L1 low | — | 1s | yes |

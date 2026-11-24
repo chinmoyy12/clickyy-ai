@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import type { IpcChannel, IpcPayload } from '../shared/ipc';
 
-type EventChannel = 'assistant:event' | 'speech:event' | 'settings:changed' | 'ui:command';
+type EventChannel = 'assistant:event' | 'speech:event' | 'settings:changed' | 'ui:command' | 'updates:changed';
 
 const invoke = <C extends IpcChannel>(channel: C, payload?: IpcPayload<C>) => ipcRenderer.invoke(channel, payload);
 

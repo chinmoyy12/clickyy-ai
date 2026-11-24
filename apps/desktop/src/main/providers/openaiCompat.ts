@@ -13,6 +13,8 @@ export interface OpenAICompatOptions {
   fetch: typeof fetch;
   /** Extra headers some providers recommend (e.g. OpenRouter attribution). */
   headers?: Record<string, string>;
+  /** Extra request fields (reasoning effort, llama.cpp template options). Dropped and retried once if the server rejects them. */
+  extraBody?: Record<string, unknown>;
 }
 
 /**
@@ -84,12 +86,16 @@ export class OpenAICompatProvider implements LlmProvider {
   async chat(req: ChatRequest): Promise<LlmTurn> {
     const endpoint = this.url('/chat/completions');
     let res!: Response;
-    const body = JSON.stringify({
+    const base = {
       model: this.model, messages: this.messages(req), max_tokens: this.o.maxTokens, stream: true,
       ...(req.tools.length ? { tools: req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })) } : {}),
-    });
-    // One quick retry when the service is briefly overloaded (Gemini "503 high demand", gateway errors).
-    for (let attempt = 0; attempt < 2; attempt++) {
+    };
+    let extra = this.o.extraBody && Object.keys(this.o.extraBody).length ? this.o.extraBody : undefined;
+    // One quick retry when the service is briefly overloaded (Gemini "503 high demand", gateway errors),
+    // and one without the optional extras if the server rejects them (HTTP 400).
+    let overloadRetried = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const body = JSON.stringify(extra ? { ...base, ...extra } : base);
       try {
         res = await this.o.fetch(endpoint, { method: 'POST', headers: { ...this.headers(true), accept: 'text/event-stream' }, body, signal: withTimeout(req.signal, this.o.timeoutMs) });
       } catch (e) {
@@ -97,9 +103,15 @@ export class OpenAICompatProvider implements LlmProvider {
         if (e instanceof OfflinePolicyError) throw new ProviderError(e.message, 'offline_policy');
         throw new ProviderError(`I couldn't reach ${this.o.label}.`, (e as Error).name === 'TimeoutError' ? 'timeout' : this.kind === 'local' ? 'unavailable' : 'network');
       }
-      if (attempt === 0 && [500, 502, 503].includes(res.status) && !req.signal.aborted) {
+      if (!overloadRetried && [500, 502, 503].includes(res.status) && !req.signal.aborted) {
+        overloadRetried = true;
         await res.body?.cancel().catch(() => undefined);
         await new Promise((r) => setTimeout(r, this.retryDelayMs));
+        continue;
+      }
+      if (extra && res.status === 400 && !req.signal.aborted) {
+        extra = undefined;
+        await res.body?.cancel().catch(() => undefined);
         continue;
       }
       break;

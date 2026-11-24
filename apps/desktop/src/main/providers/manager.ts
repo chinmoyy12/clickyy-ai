@@ -3,7 +3,9 @@ import { CLOUD_PROVIDERS, PROVIDER_PRESETS, resolveBaseUrl, type CloudProviderId
 import type { ProviderStatus } from '@shared/types';
 import type { SecretStore } from '../security/secrets';
 import type { NetGuard } from '../security/netGuard';
+import { MODE_PROFILES } from '@shared/modes';
 import { AnthropicProvider } from './anthropic';
+import { BUILTIN_LABEL, BUILTIN_MODEL_ID, type BuiltinEngine } from './builtin';
 import { OllamaProvider } from './ollama';
 import { OpenAICompatProvider } from './openaiCompat';
 import type { LlmProvider } from './types';
@@ -17,12 +19,13 @@ export const POLICY_LABELS = { strict_offline: 'Strict Offline', smart_hybrid: '
  *  - smart_hybrid:   local model first; cloud only if consented
  *  - online_preferred: cloud first (if consented); local as optional fallback
  */
-export function orderProviders(settings: Settings, local: LlmProvider | null, cloud: LlmProvider | LlmProvider[] | null): LlmProvider[] {
+export function orderProviders(settings: Settings, local: LlmProvider | LlmProvider[] | null, cloud: LlmProvider | LlmProvider[] | null): LlmProvider[] {
   const clouds = (Array.isArray(cloud) ? cloud : cloud ? [cloud] : []).filter(() => settings.ai.allowCloudTranscripts);
+  const locals = Array.isArray(local) ? local : local ? [local] : [];
   switch (settings.ai.policy) {
-    case 'strict_offline': return local ? [local] : [];
-    case 'smart_hybrid': return [local, ...clouds].filter((p): p is LlmProvider => !!p);
-    case 'online_preferred': return [...clouds, settings.ai.cloud.fallbackToLocal ? local : null].filter((p): p is LlmProvider => !!p);
+    case 'strict_offline': return locals;
+    case 'smart_hybrid': return [...locals, ...clouds];
+    case 'online_preferred': return [...clouds, ...(settings.ai.cloud.fallbackToLocal ? locals : [])];
   }
 }
 
@@ -51,12 +54,39 @@ export class ProviderManager {
   constructor(private settings: () => Settings, private secrets: SecretStore, private guard: NetGuard, private isOnline: () => boolean,
     private startRuntime?: () => boolean, private startWaitMs = 20_000) {}
 
+  private builtin: BuiltinEngine | null = null;
+
+  /** Attaches the AI model bundled with the app (see builtin.ts). */
+  setBuiltin(engine: BuiltinEngine) { this.builtin = engine; }
+
+  private get mode() { return MODE_PROFILES[this.settings().ai.mode] ?? MODE_PROFILES.balanced; }
+
+  /** True when the bundled model is included in this build and switched on. */
+  get builtinEnabled() { return !!this.builtin?.available && this.settings().ai.local.builtin; }
+
+  /** The bundled model as a provider (only meaningful once the engine is ready). */
+  builtinProvider(): LlmProvider {
+    const engine = this.builtin!;
+    const s = this.settings().ai.local;
+    const p = new OpenAICompatProvider({
+      id: 'builtin', label: BUILTIN_LABEL, kind: 'local', baseUrl: engine.baseUrl, apiKey: engine.token, model: BUILTIN_MODEL_ID,
+      timeoutMs: s.timeoutMs, maxTokens: this.mode.localTokens, fetch: this.guard.fetchFor('local-model'),
+      // Qwen3 can think before answering; only Turbo pays for that.
+      extraBody: { chat_template_kwargs: { enable_thinking: this.mode.thinking } },
+    });
+    return {
+      id: p.id, kind: p.kind, label: p.label, model: p.model,
+      check: (sig) => p.check(sig),
+      chat: async (r) => { engine.touch(); try { return await p.chat(r); } finally { engine.touch(); } },
+    };
+  }
+
   local(): LlmProvider & { check: LlmProvider['check'] } {
     const s = this.settings().ai.local;
     if (s.runtime === 'openai_local') {
-      return new OpenAICompatProvider({ id: 'openai_local', label: 'Local server', kind: 'local', baseUrl: s.baseUrl, apiKey: '', model: s.model, timeoutMs: s.timeoutMs, maxTokens: 2048, fetch: this.guard.fetchFor('local-model') });
+      return new OpenAICompatProvider({ id: 'openai_local', label: 'Local server', kind: 'local', baseUrl: s.baseUrl, apiKey: '', model: s.model, timeoutMs: s.timeoutMs, maxTokens: Math.max(this.mode.localTokens, 1024), fetch: this.guard.fetchFor('local-model') });
     }
-    return new OllamaProvider(s.baseUrl, this.localOverride || s.model, s.timeoutMs, this.guard.fetchFor('local-model'), s.device);
+    return new OllamaProvider(s.baseUrl, this.localOverride || s.model, s.timeoutMs, this.guard.fetchFor('local-model'), s.device, this.mode.localTokens);
   }
 
   /** Builds a cloud provider for a preset, or null if it has no key / base URL. */
@@ -69,12 +99,16 @@ export class ProviderManager {
     // Google retired Gemini 1.x/2.x for new keys ("no longer available to new users"); use the current default.
     if (provider === 'gemini' && /^gemini-[12]\./.test(chosenModel)) chosenModel = PROVIDER_PRESETS.gemini.defaultModel;
     const fetchImpl = this.guard.fetchFor(`cloud:${provider}`);
-    if (provider === 'anthropic') return new AnthropicProvider({ apiKey: key, model: chosenModel, baseUrl: isPrimary ? c.baseUrl : '', timeoutMs: c.timeoutMs, maxTokens: c.maxTokens, effort: c.effort, fetch: fetchImpl });
+    const mode = this.mode;
+    const maxTokens = mode.cloudTokens(c.maxTokens);
+    if (provider === 'anthropic') return new AnthropicProvider({ apiKey: key, model: chosenModel, baseUrl: isPrimary ? c.baseUrl : '', timeoutMs: c.timeoutMs, maxTokens, effort: mode.cloudEffort(c.effort), fetch: fetchImpl });
     const baseUrl = resolveBaseUrl(provider, isPrimary ? c.baseUrl : '');
     if (!baseUrl || !chosenModel) return null;
     return new OpenAICompatProvider({
       id: provider, label: PROVIDER_PRESETS[provider].label.replace(/ \(.*\)$/, ''), kind: 'cloud', baseUrl, apiKey: key, model: chosenModel,
-      timeoutMs: c.timeoutMs, maxTokens: c.maxTokens, fetch: fetchImpl,
+      timeoutMs: c.timeoutMs, maxTokens, fetch: fetchImpl,
+      // Gemini thinks by default; Fast turns that down and Turbo up.
+      extraBody: provider === 'gemini' && mode.reasoningEffort ? { reasoning_effort: mode.reasoningEffort } : undefined,
       headers: provider === 'openrouter' ? { 'X-Title': 'Clickyy AI' } : undefined,
     });
   }
@@ -129,6 +163,16 @@ export class ProviderManager {
   async ensureLocal(): Promise<void> {
     const ai = this.settings().ai;
     const s = ai.local;
+    if (this.builtinEnabled && this.wantBuiltin()) {
+      if (s.builtinFirst) {
+        // Bundled model first; Ollama / a local server stays available as the fallback.
+        await this.builtin!.ensure();
+        if (!this.localReady) await this.refreshLocal();
+        return;
+      }
+      if (!this.localReady) await this.refreshLocal();
+      if (!this.localReady) { await this.builtin!.ensure(); if (this.builtin!.ready) return; }
+    }
     if (this.localReady) return;
     await this.refreshLocal();
     if (this.localReady || this.localReachable || !this.startRuntime || s.runtime !== 'ollama' || !isLoopback(s.baseUrl)) return;
@@ -146,6 +190,21 @@ export class ProviderManager {
     })().finally(() => { this.starting = null; });
     await this.starting;
   }
+
+  /** Whether a request may need the bundled model at all (so it isn't loaded into memory for nothing). */
+  private wantBuiltin(): boolean {
+    const ai = this.settings().ai;
+    if (ai.policy !== 'online_preferred') return true;
+    if (!ai.cloud.fallbackToLocal) return false;
+    return !(this.isOnline() && ai.allowCloudTranscripts && this.clouds().length);
+  }
+
+  /** Loads the bundled model ahead of the first question (called shortly after start). */
+  async warmBuiltin(): Promise<void> {
+    if (this.builtinEnabled && this.settings().ai.local.builtinFirst && this.wantBuiltin()) await this.builtin!.ensure();
+  }
+
+  stopBuiltin() { this.builtin?.stop(); }
 
   async refreshLocal(): Promise<void> {
     // Check the configured model (not the override) without touching shared state until the
@@ -179,11 +238,52 @@ export class ProviderManager {
     }
   }
 
+  /** True when the local runtime answered the last check (installed and running). */
+  get localRunning() { return this.localReachable; }
+
+  /**
+   * Downloads a local model through Ollama (POST /api/pull, streamed progress). After this the assistant
+   * can think and answer with no internet and no API key. Ollama itself fetches the files.
+   */
+  async pullLocal(model: string, onProgress: (p: { status: string; completed?: number; total?: number }) => void, signal: AbortSignal): Promise<void> {
+    const s = this.settings().ai.local;
+    if (s.runtime !== 'ollama') throw new Error('Downloading models is available for Ollama. For other local servers, load the model in that app.');
+    await this.ensureLocal();
+    if (!this.localReachable) throw new Error('Ollama is not installed or not running. Install it from ollama.com (free), then try again.');
+    const res = await this.guard.fetchFor('local-model')(`${s.baseUrl.replace(/\/+$/, '')}/api/pull`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ model, stream: true }), signal });
+    if (!res.ok || !res.body) throw new Error(`Ollama refused the download (HTTP ${res.status}).`);
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    let ok = false;
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl: number;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        let m: { status?: string; total?: number; completed?: number; error?: string };
+        try { m = JSON.parse(line); } catch { continue; }
+        if (m.error) throw new Error(/not found|does not exist|manifest/i.test(m.error) ? `Ollama has no model called "${model}".` : m.error);
+        if (m.status === 'success') ok = true;
+        onProgress({ status: m.status ?? '', completed: m.completed, total: m.total });
+      }
+    }
+    if (!ok) throw new Error('The download stopped before it finished. Try again.');
+    this.localReady = false;
+    await this.refreshLocal();
+  }
+
   /** Providers usable right now, honoring policy, readiness and the circuit breaker. */
   candidates(): LlmProvider[] {
-    const local = this.localReady ? this.local() : null;
+    const external = this.localReady ? this.local() : null;
+    const builtin = this.builtinEnabled && this.builtin!.ready ? this.builtinProvider() : null;
+    const locals = (this.settings().ai.local.builtinFirst ? [builtin, external] : [external, builtin]).filter((p): p is LlmProvider => !!p);
     const clouds = this.isOnline() ? this.clouds() : [];
-    return orderProviders(this.settings(), local, clouds).filter((p) => (this.breaker.get(p.id)?.openUntil ?? 0) < Date.now());
+    return orderProviders(this.settings(), locals, clouds).filter((p) => (this.breaker.get(p.id)?.openUntil ?? 0) < Date.now());
   }
 
   reportFailure(id: string) {
@@ -211,6 +311,8 @@ export class ProviderManager {
       policy: s.ai.policy,
       online: this.isOnline(),
       local: { configured: !!s.ai.local.model, ready: this.localReady, model: s.ai.local.model, models: this.localModels, message: this.localMessage },
+      builtin: { available: !!this.builtin?.available, enabled: this.builtinEnabled, state: this.builtin?.state ?? 'unavailable', message: this.builtin?.message || undefined, model: 'Qwen3 1.7B' },
+      mode: s.ai.mode,
       cloud: {
         provider: PROVIDER_PRESETS[cid].label, model: viaOther ? PROVIDER_PRESETS[cid].defaultModel : s.ai.cloud.model, hasKey: this.secrets.has(cid),
         allowed: s.ai.policy !== 'strict_offline' && s.ai.allowCloudTranscripts,
